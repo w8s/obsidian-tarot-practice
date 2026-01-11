@@ -76,7 +76,14 @@ export default class TarotPracticePlugin extends Plugin {
 		console.log('Tarot: Active file:', targetFile?.path);
 		
 		if (!targetFile) {
-			// No active file, try to get/create today's daily note
+			// No active file - check if daily note is enabled
+			if (!this.settings.useDailyNote) {
+				console.log('Tarot: No active file and daily note disabled');
+				new Notice('Please open a note to insert the tarot draw');
+				return;
+			}
+			
+			// Try to get/create today's daily note
 			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
 			console.log('Tarot: No active file, trying daily note:', dailyNotePath);
 			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
