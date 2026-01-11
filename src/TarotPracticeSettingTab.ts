@@ -43,10 +43,16 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// Insert location settings
 		containerEl.createEl('h3', { text: 'Insert Location' });
-		containerEl.createEl('p', { 
-			text: 'When in edit mode, draws always insert at cursor. These settings apply when not in edit mode.',
-			cls: 'setting-item-description'
-		});
+		
+		new Setting(containerEl)
+			.setName('Insert at cursor in edit mode')
+			.setDesc('When enabled and in edit mode, draws insert at cursor position. When disabled, always use the location setting below.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.insertAtCursor)
+				.onChange(async (value) => {
+					this.plugin.settings.insertAtCursor = value;
+					await this.plugin.saveSettings();
+				}));
 
 		new Setting(containerEl)
 			.setName('Insert location')
@@ -75,5 +81,32 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}));
 		}
+
+		// Output template
+		containerEl.createEl('h3', { text: 'Output Format' });
+		
+		const templateContainer = containerEl.createDiv({ cls: 'tarot-template-container' });
+		
+		const leftColumn = templateContainer.createDiv({ cls: 'tarot-template-dictionary' });
+		leftColumn.createEl('h4', { text: 'Available Variables' });
+		const dict = leftColumn.createEl('pre', { cls: 'tarot-dictionary' });
+		dict.textContent = `{{card}} - Card name
+{{index}} - Card index (0-77)
+{{intention}} - Your intention
+{{timestamp}} - ISO timestamp
+{{date}} - Formatted date
+{{time}} - Formatted time
+{{datetime}} - Full date/time`;
+
+		const rightColumn = templateContainer.createDiv({ cls: 'tarot-template-editor' });
+		const textArea = rightColumn.createEl('textarea', { 
+			cls: 'tarot-template-textarea'
+		});
+		textArea.value = this.plugin.settings.outputTemplate;
+		textArea.rows = 10;
+		textArea.addEventListener('input', async () => {
+			this.plugin.settings.outputTemplate = textArea.value;
+			await this.plugin.saveSettings();
+		});
 	}
 }

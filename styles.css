@@ -6,3 +6,54 @@ available in the app when your plugin is enabled.
 If your plugin does not need CSS, delete this file.
 
 */
+
+/* Two-column layout for template editor */
+.tarot-template-container {
+	display: flex;
+	gap: 1em;
+	margin-top: 0.5em;
+}
+
+.tarot-template-dictionary {
+	flex: 0 0 40%;
+	background: var(--background-secondary);
+	padding: 1em;
+	border-radius: 4px;
+}
+
+.tarot-template-dictionary h4 {
+	margin-top: 0;
+	margin-bottom: 0.5em;
+	font-size: 0.9em;
+	color: var(--text-muted);
+}
+
+.tarot-dictionary {
+	font-size: 0.85em;
+	line-height: 1.6;
+	color: var(--text-normal);
+	margin: 0;
+	white-space: pre;
+}
+
+.tarot-template-editor {
+	flex: 1;
+}
+
+.tarot-template-textarea {
+	width: 100%;
+	min-height: 200px;
+	font-family: var(--font-monospace);
+	font-size: 0.9em;
+	padding: 0.5em;
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 4px;
+	background: var(--background-primary);
+	color: var(--text-normal);
+	resize: vertical;
+}
+
+.tarot-template-textarea:focus {
+	outline: none;
+	border-color: var(--interactive-accent);
+}

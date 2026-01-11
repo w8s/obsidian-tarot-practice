@@ -17,14 +17,14 @@ export default class TarotPracticePlugin extends Plugin {
 		await this.loadSettings();
 
 		// Add ribbon icon for quick draw
-		this.addRibbonIcon('sparkles', 'Draw Tarot Card', () => {
+		this.addRibbonIcon('sparkles', 'Daily Tarot Practice Draw', () => {
 			this.openDrawModal();
 		});
 
 		// Add command for drawing a card
 		this.addCommand({
 			id: 'draw-tarot-card',
-			name: 'Draw daily tarot card',
+			name: 'Daily Tarot Practice Draw',
 			callback: () => {
 				this.openDrawModal();
 			}
@@ -43,35 +43,34 @@ export default class TarotPracticePlugin extends Plugin {
 	async insertDrawIntoNote(result: DrawResult) {
 		console.log('Tarot: insertDrawIntoNote called', result);
 		
-		// Format the output
-		const formattedTime = new Date(result.timestamp).toLocaleString();
-		const output = `## Tarot Draw - ${formattedTime}
+		// Format the output using template
+		const timestamp = new Date(result.timestamp);
+		const output = this.settings.outputTemplate
+			.replace(/{{card}}/g, result.cardName)
+			.replace(/{{index}}/g, result.cardIndex.toString())
+			.replace(/{{intention}}/g, result.intention)
+			.replace(/{{timestamp}}/g, result.timestamp)
+			.replace(/{{date}}/g, timestamp.toLocaleDateString())
+			.replace(/{{time}}/g, timestamp.toLocaleTimeString())
+			.replace(/{{datetime}}/g, timestamp.toLocaleString());
 
-**Intention:** ${result.intention}
-**Card:** ${result.cardName} (Index: ${result.cardIndex})
-**Drawn at:** ${result.timestamp}
-
----
-
-`;
-
-		// Try to insert at cursor if in edit mode
+		// Try to insert at cursor if in edit mode AND setting is enabled
 		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
 		const viewMode = view?.getMode();
 		const isEditMode = viewMode === 'source';
 		
-		console.log('Tarot: View mode:', viewMode, 'Is edit mode:', isEditMode);
+		console.log('Tarot: View mode:', viewMode, 'Is edit mode:', isEditMode, 'Insert at cursor:', this.settings.insertAtCursor);
 		
-		if (view?.editor && isEditMode) {
+		if (view?.editor && isEditMode && this.settings.insertAtCursor) {
 			console.log('Tarot: Inserting at cursor in edit mode');
 			view.editor.replaceSelection(output);
 			new Notice('Card drawn: ' + result.cardName);
 			return;
 		}
 
-		console.log('Tarot: Not in edit mode, will append to file');
+		console.log('Tarot: Using configured insert location');
 
-		// Otherwise, append to the active file or daily note
+		// Otherwise, use configured location
 		let targetFile = this.app.workspace.getActiveFile();
 		console.log('Tarot: Active file:', targetFile?.path);
 		
@@ -108,7 +107,7 @@ export default class TarotPracticePlugin extends Plugin {
 
 		switch (this.settings.insertLocation) {
 			case 'prepend':
-				newContent = output + '\n' + currentContent;
+				newContent = output + currentContent;
 				break;
 			
 			case 'heading':
@@ -117,7 +116,9 @@ export default class TarotPracticePlugin extends Plugin {
 			
 			case 'append':
 			default:
-				newContent = currentContent + '\n' + output;
+				// Only add newline if file doesn't end with one
+				const separator = currentContent.endsWith('\n') ? '' : '\n';
+				newContent = currentContent + separator + output;
 				break;
 		}
 
