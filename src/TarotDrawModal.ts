@@ -22,7 +22,7 @@ export class TarotDrawModal extends Modal {
 		const { contentEl } = this;
 		
 		contentEl.empty();
-		contentEl.createEl('h2', { text: 'Daily Tarot Draw' });
+		contentEl.createEl('h2', { text: 'Daily tarot draw' });
 
 		new Setting(contentEl)
 			.setName('Intention')

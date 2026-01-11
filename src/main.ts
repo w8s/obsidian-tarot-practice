@@ -17,14 +17,14 @@ export default class TarotPracticePlugin extends Plugin {
 		await this.loadSettings();
 
 		// Add ribbon icon for quick draw
-		this.addRibbonIcon('sparkles', 'Daily Tarot Practice Draw', () => {
+		this.addRibbonIcon('sparkles', 'Daily tarot practice draw', () => {
 			this.openDrawModal();
 		});
 
 		// Add command for drawing a card
 		this.addCommand({
 			id: 'draw-tarot-card',
-			name: 'Daily Tarot Practice Draw',
+			name: 'Draw daily tarot card',
 			callback: () => {
 				this.openDrawModal();
 			}
@@ -36,7 +36,7 @@ export default class TarotPracticePlugin extends Plugin {
 
 	openDrawModal() {
 		new TarotDrawModal(this.app, (result) => {
-			this.insertDrawIntoNote(result);
+			void this.insertDrawIntoNote(result);
 		}).open();
 	}
 
@@ -95,20 +95,21 @@ export default class TarotPracticePlugin extends Plugin {
 		let newContent: string;
 
 		switch (this.settings.insertLocation) {
-			case 'prepend':
+			case 'prepend': {
 				newContent = output + currentContent;
 				break;
-			
-			case 'heading':
+			}
+			case 'heading': {
 				newContent = this.insertUnderHeading(currentContent, output);
 				break;
-			
+			}
 			case 'append':
-			default:
+			default: {
 				// Only add newline if file doesn't end with one
 				const separator = currentContent.endsWith('\n') ? '' : '\n';
 				newContent = currentContent + separator + output;
 				break;
+			}
 		}
 
 		await this.app.vault.modify(targetFile, newContent);

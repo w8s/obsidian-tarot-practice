@@ -1,5 +1,6 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import TarotPracticePlugin from './main';
+import { InsertLocation } from './settings';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -42,7 +43,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		}
 
 		// Insert location settings
-		containerEl.createEl('h3', { text: 'Insert Location' });
+		new Setting(containerEl).setName('Insert location').setHeading();
 
 		new Setting(containerEl)
 			.setName('Insert location')
@@ -53,7 +54,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.addOption('heading', 'Under heading')
 				.setValue(this.plugin.settings.insertLocation)
 				.onChange(async (value) => {
-					this.plugin.settings.insertLocation = value as any;
+					this.plugin.settings.insertLocation = value as InsertLocation;
 					await this.plugin.saveSettings();
 					this.display(); // Refresh to show/hide heading name
 				}));
@@ -73,10 +74,15 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		}
 
 		// Output template
-		containerEl.createEl('h3', { text: 'Output Format' });
+		new Setting(containerEl).setName('Output format').setHeading();
 		
 		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
-		helpText.innerHTML = 'Customize output using template variables. Date/time formatting supports <a href="https://momentjs.com/docs/#/displaying/format/">Moment.js syntax</a>.';
+		helpText.createEl('span', { text: 'Customize output using template variables. Date/time formatting supports ' });
+		helpText.createEl('a', { 
+			text: 'Moment.js syntax',
+			href: 'https://momentjs.com/docs/#/displaying/format/'
+		});
+		helpText.createEl('span', { text: '.' });
 		
 		const templateContainer = containerEl.createDiv({ cls: 'tarot-template-container' });
 		
@@ -105,12 +111,19 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			row.createEl('td', { text: description, cls: 'tarot-var-desc' });
 		});
 		
-		const examplesHeader = leftColumn.createEl('h4', { text: 'Format Examples', cls: 'tarot-examples-header' });
+		leftColumn.createEl('h4', { text: 'Format examples', cls: 'tarot-examples-header' });
 		const examples = leftColumn.createEl('div', { cls: 'tarot-examples' });
-		examples.innerHTML = `<code>YYYY-MM-DD</code> → 2026-01-11<br>
-<code>MMM D, YYYY</code> → Jan 11, 2026<br>
-<code>HH:mm</code> → 16:20<br>
-<code>h:mm A</code> → 4:20 PM`;
+		examples.createEl('code', { text: 'YYYY-MM-DD' });
+		examples.createEl('span', { text: ' → 2026-01-11' });
+		examples.createEl('br');
+		examples.createEl('code', { text: 'MMM D, YYYY' });
+		examples.createEl('span', { text: ' → Jan 11, 2026' });
+		examples.createEl('br');
+		examples.createEl('code', { text: 'HH:mm' });
+		examples.createEl('span', { text: ' → 16:20' });
+		examples.createEl('br');
+		examples.createEl('code', { text: 'h:mm A' });
+		examples.createEl('span', { text: ' → 4:20 PM' });
 
 		const rightColumn = templateContainer.createDiv({ cls: 'tarot-template-editor' });
 		const textArea = rightColumn.createEl('textarea', { 
