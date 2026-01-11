@@ -57,3 +57,49 @@ If your plugin does not need CSS, delete this file.
 	outline: none;
 	border-color: var(--interactive-accent);
 }
+
+/* Table styling */
+.tarot-var-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.85em;
+	margin-bottom: 1em;
+}
+
+.tarot-var-table tr {
+	border-bottom: 1px solid var(--background-modifier-border);
+}
+
+.tarot-var-table td {
+	padding: 0.4em 0.5em;
+	line-height: 1.4;
+}
+
+.tarot-var-name {
+	font-family: var(--font-monospace);
+	color: var(--text-accent);
+	white-space: nowrap;
+	width: 40%;
+}
+
+.tarot-var-desc {
+	color: var(--text-muted);
+}
+
+.tarot-examples-header {
+	margin-top: 1em !important;
+}
+
+.tarot-examples {
+	font-size: 0.85em;
+	line-height: 1.8;
+	color: var(--text-normal);
+}
+
+.tarot-examples code {
+	background: var(--background-primary-alt);
+	padding: 0.1em 0.3em;
+	border-radius: 3px;
+	font-size: 0.9em;
+	color: var(--text-accent);
+}

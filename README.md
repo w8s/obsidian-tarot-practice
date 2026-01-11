@@ -25,7 +25,6 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 **Insert Location**
 - Choose where draws appear: append to end, prepend to beginning, or under a specific heading
 - Heading auto-creation if it doesn't exist
-- Toggle cursor insertion in edit mode (inline vs. configured location)
 
 **Output Templates**
 - Fully customizable output format
@@ -82,7 +81,6 @@ You can completely customize the output format in Settings. For example:
 - **Daily note path pattern**: Customize where daily notes are created (supports moment.js format)
 
 ### Insert Location
-- **Insert at cursor in edit mode**: Toggle whether draws insert at cursor or use configured location
 - **Insert location**: Choose append, prepend, or under a specific heading
 - **Heading name**: Specify which heading to insert under (only when "under heading" is selected)
 

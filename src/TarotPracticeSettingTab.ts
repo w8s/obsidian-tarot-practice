@@ -43,16 +43,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// Insert location settings
 		containerEl.createEl('h3', { text: 'Insert Location' });
-		
-		new Setting(containerEl)
-			.setName('Insert at cursor in edit mode')
-			.setDesc('When enabled and in edit mode, draws insert at cursor position. When disabled, always use the location setting below.')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.insertAtCursor)
-				.onChange(async (value) => {
-					this.plugin.settings.insertAtCursor = value;
-					await this.plugin.saveSettings();
-				}));
 
 		new Setting(containerEl)
 			.setName('Insert location')
@@ -85,18 +75,42 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		// Output template
 		containerEl.createEl('h3', { text: 'Output Format' });
 		
+		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
+		helpText.innerHTML = 'Customize output using template variables. Date/time formatting supports <a href="https://momentjs.com/docs/#/displaying/format/">Moment.js syntax</a>.';
+		
 		const templateContainer = containerEl.createDiv({ cls: 'tarot-template-container' });
 		
 		const leftColumn = templateContainer.createDiv({ cls: 'tarot-template-dictionary' });
-		leftColumn.createEl('h4', { text: 'Available Variables' });
-		const dict = leftColumn.createEl('pre', { cls: 'tarot-dictionary' });
-		dict.textContent = `{{card}} - Card name
-{{index}} - Card index (0-77)
-{{intention}} - Your intention
-{{timestamp}} - ISO timestamp
-{{date}} - Formatted date
-{{time}} - Formatted time
-{{datetime}} - Full date/time`;
+		leftColumn.createEl('h4', { text: 'Template Variables' });
+		const dict = leftColumn.createEl('div', { cls: 'tarot-dictionary' });
+		
+		const variables = [
+			['{{card}}', 'Card name'],
+			['{{index}}', 'Card index (0-77)'],
+			['{{intention}}', 'Your intention'],
+			['{{timestamp}}', 'ISO timestamp'],
+			['', ''],
+			['{{date}}', 'Localized date'],
+			['{{date:FORMAT}}', 'Custom date format'],
+			['{{time}}', 'Localized time'],
+			['{{time:FORMAT}}', 'Custom time format'],
+			['{{datetime}}', 'Date + time'],
+			['{{datetime:FORMAT}}', 'Custom datetime format']
+		];
+		
+		const table = dict.createEl('table', { cls: 'tarot-var-table' });
+		variables.forEach(([variable, description]) => {
+			const row = table.createEl('tr');
+			row.createEl('td', { text: variable, cls: 'tarot-var-name' });
+			row.createEl('td', { text: description, cls: 'tarot-var-desc' });
+		});
+		
+		const examplesHeader = leftColumn.createEl('h4', { text: 'Format Examples', cls: 'tarot-examples-header' });
+		const examples = leftColumn.createEl('div', { cls: 'tarot-examples' });
+		examples.innerHTML = `<code>YYYY-MM-DD</code> → 2026-01-11<br>
+<code>MMM D, YYYY</code> → Jan 11, 2026<br>
+<code>HH:mm</code> → 16:20<br>
+<code>h:mm A</code> → 4:20 PM`;
 
 		const rightColumn = templateContainer.createDiv({ cls: 'tarot-template-editor' });
 		const textArea = rightColumn.createEl('textarea', { 

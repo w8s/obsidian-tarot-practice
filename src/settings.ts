@@ -5,7 +5,6 @@ export interface TarotPracticeSettings {
 	dailyNotePathPattern: string;
 	insertLocation: InsertLocation;
 	headingName: string;
-	insertAtCursor: boolean;
 	outputTemplate: string;
 }
 
@@ -23,6 +22,5 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	dailyNotePathPattern: 'YYYY-MM-DD.md',
 	insertLocation: 'append',
 	headingName: '## Tarot',
-	insertAtCursor: true,
 	outputTemplate: DEFAULT_TEMPLATE
 };

@@ -42,28 +42,31 @@ export default class TarotPracticePlugin extends Plugin {
 
 	async insertDrawIntoNote(result: DrawResult) {
 		// Format the output using template
-		const timestamp = new Date(result.timestamp);
-		const output = this.settings.outputTemplate
-			.replace(/{{card}}/g, result.cardName)
-			.replace(/{{index}}/g, result.cardIndex.toString())
-			.replace(/{{intention}}/g, result.intention)
-			.replace(/{{timestamp}}/g, result.timestamp)
-			.replace(/{{date}}/g, timestamp.toLocaleDateString())
-			.replace(/{{time}}/g, timestamp.toLocaleTimeString())
-			.replace(/{{datetime}}/g, timestamp.toLocaleString());
-
-		// Try to insert at cursor if in edit mode AND setting is enabled
-		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-		const viewMode = view?.getMode();
-		const isEditMode = viewMode === 'source';
+		const timestamp = moment(result.timestamp);
 		
-		if (view?.editor && isEditMode && this.settings.insertAtCursor) {
-			view.editor.replaceSelection(output);
-			new Notice('Card drawn: ' + result.cardName);
-			return;
-		}
+		let output = this.settings.outputTemplate;
+		
+		// Replace simple variables
+		output = output.replace(/{{card}}/g, result.cardName);
+		output = output.replace(/{{index}}/g, result.cardIndex.toString());
+		output = output.replace(/{{intention}}/g, result.intention);
+		output = output.replace(/{{timestamp}}/g, result.timestamp);
+		
+		// Replace formatted date/time variables with custom formats
+		// Format: {{date:YYYY-MM-DD}} or {{time:HH:mm:ss}} or {{datetime:YYYY-MM-DD HH:mm}}
+		output = output.replace(/{{date(?::([^}]+))?}}/g, (match, format) => {
+			return format ? timestamp.format(format) : timestamp.format('L');
+		});
+		
+		output = output.replace(/{{time(?::([^}]+))?}}/g, (match, format) => {
+			return format ? timestamp.format(format) : timestamp.format('LT');
+		});
+		
+		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (match, format) => {
+			return format ? timestamp.format(format) : timestamp.format('L LT');
+		});
 
-		// Otherwise, use configured location
+		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();
 		
 		if (!targetFile) {
