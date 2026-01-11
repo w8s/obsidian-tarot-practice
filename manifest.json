@@ -1,7 +1,7 @@
 {
 	"id": "tarot-practice",
 	"name": "Tarot Practice",
-	"version": "0.1.0",
+	"version": "1.0.0",
 	"minAppVersion": "0.15.0",
 	"description": "A minimal tarot plugin for daily practice. Draw a single card with intention using true randomness seeded by your words and the exact moment of the draw.",
 	"author": "Todd Waits",
