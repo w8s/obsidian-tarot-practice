@@ -41,8 +41,6 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {
-		console.log('Tarot: insertDrawIntoNote called', result);
-		
 		// Format the output using template
 		const timestamp = new Date(result.timestamp);
 		const output = this.settings.outputTemplate
@@ -59,47 +57,35 @@ export default class TarotPracticePlugin extends Plugin {
 		const viewMode = view?.getMode();
 		const isEditMode = viewMode === 'source';
 		
-		console.log('Tarot: View mode:', viewMode, 'Is edit mode:', isEditMode, 'Insert at cursor:', this.settings.insertAtCursor);
-		
 		if (view?.editor && isEditMode && this.settings.insertAtCursor) {
-			console.log('Tarot: Inserting at cursor in edit mode');
 			view.editor.replaceSelection(output);
 			new Notice('Card drawn: ' + result.cardName);
 			return;
 		}
 
-		console.log('Tarot: Using configured insert location');
-
 		// Otherwise, use configured location
 		let targetFile = this.app.workspace.getActiveFile();
-		console.log('Tarot: Active file:', targetFile?.path);
 		
 		if (!targetFile) {
 			// No active file - check if daily note is enabled
 			if (!this.settings.useDailyNote) {
-				console.log('Tarot: No active file and daily note disabled');
 				new Notice('Please open a note to insert the tarot draw');
 				return;
 			}
 			
 			// Try to get/create today's daily note
 			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
-			console.log('Tarot: No active file, trying daily note:', dailyNotePath);
 			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
 			
 			if (abstractFile instanceof TFile) {
-				console.log('Tarot: Found existing daily note');
 				targetFile = abstractFile;
 			} else {
-				console.log('Tarot: Creating new daily note');
 				targetFile = await this.app.vault.create(dailyNotePath, '');
 			}
 			
 			// Open the daily note
 			await this.app.workspace.openLinkText(dailyNotePath, '', false);
 		}
-
-		console.log('Tarot: Inserting to file:', targetFile.path, 'Location:', this.settings.insertLocation);
 		
 		// Insert based on settings
 		const currentContent = await this.app.vault.read(targetFile);
@@ -124,7 +110,6 @@ export default class TarotPracticePlugin extends Plugin {
 
 		await this.app.vault.modify(targetFile, newContent);
 		new Notice('Card drawn: ' + result.cardName);
-		console.log('Tarot: Done!');
 	}
 
 	insertUnderHeading(content: string, textToInsert: string): string {
