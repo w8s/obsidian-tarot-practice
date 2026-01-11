@@ -1,5 +1,7 @@
-import { Editor, MarkdownView, Plugin, moment } from 'obsidian';
+import { MarkdownView, Plugin, moment, TFile, Notice } from 'obsidian';
 import { TarotDrawModal } from './TarotDrawModal';
+import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
+import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
 
 interface DrawResult {
 	intention: string;
@@ -9,7 +11,11 @@ interface DrawResult {
 }
 
 export default class TarotPracticePlugin extends Plugin {
+	settings: TarotPracticeSettings;
+
 	async onload() {
+		await this.loadSettings();
+
 		// Add ribbon icon for quick draw
 		this.addRibbonIcon('sparkles', 'Draw Tarot Card', () => {
 			this.openDrawModal();
@@ -23,6 +29,9 @@ export default class TarotPracticePlugin extends Plugin {
 				this.openDrawModal();
 			}
 		});
+
+		// Add settings tab
+		this.addSettingTab(new TarotPracticeSettingTab(this.app, this));
 	}
 
 	openDrawModal() {
@@ -31,18 +40,9 @@ export default class TarotPracticePlugin extends Plugin {
 		}).open();
 	}
 
-	async insertDrawIntoNote(result: DrawResult) {		// Get the active editor
-		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
-		if (!view) {
-			// If no active editor, try to open today's daily note
-			const dailyNotePath = moment().format('YYYY-MM-DD') + '.md';
-			const file = this.app.vault.getAbstractFileByPath(dailyNotePath);
-			
-			if (file) {
-				await this.app.workspace.openLinkText(dailyNotePath, '', false);
-			}
-		}
-
+	async insertDrawIntoNote(result: DrawResult) {
+		console.log('Tarot: insertDrawIntoNote called', result);
+		
 		// Format the output
 		const formattedTime = new Date(result.timestamp).toLocaleString();
 		const output = `## Tarot Draw - ${formattedTime}
@@ -55,11 +55,57 @@ export default class TarotPracticePlugin extends Plugin {
 
 `;
 
-		// Insert into the current note
-		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-		if (activeView) {
-			const editor = activeView.editor;
-			editor.replaceSelection(output);
+		// Try to insert at cursor if in edit mode
+		const view = this.app.workspace.getActiveViewOfType(MarkdownView);
+		const viewMode = view?.getMode();
+		const isEditMode = viewMode === 'source';
+		
+		console.log('Tarot: View mode:', viewMode, 'Is edit mode:', isEditMode);
+		
+		if (view?.editor && isEditMode) {
+			console.log('Tarot: Inserting at cursor in edit mode');
+			view.editor.replaceSelection(output);
+			new Notice('Card drawn: ' + result.cardName);
+			return;
 		}
+
+		console.log('Tarot: Not in edit mode, will append to file');
+
+		// Otherwise, append to the active file or daily note
+		let targetFile = this.app.workspace.getActiveFile();
+		console.log('Tarot: Active file:', targetFile?.path);
+		
+		if (!targetFile) {
+			// No active file, try to get/create today's daily note
+			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
+			console.log('Tarot: No active file, trying daily note:', dailyNotePath);
+			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
+			
+			if (abstractFile instanceof TFile) {
+				console.log('Tarot: Found existing daily note');
+				targetFile = abstractFile;
+			} else {
+				console.log('Tarot: Creating new daily note');
+				targetFile = await this.app.vault.create(dailyNotePath, '');
+			}
+			
+			// Open the daily note
+			await this.app.workspace.openLinkText(dailyNotePath, '', false);
+		}
+
+		console.log('Tarot: Appending to file:', targetFile.path);
+		// Append to the file
+		const currentContent = await this.app.vault.read(targetFile);
+		await this.app.vault.modify(targetFile, currentContent + '\n' + output);
+		new Notice('Card drawn: ' + result.cardName);
+		console.log('Tarot: Done!');
+	}
+
+	async loadSettings() {
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+	}
+
+	async saveSettings() {
+		await this.saveData(this.settings);
 	}
 }
