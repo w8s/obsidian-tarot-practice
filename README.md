@@ -90,6 +90,8 @@ You can completely customize the output format in Settings. For example:
 
 ## Installation
 
+> **Note:** This plugin is currently pending review for the Obsidian Community Plugins directory. Until then, please use manual installation.
+
 ### Manual Installation
 
 1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/w8s/obsidian-tarot-practice/releases)
