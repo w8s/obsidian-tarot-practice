@@ -46,7 +46,7 @@ The result is inserted according to your settings.
 
 ### Default Output Format
 
-\`\`\`markdown
+```markdown
 ## Tarot Draw - 1/11/2026, 3:45:23 PM
 
 **Intention:** What do I need to know today?
@@ -54,26 +54,26 @@ The result is inserted according to your settings.
 **Drawn at:** 2026-01-11T15:45:23.818Z
 
 ---
-\`\`\`
+```
 
 ### Customizing Output
 
 You can completely customize the output format in Settings. For example:
 
 **Minimal format:**
-\`\`\`
+```
 - {{time}}: [[{{card}}]] - {{intention}}
-\`\`\`
+```
 
 **Custom format:**
-\`\`\`
+```
 ### {{card}}
 *Drawn: {{datetime}}*
 
 > {{intention}}
 
 ---
-\`\`\`
+```
 
 ## Settings
 
@@ -102,12 +102,12 @@ You can completely customize the output format in Settings. For example:
 
 ### Development Installation
 
-\`\`\`bash
+```bash
 git clone https://github.com/w8s/obsidian-tarot-practice.git
 cd obsidian-tarot-practice
 npm install
 npm run build
-\`\`\`
+```
 
 Copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder.
 
