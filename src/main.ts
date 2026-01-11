@@ -100,12 +100,64 @@ export default class TarotPracticePlugin extends Plugin {
 			await this.app.workspace.openLinkText(dailyNotePath, '', false);
 		}
 
-		console.log('Tarot: Appending to file:', targetFile.path);
-		// Append to the file
+		console.log('Tarot: Inserting to file:', targetFile.path, 'Location:', this.settings.insertLocation);
+		
+		// Insert based on settings
 		const currentContent = await this.app.vault.read(targetFile);
-		await this.app.vault.modify(targetFile, currentContent + '\n' + output);
+		let newContent: string;
+
+		switch (this.settings.insertLocation) {
+			case 'prepend':
+				newContent = output + '\n' + currentContent;
+				break;
+			
+			case 'heading':
+				newContent = this.insertUnderHeading(currentContent, output);
+				break;
+			
+			case 'append':
+			default:
+				newContent = currentContent + '\n' + output;
+				break;
+		}
+
+		await this.app.vault.modify(targetFile, newContent);
 		new Notice('Card drawn: ' + result.cardName);
 		console.log('Tarot: Done!');
+	}
+
+	insertUnderHeading(content: string, textToInsert: string): string {
+		const lines = content.split('\n');
+		const headingToFind = this.settings.headingName.trim();
+		
+		// Find the heading
+		let headingIndex = -1;
+		for (let i = 0; i < lines.length; i++) {
+			if (lines[i]?.trim() === headingToFind) {
+				headingIndex = i;
+				break;
+			}
+		}
+
+		if (headingIndex === -1) {
+			// Heading doesn't exist, append it to the end
+			return content + '\n\n' + headingToFind + '\n\n' + textToInsert;
+		}
+
+		// Find the next heading or end of file
+		let insertIndex = headingIndex + 1;
+		for (let i = headingIndex + 1; i < lines.length; i++) {
+			// Check if this line is a heading (starts with #)
+			if (lines[i]?.trim().startsWith('#')) {
+				insertIndex = i;
+				break;
+			}
+			insertIndex = i + 1;
+		}
+
+		// Insert the text
+		lines.splice(insertIndex, 0, '', textToInsert.trim());
+		return lines.join('\n');
 	}
 
 	async loadSettings() {

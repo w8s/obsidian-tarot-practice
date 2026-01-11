@@ -40,5 +40,40 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}));
 		}
+
+		// Insert location settings
+		containerEl.createEl('h3', { text: 'Insert Location' });
+		containerEl.createEl('p', { 
+			text: 'When in edit mode, draws always insert at cursor. These settings apply when not in edit mode.',
+			cls: 'setting-item-description'
+		});
+
+		new Setting(containerEl)
+			.setName('Insert location')
+			.setDesc('Where to insert the tarot draw in the file')
+			.addDropdown(dropdown => dropdown
+				.addOption('append', 'Append to end')
+				.addOption('prepend', 'Prepend to beginning')
+				.addOption('heading', 'Under heading')
+				.setValue(this.plugin.settings.insertLocation)
+				.onChange(async (value) => {
+					this.plugin.settings.insertLocation = value as any;
+					await this.plugin.saveSettings();
+					this.display(); // Refresh to show/hide heading name
+				}));
+
+		// Only show heading name if "Under heading" is selected
+		if (this.plugin.settings.insertLocation === 'heading') {
+			new Setting(containerEl)
+				.setName('Heading name')
+				.setDesc('The heading to insert under (will be created if it doesn\'t exist)')
+				.addText(text => text
+					.setPlaceholder('## Tarot')
+					.setValue(this.plugin.settings.headingName)
+					.onChange(async (value) => {
+						this.plugin.settings.headingName = value;
+						await this.plugin.saveSettings();
+					}));
+		}
 	}
 }
