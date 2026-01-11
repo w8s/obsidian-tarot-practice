@@ -4,7 +4,7 @@
 	"version": "0.1.0",
 	"minAppVersion": "0.15.0",
 	"description": "A minimal tarot plugin for daily practice. Draw a single card with intention using true randomness seeded by your words and the exact moment of the draw.",
-	"author": "Todd Wilson",
+	"author": "Todd Waits",
 	"authorUrl": "https://github.com/w8s",
 	"isDesktopOnly": false
 }
