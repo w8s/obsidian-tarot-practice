@@ -1,4 +1,4 @@
-import { MarkdownView, Plugin, moment, TFile, Notice } from 'obsidian';
+import { Plugin, moment, TFile, Notice } from 'obsidian';
 import { TarotDrawModal } from './TarotDrawModal';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';

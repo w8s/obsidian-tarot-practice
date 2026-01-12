@@ -8,7 +8,7 @@ export interface TarotPracticeSettings {
 	outputTemplate: string;
 }
 
-export const DEFAULT_TEMPLATE = `## Tarot Draw - {{datetime}}
+export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
 
 **Intention:** {{intention}}
 **Card:** {{card}} (Index: {{index}})

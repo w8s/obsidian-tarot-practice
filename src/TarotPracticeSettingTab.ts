@@ -14,7 +14,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
-		containerEl.createEl('h2', { text: 'Tarot Practice Settings' });
+		containerEl.createEl('h2', { text: 'Tarot practice settings' });
 
 		// Toggle for using daily notes
 		new Setting(containerEl)
@@ -87,7 +87,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const templateContainer = containerEl.createDiv({ cls: 'tarot-template-container' });
 		
 		const leftColumn = templateContainer.createDiv({ cls: 'tarot-template-dictionary' });
-		leftColumn.createEl('h4', { text: 'Template Variables' });
+		leftColumn.createEl('h4', { text: 'Template variables' });
 		const dict = leftColumn.createEl('div', { cls: 'tarot-dictionary' });
 		
 		const variables = [
