@@ -14,7 +14,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 
 		containerEl.empty();
-		containerEl.createEl('h2', { text: 'Tarot practice settings' });
 
 		// Toggle for using daily notes
 		new Setting(containerEl)
