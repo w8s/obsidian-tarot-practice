@@ -87,7 +87,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const templateContainer = containerEl.createDiv({ cls: 'tarot-template-container' });
 		
 		const leftColumn = templateContainer.createDiv({ cls: 'tarot-template-dictionary' });
-		leftColumn.createEl('h4', { text: 'Template variables' });
+		new Setting(leftColumn).setName('Template variables').setHeading();
 		const dict = leftColumn.createEl('div', { cls: 'tarot-dictionary' });
 		
 		const variables = [
@@ -111,7 +111,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			row.createEl('td', { text: description, cls: 'tarot-var-desc' });
 		});
 		
-		leftColumn.createEl('h4', { text: 'Format examples', cls: 'tarot-examples-header' });
+		new Setting(leftColumn).setName('Format examples').setHeading();
 		const examples = leftColumn.createEl('div', { cls: 'tarot-examples' });
 		examples.createEl('code', { text: 'YYYY-MM-DD' });
 		examples.createEl('span', { text: ' → 2026-01-11' });
@@ -131,9 +131,9 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		});
 		textArea.value = this.plugin.settings.outputTemplate;
 		textArea.rows = 10;
-		textArea.addEventListener('input', async () => {
+		textArea.addEventListener('input', () => {
 			this.plugin.settings.outputTemplate = textArea.value;
-			await this.plugin.saveSettings();
+			void this.plugin.saveSettings();
 		});
 	}
 }
