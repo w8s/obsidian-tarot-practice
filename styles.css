@@ -3,43 +3,9 @@
 This CSS file will be included with your plugin, and
 available in the app when your plugin is enabled.
 
-If your plugin does not need CSS, delete this file.
-
 */
 
-/* Two-column layout for template editor */
-.tarot-template-container {
-	display: flex;
-	gap: 1em;
-	margin-top: 0.5em;
-}
-
-.tarot-template-dictionary {
-	flex: 0 0 40%;
-	background: var(--background-secondary);
-	padding: 1em;
-	border-radius: 4px;
-}
-
-.tarot-template-dictionary h4 {
-	margin-top: 0;
-	margin-bottom: 0.5em;
-	font-size: 0.9em;
-	color: var(--text-muted);
-}
-
-.tarot-dictionary {
-	font-size: 0.85em;
-	line-height: 1.6;
-	color: var(--text-normal);
-	margin: 0;
-	white-space: pre;
-}
-
-.tarot-template-editor {
-	flex: 1;
-}
-
+/* Template textarea styling */
 .tarot-template-textarea {
 	width: 100%;
 	min-height: 200px;
@@ -56,50 +22,4 @@ If your plugin does not need CSS, delete this file.
 .tarot-template-textarea:focus {
 	outline: none;
 	border-color: var(--interactive-accent);
-}
-
-/* Table styling */
-.tarot-var-table {
-	width: 100%;
-	border-collapse: collapse;
-	font-size: 0.85em;
-	margin-bottom: 1em;
-}
-
-.tarot-var-table tr {
-	border-bottom: 1px solid var(--background-modifier-border);
-}
-
-.tarot-var-table td {
-	padding: 0.4em 0.5em;
-	line-height: 1.4;
-}
-
-.tarot-var-name {
-	font-family: var(--font-monospace);
-	color: var(--text-accent);
-	white-space: nowrap;
-	width: 40%;
-}
-
-.tarot-var-desc {
-	color: var(--text-muted);
-}
-
-.tarot-examples-header {
-	margin-top: 1em !important;
-}
-
-.tarot-examples {
-	font-size: 0.85em;
-	line-height: 1.8;
-	color: var(--text-normal);
-}
-
-.tarot-examples code {
-	background: var(--background-primary-alt);
-	padding: 0.1em 0.3em;
-	border-radius: 3px;
-	font-size: 0.9em;
-	color: var(--text-accent);
 }

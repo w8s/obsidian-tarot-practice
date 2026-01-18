@@ -76,17 +76,81 @@ You can completely customize the output format in Settings. For example:
 
 ## Settings
 
-### Daily Note
+### Daily Practice
 - **Use daily note**: Toggle auto-creation of daily notes when no file is open
-- **Daily note path pattern**: Customize where daily notes are created (supports moment.js format)
-
-### Insert Location
+- **Daily note path pattern**: Customize where daily notes are created (supports Moment.js format)
 - **Insert location**: Choose append, prepend, or under a specific heading
 - **Heading name**: Specify which heading to insert under (only when "under heading" is selected)
-
-### Output Format
 - **Output template**: Customize the format using template variables
-- Visual editor with data dictionary showing all available variables
+
+### Inline Practice
+- **Use daily practice format**: Toggle to share the same template as daily practice
+- **Output template**: Separate customizable template (only shown when not using shared format)
+
+## Template Variables
+
+Customize your tarot draw output using these variables:
+
+### Basic Variables
+
+| Variable | Description | Example Output |
+|----------|-------------|----------------|
+| `{{card}}` | Card name | The Hermit |
+| `{{index}}` | Card index (0-77) | 9 |
+| `{{intention}}` | Your intention text | What do I need to know today? |
+| `{{timestamp}}` | ISO 8601 timestamp | 2026-01-11T15:45:23.818Z |
+
+### Date/Time Variables
+
+All date/time variables support [Moment.js format strings](https://momentjs.com/docs/#/displaying/format/):
+
+| Variable | Description | Default Format | Example |
+|----------|-------------|----------------|---------|
+| `{{date}}` | Localized date | `L` | 1/11/2026 |
+| `{{date:FORMAT}}` | Custom date format | — | `{{date:YYYY-MM-DD}}` → 2026-01-11 |
+| `{{time}}` | Localized time | `LT` | 3:45 PM |
+| `{{time:FORMAT}}` | Custom time format | — | `{{time:HH:mm}}` → 15:45 |
+| `{{datetime}}` | Date + time | `L LT` | 1/11/2026, 3:45 PM |
+| `{{datetime:FORMAT}}` | Custom datetime format | — | `{{datetime:MMM D, h:mm A}}` → Jan 11, 3:45 PM |
+
+### Common Format Patterns
+
+| Pattern | Output Example |
+|---------|----------------|
+| `YYYY-MM-DD` | 2026-01-11 |
+| `MMM D, YYYY` | Jan 11, 2026 |
+| `dddd, MMMM Do` | Saturday, January 11th |
+| `HH:mm` | 15:45 |
+| `h:mm A` | 3:45 PM |
+| `YYYY-MM-DD HH:mm` | 2026-01-11 15:45 |
+
+### Template Examples
+
+**Minimal:**
+```
+- {{time}}: [[{{card}}]] - {{intention}}
+```
+
+**Detailed:**
+```
+## {{card}} - {{date:MMM D}}
+
+**Question:** {{intention}}
+**Drawn:** {{datetime:h:mm A}}
+**Index:** {{index}}
+
+---
+```
+
+**Journal style:**
+```
+### Tarot Draw
+
+> {{intention}}
+
+**Card:** {{card}}  
+**Time:** {{time}}
+```
 
 ## Installation
 

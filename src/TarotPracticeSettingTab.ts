@@ -100,56 +100,14 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName(title).setHeading();
 		
 		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
-		helpText.createEl('span', { text: 'Customize output using template variables. Date/time formatting supports ' });
+		helpText.createEl('span', { text: 'Customize output using template variables. See ' });
 		helpText.createEl('a', { 
-			text: 'Moment.js syntax',
-			href: 'https://momentjs.com/docs/#/displaying/format/'
+			text: 'template documentation',
+			href: 'https://github.com/w8s/obsidian-tarot-practice#template-variables'
 		});
-		helpText.createEl('span', { text: '.' });
+		helpText.createEl('span', { text: ' for available variables and examples.' });
 		
-		const templateContainer = containerEl.createDiv({ cls: 'tarot-template-container' });
-		
-		const leftColumn = templateContainer.createDiv({ cls: 'tarot-template-dictionary' });
-		new Setting(leftColumn).setName('Template variables').setHeading();
-		const dict = leftColumn.createEl('div', { cls: 'tarot-dictionary' });
-		
-		const variables = [
-			['{{card}}', 'Card name'],
-			['{{index}}', 'Card index (0-77)'],
-			['{{intention}}', 'Your intention'],
-			['{{timestamp}}', 'ISO timestamp'],
-			['', ''],
-			['{{date}}', 'Localized date'],
-			['{{date:FORMAT}}', 'Custom date format'],
-			['{{time}}', 'Localized time'],
-			['{{time:FORMAT}}', 'Custom time format'],
-			['{{datetime}}', 'Date + time'],
-			['{{datetime:FORMAT}}', 'Custom datetime format']
-		];
-		
-		const table = dict.createEl('table', { cls: 'tarot-var-table' });
-		variables.forEach(([variable, description]) => {
-			const row = table.createEl('tr');
-			row.createEl('td', { text: variable, cls: 'tarot-var-name' });
-			row.createEl('td', { text: description, cls: 'tarot-var-desc' });
-		});
-		
-		new Setting(leftColumn).setName('Format examples').setHeading();
-		const examples = leftColumn.createEl('div', { cls: 'tarot-examples' });
-		examples.createEl('code', { text: 'YYYY-MM-DD' });
-		examples.createEl('span', { text: ' → 2026-01-11' });
-		examples.createEl('br');
-		examples.createEl('code', { text: 'MMM D, YYYY' });
-		examples.createEl('span', { text: ' → Jan 11, 2026' });
-		examples.createEl('br');
-		examples.createEl('code', { text: 'HH:mm' });
-		examples.createEl('span', { text: ' → 16:20' });
-		examples.createEl('br');
-		examples.createEl('code', { text: 'h:mm A' });
-		examples.createEl('span', { text: ' → 4:20 PM' });
-
-		const rightColumn = templateContainer.createDiv({ cls: 'tarot-template-editor' });
-		const textArea = rightColumn.createEl('textarea', { 
+		const textArea = containerEl.createEl('textarea', { 
 			cls: 'tarot-template-textarea'
 		});
 		textArea.value = this.plugin.settings[settingKey];
