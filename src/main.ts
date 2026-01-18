@@ -30,6 +30,15 @@ export default class TarotPracticePlugin extends Plugin {
 			}
 		});
 
+		// Add command for inline drawing at cursor
+		this.addCommand({
+			id: 'draw-tarot-card-inline',
+			name: 'Draw tarot card inline',
+			callback: () => {
+				this.openInlineDrawModal();
+			}
+		});
+
 		// Add settings tab
 		this.addSettingTab(new TarotPracticeSettingTab(this.app, this));
 	}
@@ -66,15 +75,15 @@ export default class TarotPracticePlugin extends Plugin {
 		output = output.replace(/{{timestamp}}/g, result.timestamp);
 		
 		// Replace formatted date/time variables
-		output = output.replace(/{{date(?::([^}]+))?}}/g, (match, format) => {
+		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('L');
 		});
 		
-		output = output.replace(/{{time(?::([^}]+))?}}/g, (match, format) => {
+		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('LT');
 		});
 		
-		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (match, format) => {
+		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('L LT');
 		});
 		
@@ -99,15 +108,15 @@ export default class TarotPracticePlugin extends Plugin {
 		
 		// Replace formatted date/time variables with custom formats
 		// Format: {{date:YYYY-MM-DD}} or {{time:HH:mm:ss}} or {{datetime:YYYY-MM-DD HH:mm}}
-		output = output.replace(/{{date(?::([^}]+))?}}/g, (match, format) => {
+		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('L');
 		});
 		
-		output = output.replace(/{{time(?::([^}]+))?}}/g, (match, format) => {
+		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('LT');
 		});
 		
-		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (match, format) => {
+		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('L LT');
 		});
 
@@ -196,7 +205,8 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async loadSettings() {
-		this.settings = Object.assign({}, DEFAULT_SETTINGS, await this.loadData());
+		const data = await this.loadData() as Partial<TarotPracticeSettings> | null;
+		this.settings = Object.assign({}, DEFAULT_SETTINGS, data ?? {});
 	}
 
 	async saveSettings() {

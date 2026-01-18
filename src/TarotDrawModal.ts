@@ -27,15 +27,25 @@ export class TarotDrawModal extends Modal {
 		new Setting(contentEl)
 			.setName('Intention')
 			.setDesc('What question or focus do you bring to this draw?')
-			.addText(text => text
-				.setPlaceholder('Enter your intention...')
-				.onChange(value => {
-					this.intention = value;
-				}));
+			.addText(text => {
+				text
+					.setPlaceholder('Enter your intention...')
+					.onChange(value => {
+						this.intention = value;
+					});
+				
+				// Submit on Enter key
+				text.inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
+					if (e.key === 'Enter') {
+						e.preventDefault();
+						this.drawCard();
+					}
+				});
+			});
 
 		new Setting(contentEl)
 			.addButton(btn => btn
-				.setButtonText('Draw Card')
+				.setButtonText('Draw card')
 				.setCta()
 				.onClick(() => {
 					this.drawCard();
