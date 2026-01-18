@@ -37,10 +37,6 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 ### Drawing a Card
 
 1. **Click the sparkles icon** in the left ribbon, or
-2. **Run the command** "Daily Tarot Practice Draw" (Cmd/Ctrl+P)
-### Drawing a Card
-
-1. **Click the sparkles icon** in the left ribbon, or
 2. **Run a command** (Cmd/Ctrl+P):
    - "Draw daily tarot card" - inserts into daily note (based on settings)
    - "Draw tarot card inline" - inserts at cursor in current note
