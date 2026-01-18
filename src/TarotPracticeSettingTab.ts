@@ -154,6 +154,31 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						await this.plugin.saveSettings();
 					}));
 		}
+
+		// ===== MULTIPLE CARDS SECTION =====
+		new Setting(containerEl).setName('Multiple cards').setHeading();
+
+		const defaultCardCountSetting = new Setting(containerEl)
+			.setName('Default card count')
+			.setDesc('Number of cards to draw by default (1-10)')
+			.addSlider(slider => slider
+				.setLimits(1, 10, 1)
+				.setValue(this.plugin.settings.multipleCardsDefault)
+				.setDynamicTooltip()
+				.onChange(async (value) => {
+					this.plugin.settings.multipleCardsDefault = value;
+					await this.plugin.saveSettings();
+					// Update the display value
+					defaultCardCountSetting.controlEl.querySelector('.tarot-card-count-value')!.textContent = `${value}`;
+				}));
+		
+		// Add count display to the right of slider
+		defaultCardCountSetting.controlEl.createSpan({ 
+			text: `${this.plugin.settings.multipleCardsDefault}`,
+			cls: 'tarot-card-count-value'
+		});
+
+		this.addMultipleCardsTemplateEditor(containerEl);
 	}
 
 	addTemplateEditor(containerEl: HTMLElement, title: string, settingKey: 'outputTemplate' | 'inlineOutputTemplate'): void {
@@ -174,6 +199,28 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		textArea.rows = 10;
 		textArea.addEventListener('input', () => {
 			this.plugin.settings[settingKey] = textArea.value;
+			void this.plugin.saveSettings();
+		});
+	}
+
+	addMultipleCardsTemplateEditor(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName('Multiple cards output template').setHeading();
+		
+		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
+		helpText.createEl('span', { text: 'Template for multiple card draws. Available variables: {{intention}}, {{card_count}}, {{cards}}, {{timestamp}}, {{date}}, {{time}}, {{datetime}}. See ' });
+		helpText.createEl('a', { 
+			text: 'template documentation',
+			href: 'https://github.com/w8s/obsidian-tarot-practice#template-variables'
+		});
+		helpText.createEl('span', { text: ' for formatting options.' });
+		
+		const textArea = containerEl.createEl('textarea', { 
+			cls: 'tarot-template-textarea'
+		});
+		textArea.value = this.plugin.settings.multipleCardsTemplate;
+		textArea.rows = 10;
+		textArea.addEventListener('input', () => {
+			this.plugin.settings.multipleCardsTemplate = textArea.value;
 			void this.plugin.saveSettings();
 		});
 	}

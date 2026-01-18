@@ -1,5 +1,6 @@
 import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotDrawModal } from './TarotDrawModal';
+import { TarotMultipleDrawModal } from './TarotMultipleDrawModal';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
 
@@ -9,6 +10,18 @@ interface DrawResult {
 	cardName: string;
 	timestamp: string;
 	isReversed: boolean;
+}
+
+interface CardDraw {
+	cardIndex: number;
+	cardName: string;
+	isReversed: boolean;
+}
+
+interface MultipleDrawResult {
+	intention: string;
+	cards: CardDraw[];
+	timestamp: string;
 }
 
 export default class TarotPracticePlugin extends Plugin {
@@ -40,6 +53,24 @@ export default class TarotPracticePlugin extends Plugin {
 			}
 		});
 
+		// Add command for multiple cards (daily)
+		this.addCommand({
+			id: 'draw-multiple-tarot-cards',
+			name: 'Draw multiple tarot cards',
+			callback: () => {
+				this.openMultipleDrawModal();
+			}
+		});
+
+		// Add command for multiple cards (inline)
+		this.addCommand({
+			id: 'draw-multiple-tarot-cards-inline',
+			name: 'Draw multiple tarot cards inline',
+			callback: () => {
+				this.openInlineMultipleDrawModal();
+			}
+		});
+
 		// Add settings tab
 		this.addSettingTab(new TarotPracticeSettingTab(this.app, this));
 	}
@@ -53,6 +84,18 @@ export default class TarotPracticePlugin extends Plugin {
 	openInlineDrawModal() {
 		new TarotDrawModal(this.app, this.settings, (result) => {
 			void this.insertDrawInline(result);
+		}).open();
+	}
+
+	openMultipleDrawModal() {
+		new TarotMultipleDrawModal(this.app, this.settings, (result) => {
+			void this.insertMultipleDrawIntoNote(result);
+		}).open();
+	}
+
+	openInlineMultipleDrawModal() {
+		new TarotMultipleDrawModal(this.app, this.settings, (result) => {
+			void this.insertMultipleDrawInline(result);
 		}).open();
 	}
 
@@ -107,6 +150,103 @@ export default class TarotPracticePlugin extends Plugin {
 		});
 		
 		return output;
+	}
+
+	formatMultipleTemplate(result: MultipleDrawResult, template: string): string {
+		const timestamp = moment(result.timestamp);
+		let output = template;
+		
+		// Replace simple variables
+		output = output.replace(/{{intention}}/g, result.intention);
+		output = output.replace(/{{timestamp}}/g, result.timestamp);
+		output = output.replace(/{{card_count}}/g, result.cards.length.toString());
+		
+		// Format cards list
+		const cardsList = result.cards.map((card, index) => {
+			const orientation = card.isReversed 
+				? this.settings.reversedIndicator 
+				: this.settings.uprightIndicator;
+			const orientationText = orientation ? ` ${orientation}` : '';
+			return `${index + 1}. ${card.cardName}${orientationText}`;
+		}).join('\n');
+		
+		output = output.replace(/{{cards}}/g, cardsList);
+		
+		// Replace formatted date/time variables
+		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
+			return format ? timestamp.format(format) : timestamp.format('L');
+		});
+		
+		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
+			return format ? timestamp.format(format) : timestamp.format('LT');
+		});
+		
+		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
+			return format ? timestamp.format(format) : timestamp.format('L LT');
+		});
+		
+		return output;
+	}
+
+	async insertMultipleDrawInline(result: MultipleDrawResult) {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		
+		if (!activeView) {
+			new Notice('No active note found');
+			return;
+		}
+		
+		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+		
+		const editor = activeView.editor;
+		editor.replaceSelection(output);
+		
+		new Notice(`${result.cards.length} cards drawn`);
+	}
+
+	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
+		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+
+		// Get target file (active file or daily note)
+		let targetFile = this.app.workspace.getActiveFile();
+		
+		if (!targetFile) {
+			if (!this.settings.useDailyNote) {
+				new Notice('Please open a note to insert the tarot draw');
+				return;
+			}
+			
+			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
+			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
+			
+			if (abstractFile instanceof TFile) {
+				targetFile = abstractFile;
+			} else {
+				targetFile = await this.app.vault.create(dailyNotePath, '');
+			}
+			
+			await this.app.workspace.openLinkText(dailyNotePath, '', false);
+		}
+
+		const fileContent = await this.app.vault.read(targetFile);
+		let newContent: string;
+
+		switch (this.settings.insertLocation) {
+			case 'append':
+				newContent = fileContent + '\n' + output;
+				break;
+			case 'prepend':
+				newContent = output + '\n' + fileContent;
+				break;
+			case 'heading':
+				newContent = this.insertUnderHeading(fileContent, output);
+				break;
+			default:
+				newContent = fileContent + '\n' + output;
+		}
+
+		await this.app.vault.modify(targetFile, newContent);
+		new Notice(`${result.cards.length} cards drawn`);
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {

@@ -12,6 +12,8 @@ export interface TarotPracticeSettings {
 	reversalChance: number;
 	uprightIndicator: string;
 	reversedIndicator: string;
+	multipleCardsDefault: number;
+	multipleCardsTemplate: string;
 }
 
 export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
@@ -19,6 +21,18 @@ export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
 **Intention:** {{intention}}
 **Card:** {{card}} {{orientation}}
 **Index:** {{index}}
+**Drawn at:** {{timestamp}}
+
+---
+`;
+
+export const DEFAULT_MULTIPLE_TEMPLATE = `## Tarot draw - {{datetime}}
+
+**Intention:** {{intention}}
+**Cards drawn:** {{card_count}}
+
+{{cards}}
+
 **Drawn at:** {{timestamp}}
 
 ---
@@ -35,5 +49,7 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	enableReversals: false,
 	reversalChance: 50,
 	uprightIndicator: '',
-	reversedIndicator: 'reversed'
+	reversedIndicator: 'reversed',
+	multipleCardsDefault: 3,
+	multipleCardsTemplate: DEFAULT_MULTIPLE_TEMPLATE
 };

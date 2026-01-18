@@ -25,7 +25,9 @@ available in the app when your plugin is enabled.
 }
 
 /* Reversal chance percentage display */
-.tarot-reversal-value {
+.tarot-reversal-value,
+.tarot-card-count-value,
+.tarot-modal-card-count {
 	margin-left: 1em;
 	min-width: 3em;
 	text-align: right;
