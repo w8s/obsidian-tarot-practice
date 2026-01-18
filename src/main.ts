@@ -1,4 +1,4 @@
-import { Plugin, moment, TFile, Notice } from 'obsidian';
+import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotDrawModal } from './TarotDrawModal';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
@@ -38,6 +38,51 @@ export default class TarotPracticePlugin extends Plugin {
 		new TarotDrawModal(this.app, (result) => {
 			void this.insertDrawIntoNote(result);
 		}).open();
+	}
+
+	openInlineDrawModal() {
+		new TarotDrawModal(this.app, (result) => {
+			void this.insertDrawInline(result);
+		}).open();
+	}
+
+	async insertDrawInline(result: DrawResult) {
+		// Get the active markdown editor
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		
+		if (!activeView) {
+			new Notice('No active note found');
+			return;
+		}
+		
+		// Format the output using template
+		const timestamp = moment(result.timestamp);
+		let output = this.settings.outputTemplate;
+		
+		// Replace simple variables
+		output = output.replace(/{{card}}/g, result.cardName);
+		output = output.replace(/{{index}}/g, result.cardIndex.toString());
+		output = output.replace(/{{intention}}/g, result.intention);
+		output = output.replace(/{{timestamp}}/g, result.timestamp);
+		
+		// Replace formatted date/time variables
+		output = output.replace(/{{date(?::([^}]+))?}}/g, (match, format) => {
+			return format ? timestamp.format(format) : timestamp.format('L');
+		});
+		
+		output = output.replace(/{{time(?::([^}]+))?}}/g, (match, format) => {
+			return format ? timestamp.format(format) : timestamp.format('LT');
+		});
+		
+		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (match, format) => {
+			return format ? timestamp.format(format) : timestamp.format('L LT');
+		});
+		
+		// Insert at current cursor position ONLY
+		const editor = activeView.editor;
+		editor.replaceSelection(output);
+		
+		new Notice('Card drawn: ' + result.cardName);
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {
