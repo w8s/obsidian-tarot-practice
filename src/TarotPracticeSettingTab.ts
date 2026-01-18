@@ -94,6 +94,66 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		if (!this.plugin.settings.useSharedTemplate) {
 			this.addTemplateEditor(containerEl, 'Inline practice output template', 'inlineOutputTemplate');
 		}
+
+		// ===== REVERSALS SECTION =====
+		new Setting(containerEl).setName('Reversals').setHeading();
+
+		// Enable reversals toggle
+		new Setting(containerEl)
+			.setName('Enable reversals')
+			.setDesc('Allow cards to appear reversed in readings')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.enableReversals)
+				.onChange(async (value) => {
+					this.plugin.settings.enableReversals = value;
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		// Only show reversal settings if enabled
+		if (this.plugin.settings.enableReversals) {
+			const reversalChanceSetting = new Setting(containerEl)
+				.setName('Reversal chance')
+				.setDesc('Probability of a card appearing reversed (0-100%)')
+				.addSlider(slider => slider
+					.setLimits(0, 100, 5)
+					.setValue(this.plugin.settings.reversalChance)
+					.setDynamicTooltip()
+					.onChange(async (value) => {
+						this.plugin.settings.reversalChance = value;
+						await this.plugin.saveSettings();
+						// Update the display value
+						reversalChanceSetting.controlEl.querySelector('.tarot-reversal-value')!.textContent = `${value}%`;
+					}));
+			
+			// Add percentage display to the right of slider
+			reversalChanceSetting.controlEl.createSpan({ 
+				text: `${this.plugin.settings.reversalChance}%`,
+				cls: 'tarot-reversal-value'
+			});
+
+			new Setting(containerEl)
+				.setName('Upright indicator')
+				.setDesc('Text to append for upright cards (leave empty for none)')
+				.addText(text => text
+					.setPlaceholder('')
+					.setValue(this.plugin.settings.uprightIndicator)
+					.onChange(async (value) => {
+						this.plugin.settings.uprightIndicator = value;
+						await this.plugin.saveSettings();
+					}));
+
+			new Setting(containerEl)
+				.setName('Reversed indicator')
+				.setDesc('Text to append for reversed cards')
+				.addText(text => text
+					.setPlaceholder('reversed')
+					.setValue(this.plugin.settings.reversedIndicator)
+					.onChange(async (value) => {
+						this.plugin.settings.reversedIndicator = value;
+						await this.plugin.saveSettings();
+					}));
+		}
 	}
 
 	addTemplateEditor(containerEl: HTMLElement, title: string, settingKey: 'outputTemplate' | 'inlineOutputTemplate'): void {

@@ -8,12 +8,17 @@ export interface TarotPracticeSettings {
 	outputTemplate: string;
 	useSharedTemplate: boolean;
 	inlineOutputTemplate: string;
+	enableReversals: boolean;
+	reversalChance: number;
+	uprightIndicator: string;
+	reversedIndicator: string;
 }
 
 export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
 
 **Intention:** {{intention}}
-**Card:** {{card}} (Index: {{index}})
+**Card:** {{card}} {{orientation}}
+**Index:** {{index}}
 **Drawn at:** {{timestamp}}
 
 ---
@@ -26,5 +31,9 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	headingName: '## Tarot',
 	outputTemplate: DEFAULT_TEMPLATE,
 	useSharedTemplate: true,
-	inlineOutputTemplate: DEFAULT_TEMPLATE
+	inlineOutputTemplate: DEFAULT_TEMPLATE,
+	enableReversals: false,
+	reversalChance: 50,
+	uprightIndicator: '',
+	reversedIndicator: 'reversed'
 };

@@ -8,6 +8,7 @@ interface DrawResult {
 	cardIndex: number;
 	cardName: string;
 	timestamp: string;
+	isReversed: boolean;
 }
 
 export default class TarotPracticePlugin extends Plugin {
@@ -44,13 +45,13 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	openDrawModal() {
-		new TarotDrawModal(this.app, (result) => {
+		new TarotDrawModal(this.app, this.settings, (result) => {
 			void this.insertDrawIntoNote(result);
 		}).open();
 	}
 
 	openInlineDrawModal() {
-		new TarotDrawModal(this.app, (result) => {
+		new TarotDrawModal(this.app, this.settings, (result) => {
 			void this.insertDrawInline(result);
 		}).open();
 	}
@@ -65,10 +66,19 @@ export default class TarotPracticePlugin extends Plugin {
 		}
 		
 		// Format the output using appropriate template
-		const timestamp = moment(result.timestamp);
-		const template = this.settings.useSharedTemplate 
+		const output = this.formatTemplate(result, this.settings.useSharedTemplate 
 			? this.settings.outputTemplate 
-			: this.settings.inlineOutputTemplate;
+			: this.settings.inlineOutputTemplate);
+		
+		// Insert at current cursor position ONLY
+		const editor = activeView.editor;
+		editor.replaceSelection(output);
+		
+		new Notice('Card drawn: ' + result.cardName);
+	}
+
+	formatTemplate(result: DrawResult, template: string): string {
+		const timestamp = moment(result.timestamp);
 		let output = template;
 		
 		// Replace simple variables
@@ -76,6 +86,12 @@ export default class TarotPracticePlugin extends Plugin {
 		output = output.replace(/{{index}}/g, result.cardIndex.toString());
 		output = output.replace(/{{intention}}/g, result.intention);
 		output = output.replace(/{{timestamp}}/g, result.timestamp);
+		
+		// Replace orientation variable
+		const orientation = result.isReversed 
+			? this.settings.reversedIndicator 
+			: this.settings.uprightIndicator;
+		output = output.replace(/{{orientation}}/g, orientation);
 		
 		// Replace formatted date/time variables
 		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
@@ -90,38 +106,12 @@ export default class TarotPracticePlugin extends Plugin {
 			return format ? timestamp.format(format) : timestamp.format('L LT');
 		});
 		
-		// Insert at current cursor position ONLY
-		const editor = activeView.editor;
-		editor.replaceSelection(output);
-		
-		new Notice('Card drawn: ' + result.cardName);
+		return output;
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {
 		// Format the output using template
-		const timestamp = moment(result.timestamp);
-		
-		let output = this.settings.outputTemplate;
-		
-		// Replace simple variables
-		output = output.replace(/{{card}}/g, result.cardName);
-		output = output.replace(/{{index}}/g, result.cardIndex.toString());
-		output = output.replace(/{{intention}}/g, result.intention);
-		output = output.replace(/{{timestamp}}/g, result.timestamp);
-		
-		// Replace formatted date/time variables with custom formats
-		// Format: {{date:YYYY-MM-DD}} or {{time:HH:mm:ss}} or {{datetime:YYYY-MM-DD HH:mm}}
-		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('L');
-		});
-		
-		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('LT');
-		});
-		
-		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('L LT');
-		});
+		const output = this.formatTemplate(result, this.settings.outputTemplate);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();

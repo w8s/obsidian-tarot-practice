@@ -1,20 +1,24 @@
 import { App, Modal, Notice, Setting } from 'obsidian';
 import { RngWithIntention } from 'rng-with-intention';
 import { getCardName } from './CardDatabase';
+import { TarotPracticeSettings } from './settings';
 
 interface DrawResult {
 	intention: string;
 	cardIndex: number;
 	cardName: string;
 	timestamp: string;
+	isReversed: boolean;
 }
 
 export class TarotDrawModal extends Modal {
 	intention: string = '';
 	onSubmit: (result: DrawResult) => void;
+	settings: TarotPracticeSettings;
 
-	constructor(app: App, onSubmit: (result: DrawResult) => void) {
+	constructor(app: App, settings: TarotPracticeSettings, onSubmit: (result: DrawResult) => void) {
 		super(app);
+		this.settings = settings;
 		this.onSubmit = onSubmit;
 	}
 
@@ -61,11 +65,18 @@ export class TarotDrawModal extends Modal {
 		const rngi = new RngWithIntention();
 		const result = rngi.draw(this.intention, 78);
 		
+		// Calculate reversal if enabled
+		let isReversed = false;
+		if (this.settings.enableReversals) {
+			isReversed = Math.random() < (this.settings.reversalChance / 100);
+		}
+		
 		const drawResult: DrawResult = {
 			intention: this.intention,
 			cardIndex: result.index,
 			cardName: getCardName(result.index),
-			timestamp: result.timestamp
+			timestamp: result.timestamp,
+			isReversed: isReversed
 		};
 
 		this.close();

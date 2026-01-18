@@ -11,6 +11,7 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 ### Core Functionality
 - 🎴 Single card draw with intention input
 - ✨ Uses [rng-with-intention](https://github.com/w8s/rng-with-intention) for meaningful randomness
+- 🔄 Optional reversal support with configurable probability and indicators
 - 📝 Highly customizable output format with template variables
 - 🃏 Standard Rider-Waite-Smith (RWS) card ordering (0-77)
 - ⏱️ Captures exact timestamp (to the millisecond) of each draw
@@ -28,8 +29,7 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 
 **Output Templates**
 - Fully customizable output format
-- Available variables: `{{card}}`, `{{index}}`, `{{intention}}`, `{{timestamp}}`, `{{date}}`, `{{time}}`, `{{datetime}}`
-- Two-column editor: data dictionary on left, template on right
+- Available variables: `{{card}}`, `{{index}}`, `{{intention}}`, `{{timestamp}}`, `{{date}}`, `{{time}}`, `{{datetime}}`, `{{orientation}}`
 - Default template maintains traditional tarot journal format
 
 ## Usage
@@ -60,6 +60,12 @@ The result is inserted according to your command choice and settings.
 - **Use daily practice format**: Share the same template as daily practice
 - **Output template**: Separate format for inline draws (only shown when toggle is off)
 
+### Reversals
+- **Enable reversals**: Allow cards to appear reversed in readings
+- **Reversal chance**: Probability of reversal (0-100%, default 50%)
+- **Upright indicator**: Text for upright cards (default: empty)
+- **Reversed indicator**: Text for reversed cards (default: "reversed")
+
 ## Template Variables
 
 Customize your tarot draw output using these variables:
@@ -72,6 +78,7 @@ Customize your tarot draw output using these variables:
 | `{{index}}` | Card index (0-77) | 9 |
 | `{{intention}}` | Your intention text | What do I need to know today? |
 | `{{timestamp}}` | ISO 8601 timestamp | 2026-01-11T15:45:23.818Z |
+| `{{orientation}}` | Upright/reversed indicator | reversed |
 
 ### Date/Time Variables
 
@@ -104,7 +111,8 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 ## Tarot draw - {{datetime}}
 
 **Intention:** {{intention}}
-**Card:** {{card}} (Index: {{index}})
+**Card:** {{card}} {{orientation}}
+**Index:** {{index}}
 **Drawn at:** {{timestamp}}
 
 ---
@@ -112,12 +120,12 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 
 **Minimal:**
 ```
-- {{time}}: [[{{card}}]] - {{intention}}
+- {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
 ```
 
 **Detailed:**
 ```
-## {{card}} - {{date:MMM D}}
+## {{card}} {{orientation}} - {{date:MMM D}}
 
 **Question:** {{intention}}
 **Drawn:** {{datetime:h:mm A}}
@@ -132,7 +140,7 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 
 > {{intention}}
 
-**Card:** {{card}}  
+**Card:** {{card}} {{orientation}}
 **Time:** {{time}}
 ```
 
@@ -174,12 +182,12 @@ Copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder.
 Current version includes:
 - ✅ Single-card daily practice with intention
 - ✅ Quick inline draw command with separate template support
+- ✅ Reversal support with configurable indicators
 
 Potential future additions:
 
 - Multiple spread types (3-card, Celtic Cross, etc.)
 - Card interpretation database
-- Reversal support
 - Reading history tracking
 - Custom card databases
 
