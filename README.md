@@ -38,54 +38,31 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 
 1. **Click the sparkles icon** in the left ribbon, or
 2. **Run the command** "Daily Tarot Practice Draw" (Cmd/Ctrl+P)
+### Drawing a Card
+
+1. **Click the sparkles icon** in the left ribbon, or
+2. **Run a command** (Cmd/Ctrl+P):
+   - "Draw daily tarot card" - inserts into daily note (based on settings)
+   - "Draw tarot card inline" - inserts at cursor in current note
 3. **Enter your intention** in the modal (required)
-4. **Click "Draw Card"**
+4. **Press Enter or click "Draw card"**
 
-The result is inserted according to your settings.
+The result is inserted according to your command choice and settings.
 
-### Default Output Format
-
-```markdown
-## Tarot Draw - 1/11/2026, 3:45:23 PM
-
-**Intention:** What do I need to know today?
-**Card:** The Hermit (Index: 9)
-**Drawn at:** 2026-01-11T15:45:23.818Z
-
----
-```
-
-### Customizing Output
-
-You can completely customize the output format in Settings. For example:
-
-**Minimal format:**
-```
-- {{time}}: [[{{card}}]] - {{intention}}
-```
-
-**Custom format:**
-```
-### {{card}}
-*Drawn: {{datetime}}*
-
-> {{intention}}
-
----
-```
+**Tip:** Assign hotkeys to these commands in Settings → Hotkeys for faster access.
 
 ## Settings
 
 ### Daily Practice
-- **Use daily note**: Toggle auto-creation of daily notes when no file is open
-- **Daily note path pattern**: Customize where daily notes are created (supports Moment.js format)
-- **Insert location**: Choose append, prepend, or under a specific heading
-- **Heading name**: Specify which heading to insert under (only when "under heading" is selected)
-- **Output template**: Customize the format using template variables
+- **Use daily note**: Auto-create daily notes when no file is open
+- **Daily note path pattern**: Where daily notes are created (supports Moment.js format like `YYYY-MM-DD.md`)
+- **Insert location**: Append to end, prepend to beginning, or under a specific heading
+- **Heading name**: Which heading to insert under (auto-created if missing)
+- **Output template**: Format for daily practice draws (see Template Variables below)
 
 ### Inline Practice
-- **Use daily practice format**: Toggle to share the same template as daily practice
-- **Output template**: Separate customizable template (only shown when not using shared format)
+- **Use daily practice format**: Share the same template as daily practice
+- **Output template**: Separate format for inline draws (only shown when toggle is off)
 
 ## Template Variables
 
@@ -126,6 +103,17 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 
 ### Template Examples
 
+**Default (included with plugin):**
+```
+## Tarot draw - {{datetime}}
+
+**Intention:** {{intention}}
+**Card:** {{card}} (Index: {{index}})
+**Drawn at:** {{timestamp}}
+
+---
+```
+
 **Minimal:**
 ```
 - {{time}}: [[{{card}}]] - {{intention}}
@@ -144,7 +132,7 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 
 **Journal style:**
 ```
-### Tarot Draw
+### Tarot draw
 
 > {{intention}}
 
