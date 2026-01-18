@@ -12,8 +12,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 	display(): void {
 		const { containerEl } = this;
-
 		containerEl.empty();
+
+		// ===== DAILY TAROT PRACTICE SECTION =====
+		new Setting(containerEl).setName('Daily practice').setHeading();
 
 		// Toggle for using daily notes
 		new Setting(containerEl)
@@ -24,7 +26,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.useDailyNote = value;
 					await this.plugin.saveSettings();
-					this.display(); // Refresh to show/hide path pattern
+					this.display();
 				}));
 
 		// Only show path pattern if daily note is enabled
@@ -42,8 +44,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		}
 
 		// Insert location settings
-		new Setting(containerEl).setName('Insert location').setHeading();
-
 		new Setting(containerEl)
 			.setName('Insert location')
 			.setDesc('Where to insert the tarot draw in the file')
@@ -55,7 +55,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.onChange(async (value) => {
 					this.plugin.settings.insertLocation = value as InsertLocation;
 					await this.plugin.saveSettings();
-					this.display(); // Refresh to show/hide heading name
+					this.display();
 				}));
 
 		// Only show heading name if "Under heading" is selected
@@ -72,8 +72,32 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					}));
 		}
 
-		// Output template
-		new Setting(containerEl).setName('Output format').setHeading();
+		// Daily template
+		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
+
+		// ===== INLINE TAROT PRACTICE SECTION =====
+		new Setting(containerEl).setName('Inline practice').setHeading();
+
+		// Use shared template toggle
+		new Setting(containerEl)
+			.setName('Use daily practice format')
+			.setDesc('Use the same output template as daily practice')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.useSharedTemplate)
+				.onChange(async (value) => {
+					this.plugin.settings.useSharedTemplate = value;
+					await this.plugin.saveSettings();
+					this.display();
+				}));
+
+		// Only show inline template if NOT using shared
+		if (!this.plugin.settings.useSharedTemplate) {
+			this.addTemplateEditor(containerEl, 'Inline practice output template', 'inlineOutputTemplate');
+		}
+	}
+
+	addTemplateEditor(containerEl: HTMLElement, title: string, settingKey: 'outputTemplate' | 'inlineOutputTemplate'): void {
+		new Setting(containerEl).setName(title).setHeading();
 		
 		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
 		helpText.createEl('span', { text: 'Customize output using template variables. Date/time formatting supports ' });
@@ -128,10 +152,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const textArea = rightColumn.createEl('textarea', { 
 			cls: 'tarot-template-textarea'
 		});
-		textArea.value = this.plugin.settings.outputTemplate;
+		textArea.value = this.plugin.settings[settingKey];
 		textArea.rows = 10;
 		textArea.addEventListener('input', () => {
-			this.plugin.settings.outputTemplate = textArea.value;
+			this.plugin.settings[settingKey] = textArea.value;
 			void this.plugin.saveSettings();
 		});
 	}

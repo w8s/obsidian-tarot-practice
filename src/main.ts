@@ -64,9 +64,12 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		// Format the output using template
+		// Format the output using appropriate template
 		const timestamp = moment(result.timestamp);
-		let output = this.settings.outputTemplate;
+		const template = this.settings.useSharedTemplate 
+			? this.settings.outputTemplate 
+			: this.settings.inlineOutputTemplate;
+		let output = template;
 		
 		// Replace simple variables
 		output = output.replace(/{{card}}/g, result.cardName);

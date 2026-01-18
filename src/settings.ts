@@ -6,6 +6,8 @@ export interface TarotPracticeSettings {
 	insertLocation: InsertLocation;
 	headingName: string;
 	outputTemplate: string;
+	useSharedTemplate: boolean;
+	inlineOutputTemplate: string;
 }
 
 export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
@@ -22,5 +24,7 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	dailyNotePathPattern: 'YYYY-MM-DD.md',
 	insertLocation: 'append',
 	headingName: '## Tarot',
-	outputTemplate: DEFAULT_TEMPLATE
+	outputTemplate: DEFAULT_TEMPLATE,
+	useSharedTemplate: true,
+	inlineOutputTemplate: DEFAULT_TEMPLATE
 };
