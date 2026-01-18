@@ -171,10 +171,13 @@ Copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder.
 
 ## Roadmap
 
-Current version focuses on single-card daily practice. Potential future additions:
+Current version includes:
+- ✅ Single-card daily practice with intention
+- ✅ Quick inline draw command with separate template support
+
+Potential future additions:
 
 - Multiple spread types (3-card, Celtic Cross, etc.)
-- Quick inline draw command (ignores settings)
 - Card interpretation database
 - Reversal support
 - Reading history tracking
