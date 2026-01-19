@@ -38,17 +38,15 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 
 ### Drawing Cards
 
-1. **Click the sparkles icon** in the left ribbon, or
-   - **Run a command** (Cmd/Ctrl+P):
-     - "Draw daily tarot card" - single card into daily note
-     - "Draw tarot card inline" - single card at cursor
-     - "Draw multiple tarot cards" - multiple cards into daily note
-     - "Draw multiple tarot cards inline" - multiple cards at cursor
-2. **Enter your intention** in the modal (required)
-3. **For multiple cards:** Adjust the card count slider (1-78)
-4. **Press Enter or click "Draw card(s)"**
+**Daily Practice:**
+1. Run command: **"Draw daily tarot"** (or click sparkles icon)
+2. Enter your intention
+3. Card count is set in Settings → Daily Practice → Number of cards
 
-The result is inserted according to your command choice and settings.
+**Inline Draws:**
+1. Position cursor where you want the draw
+2. For single card: **"Inline draw tarot card"**
+3. For multiple cards: **"Inline draw multiple tarot cards"** (choose count in modal)
 
 **Tip:** Assign hotkeys to these commands in Settings → Hotkeys for faster access.
 
@@ -59,11 +57,12 @@ The result is inserted according to your command choice and settings.
 - **Daily note path pattern**: Where daily notes are created (supports Moment.js format like `YYYY-MM-DD.md`)
 - **Insert location**: Append to end, prepend to beginning, or under a specific heading
 - **Heading name**: Which heading to insert under (auto-created if missing)
-- **Output template**: Format for daily practice draws (see Template Variables below)
+- **Number of cards**: How many cards to draw for daily practice (1-78, default: 1)
+- **Output template**: Format for single card daily draws (see Template Variables below)
 
 ### Inline Practice
 - **Use daily practice format**: Share the same template as daily practice
-- **Output template**: Separate format for inline draws (only shown when toggle is off)
+- **Output template**: Separate format for inline single card draws (only shown when toggle is off)
 
 ### Reversals
 - **Enable reversals**: Allow cards to appear reversed in readings
@@ -71,9 +70,8 @@ The result is inserted according to your command choice and settings.
 - **Upright indicator**: Text for upright cards (default: empty)
 - **Reversed indicator**: Text for reversed cards (default: "reversed")
 
-### Multiple Cards
-- **Default card count**: Number of cards for multi-card draws (1-10, default 3)
-- **Output template**: Template for multiple card draws
+### Templates
+- **Multiple cards output template**: Template for multiple card draws (daily or inline)
 
 ## Template Variables
 
