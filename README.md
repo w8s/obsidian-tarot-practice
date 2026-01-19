@@ -241,7 +241,8 @@ Current version includes:
 Potential future additions:
 
 - Multiple spread types (3-card, Celtic Cross, etc.)
-- Different shuffle/cut styles (overhand, riffle, etc.)
+- Different shuffle/cut styles (overhand, riffle, Hindu shuffle, etc.)
+- Shuffle style variance - each shuffle slightly different based on intention/entropy
 - Card interpretation database
 - Reading history tracking and analytics
 - Custom card databases (Oracle decks, etc.)
