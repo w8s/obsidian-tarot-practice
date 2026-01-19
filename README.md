@@ -11,10 +11,12 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 ### Core Functionality
 - 🎴 Single or multiple card draws with intention input
 - ✨ Uses [rng-with-intention](https://github.com/w8s/rng-with-intention) for meaningful randomness
+- 🔀 Traditional deck preparation: configurable shuffles (1-7) and optional cutting
+- 🎯 Intention-influenced cut position with natural variance (±10%)
 - 🔄 Optional reversal support with configurable probability and indicators
 - 📝 Highly customizable output format with template variables
+- 📊 Complete draw metadata capture (shuffles, cut position, variance) for analytics
 - 🃏 Standard Rider-Waite-Smith (RWS) card ordering (0-77)
-- 🎯 Unique card draws (no duplicates in multi-card draws)
 - ⏱️ Captures exact timestamp (to the millisecond) of each draw
 - 🔔 Notification showing which card(s) were drawn
 
@@ -28,11 +30,18 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 - Choose where draws appear: append to end, prepend to beginning, or under a specific heading
 - Heading auto-creation if it doesn't exist
 
+**Deck Preparation**
+- Configurable shuffle count (1-7 times)
+- Optional deck cutting with intention-based position
+- Applies to both single and multiple card draws
+
 **Output Templates**
 - Fully customizable output format
-- Available variables: `{{card}}`, `{{index}}`, `{{intention}}`, `{{timestamp}}`, `{{date}}`, `{{time}}`, `{{datetime}}`, `{{orientation}}`
-- Multiple card draws: `{{card_count}}`, `{{cards}}`
-- Default template maintains traditional tarot journal format
+- Card variables: `{{card}}`, `{{index}}`, `{{orientation}}`
+- Multiple card variables: `{{card_count}}`, `{{cards}}`
+- Date/time variables: `{{date}}`, `{{time}}`, `{{datetime}}`
+- Metadata variables: `{{shuffle_count}}`, `{{was_cut}}`, `{{cut_position}}`, `{{cut_position_cards}}`, `{{cut_base}}`, `{{cut_variance}}`
+- Default templates maintain traditional tarot journal format
 
 ## Usage
 
@@ -58,6 +67,8 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 - **Insert location**: Append to end, prepend to beginning, or under a specific heading
 - **Heading name**: Which heading to insert under (auto-created if missing)
 - **Number of cards**: How many cards to draw for daily practice (1-78, default: 1)
+- **Number of shuffles**: How many times to shuffle the deck (1-7, default: 3)
+- **Cut deck**: Enable intention-based deck cutting (default: true)
 - **Output template**: Format for single card daily draws (see Template Variables below)
 
 ### Inline Practice
@@ -77,7 +88,7 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 
 Customize your tarot draw output using these variables:
 
-### Basic Variables
+### Card Variables
 
 | Variable | Description | Example Output |
 |----------|-------------|----------------|
@@ -92,6 +103,17 @@ Customize your tarot draw output using these variables:
 |----------|-------------|----------------|
 | `{{card_count}}` | Number of cards drawn | 3 |
 | `{{cards}}` | Formatted numbered list | 1. The Hermit reversed<br>2. The Fool<br>3. The Tower |
+
+### Draw Metadata Variables
+
+| Variable | Description | Example Output |
+|----------|-------------|----------------|
+| `{{shuffle_count}}` | Number of shuffles performed | 3 |
+| `{{was_cut}}` | Whether deck was cut | yes |
+| `{{cut_position}}` | Cut position as percentage | 54.3% |
+| `{{cut_position_cards}}` | Cut position as card number | 42 |
+| `{{cut_base}}` | RNG result before variance | 47% |
+| `{{cut_variance}}` | Variance applied to cut | +7.3% |
 
 ### Date/Time Variables
 
@@ -142,20 +164,24 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 ---
 ```
 
-**Minimal single:**
+**With metadata:**
 ```
-- {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
-```
+## Tarot draw - {{datetime}}
 
-**Detailed single:**
-```
-## {{card}} {{orientation}} - {{date:MMM D}}
+**Intention:** {{intention}}
+**Card:** {{card}} {{orientation}}
 
-**Question:** {{intention}}
-**Drawn:** {{datetime:h:mm A}}
-**Index:** {{index}}
+**Draw details:**
+- Shuffles: {{shuffle_count}}
+- Cut: {{was_cut}} at {{cut_position}} (card {{cut_position_cards}})
+- RNG: {{cut_base}} + {{cut_variance}}
 
 ---
+```
+
+**Minimal:**
+```
+- {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
 ```
 
 **Journal style:**
@@ -195,26 +221,30 @@ Copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder.
 
 1. You provide an intention (any text)
 2. The exact timestamp is captured (milliseconds)
-3. System entropy is added (cryptographic randomness)
-4. These combine via the `rng-with-intention` library to generate a card index
-5. The intention is discarded (never stored)
-6. The card name and metadata are formatted using your template
-7. The result is inserted into your note based on your settings
+3. The deck is shuffled 1-7 times using intention-seeded randomness
+4. Optional cut: intention determines position (1-100%) with ±10% variance
+5. Cards are drawn consecutively from the prepared deck
+6. Reversals calculated if enabled
+7. Complete metadata captured (shuffles, cut details, variance)
+8. Result formatted using your template and inserted into your note
 
 ## Roadmap
 
 Current version includes:
-- ✅ Single-card daily practice with intention
-- ✅ Quick inline draw command with separate template support
+- ✅ Single and multiple card draws with intention
+- ✅ Traditional deck preparation (shuffle and cut)
+- ✅ Intention-influenced randomness with variance
+- ✅ Complete metadata capture for analytics
 - ✅ Reversal support with configurable indicators
-- ✅ Multiple card draws (1-78 unique cards)
+- ✅ Inline draw commands with separate templates
 
 Potential future additions:
 
 - Multiple spread types (3-card, Celtic Cross, etc.)
+- Different shuffle/cut styles (overhand, riffle, etc.)
 - Card interpretation database
-- Reading history tracking
-- Custom card databases
+- Reading history tracking and analytics
+- Custom card databases (Oracle decks, etc.)
 
 ## License
 
