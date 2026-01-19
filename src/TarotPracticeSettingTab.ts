@@ -1,6 +1,7 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import TarotPracticePlugin from './main';
 import { InsertLocation } from './settings';
+import { FileSuggest } from './FileSuggest';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -197,70 +198,66 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName('Templates').setHeading();
 
 		// Daily template
-		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
+		this.addTemplateSection(
+			containerEl,
+			'Daily practice template',
+			'Template for daily tarot draws',
+			'useCustomDailyTemplate',
+			'customDailyTemplatePath'
+		);
 
-		// Use shared template toggle
-		new Setting(containerEl)
-			.setName('Use daily template for inline draws')
-			.setDesc('Use the same output template for inline draws as daily practice')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.useSharedTemplate ?? true)
-				.onChange(async (value) => {
-					this.plugin.settings.useSharedTemplate = value;
-					await this.plugin.saveSettings();
-					this.display();
-				}));
-
-		// Only show inline template if NOT using shared
-		if (!this.plugin.settings.useSharedTemplate) {
-			this.addTemplateEditor(containerEl, 'Inline practice output template', 'inlineOutputTemplate');
-		}
+		// Inline template
+		this.addTemplateSection(
+			containerEl,
+			'Inline practice template',
+			'Template for inline single-card draws',
+			'useCustomInlineTemplate',
+			'customInlineTemplatePath'
+		);
 
 		// Multiple cards template
-		this.addMultipleCardsTemplateEditor(containerEl);
+		this.addTemplateSection(
+			containerEl,
+			'Multiple cards template',
+			'Template for multiple card draws',
+			'useCustomMultipleTemplate',
+			'customMultipleTemplatePath'
+		);
 	}
 
-	addTemplateEditor(containerEl: HTMLElement, title: string, settingKey: 'outputTemplate' | 'inlineOutputTemplate'): void {
-		new Setting(containerEl).setName(title).setHeading();
-		
-		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
-		helpText.createEl('span', { text: 'Customize output using template variables. See ' });
-		helpText.createEl('a', { 
-			text: 'template documentation',
-			href: 'https://github.com/w8s/obsidian-tarot-practice#template-variables'
-		});
-		helpText.createEl('span', { text: ' for available variables and examples.' });
-		
-		const textArea = containerEl.createEl('textarea', { 
-			cls: 'tarot-template-textarea'
-		});
-		textArea.value = this.plugin.settings[settingKey] || '';
-		textArea.rows = 10;
-		textArea.addEventListener('input', () => {
-			this.plugin.settings[settingKey] = textArea.value;
-			void this.plugin.saveSettings();
-		});
-	}
+	addTemplateSection(
+		containerEl: HTMLElement,
+		name: string,
+		desc: string,
+		useCustomKey: 'useCustomDailyTemplate' | 'useCustomInlineTemplate' | 'useCustomMultipleTemplate',
+		pathKey: 'customDailyTemplatePath' | 'customInlineTemplatePath' | 'customMultipleTemplatePath'
+	): void {
+		// Toggle for using custom template
+		new Setting(containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings[useCustomKey])
+				.onChange(async (value) => {
+					this.plugin.settings[useCustomKey] = value;
+					await this.plugin.saveSettings();
+					this.display(); // Refresh to show/hide file picker
+				}));
 
-	addMultipleCardsTemplateEditor(containerEl: HTMLElement): void {
-		new Setting(containerEl).setName('Multiple cards output template').setHeading();
-		
-		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
-		helpText.createEl('span', { text: 'Template for multiple card draws. Available variables: {{intention}}, {{card_count}}, {{cards}}, {{timestamp}}, {{date}}, {{time}}, {{datetime}}. See ' });
-		helpText.createEl('a', { 
-			text: 'template documentation',
-			href: 'https://github.com/w8s/obsidian-tarot-practice#template-variables'
-		});
-		helpText.createEl('span', { text: ' for formatting options.' });
-		
-		const textArea = containerEl.createEl('textarea', { 
-			cls: 'tarot-template-textarea'
-		});
-		textArea.value = this.plugin.settings.multipleCardsTemplate || '';
-		textArea.rows = 10;
-		textArea.addEventListener('input', () => {
-			this.plugin.settings.multipleCardsTemplate = textArea.value;
-			void this.plugin.saveSettings();
-		});
+		// Only show file picker if custom template enabled
+		if (this.plugin.settings[useCustomKey]) {
+			new Setting(containerEl)
+				.setName('Template file')
+				.setDesc('Select a markdown file from your vault')
+				.addText(text => {
+					new FileSuggest(this.app, text.inputEl);
+					text.setPlaceholder('Example: Templates/Tarot/Daily.md')
+						.setValue(this.plugin.settings[pathKey])
+						.onChange(async (value) => {
+							this.plugin.settings[pathKey] = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		}
 	}
 }
