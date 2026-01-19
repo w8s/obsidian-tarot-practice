@@ -1,5 +1,5 @@
 import { App, Notice, TFolder } from 'obsidian';
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
 import { BUILTIN_DAILY_TEMPLATE, BUILTIN_INLINE_TEMPLATE, BUILTIN_MULTIPLE_TEMPLATE } from './BuiltInTemplates';
 
 /**
@@ -21,10 +21,11 @@ export class TemplateMigrator {
 		}
 
 		// Check if any old template fields exist and are customized
+		// Compare against OLD defaults (v1.2.0), not new built-ins
 		return (
-			this.isCustomized(this.settings.outputTemplate, BUILTIN_DAILY_TEMPLATE) ||
-			this.isCustomized(this.settings.inlineOutputTemplate, BUILTIN_INLINE_TEMPLATE) ||
-			this.isCustomized(this.settings.multipleCardsTemplate, BUILTIN_MULTIPLE_TEMPLATE)
+			this.isCustomized(this.settings.outputTemplate, DEFAULT_TEMPLATE) ||
+			this.isCustomized(this.settings.inlineOutputTemplate, DEFAULT_TEMPLATE) ||
+			this.isCustomized(this.settings.multipleCardsTemplate, DEFAULT_MULTIPLE_TEMPLATE)
 		);
 	}
 
@@ -34,13 +35,13 @@ export class TemplateMigrator {
 	getExistingTemplates(): { daily?: string; inline?: string; multiple?: string } {
 		const templates: { daily?: string; inline?: string; multiple?: string } = {};
 
-		if (this.isCustomized(this.settings.outputTemplate, BUILTIN_DAILY_TEMPLATE)) {
+		if (this.isCustomized(this.settings.outputTemplate, DEFAULT_TEMPLATE)) {
 			templates.daily = this.settings.outputTemplate;
 		}
-		if (this.isCustomized(this.settings.inlineOutputTemplate, BUILTIN_INLINE_TEMPLATE)) {
+		if (this.isCustomized(this.settings.inlineOutputTemplate, DEFAULT_TEMPLATE)) {
 			templates.inline = this.settings.inlineOutputTemplate;
 		}
-		if (this.isCustomized(this.settings.multipleCardsTemplate, BUILTIN_MULTIPLE_TEMPLATE)) {
+		if (this.isCustomized(this.settings.multipleCardsTemplate, DEFAULT_MULTIPLE_TEMPLATE)) {
 			templates.multiple = this.settings.multipleCardsTemplate;
 		}
 
