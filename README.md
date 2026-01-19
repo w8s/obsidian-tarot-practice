@@ -1,5 +1,9 @@
 # Tarot Practice
 
+![Over-Engineered](https://img.shields.io/badge/Shuffle_Variance-excessively_engineered-purple?style=for-the-badge&logo=sparkles)
+
+*Bringing unnecessary precision to digital mystical arts since 2025*
+
 A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intention using true randomness seeded by your words and the exact moment of the draw.
 
 ## Philosophy
