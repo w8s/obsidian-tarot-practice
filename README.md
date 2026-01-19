@@ -6,6 +6,12 @@
 
 A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intention using true randomness seeded by your words and the exact moment of the draw.
 
+## Documentation
+
+- 📖 [Template Examples](docs/TEMPLATE-EXAMPLES.md) - Common template patterns and examples
+- 📋 [Changelog](CHANGELOG.md) - Version history and release notes
+- 🔧 [Development Notes](docs/AGENTS.md) - For contributors
+
 ## Philosophy
 
 Digital tarot tools often feel hollow because they lack the intentionality present in physical practice. This plugin bridges that gap by using your intention and the precise moment of drawing to seed the randomness - making each draw feel participatory rather than mechanical.
