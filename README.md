@@ -1,5 +1,9 @@
 # Tarot Practice
 
+![Over-Engineered](https://img.shields.io/badge/Shuffle_Variance-excessively_engineered-purple?style=for-the-badge&logo=sparkles)
+
+*Bringing unnecessary precision to digital mystical arts since 2025*
+
 A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intention using true randomness seeded by your words and the exact moment of the draw.
 
 ## Philosophy
@@ -9,13 +13,16 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 ## Features
 
 ### Core Functionality
-- 🎴 Single card draw with intention input
+- 🎴 Single or multiple card draws with intention input
 - ✨ Uses [rng-with-intention](https://github.com/w8s/rng-with-intention) for meaningful randomness
+- 🔀 Traditional deck preparation: configurable shuffles (1-7) and optional cutting
+- 🎯 Intention-influenced cut position with natural variance (±10%)
 - 🔄 Optional reversal support with configurable probability and indicators
 - 📝 Highly customizable output format with template variables
+- 📊 Complete draw metadata capture (shuffles, cut position, variance) for analytics
 - 🃏 Standard Rider-Waite-Smith (RWS) card ordering (0-77)
 - ⏱️ Captures exact timestamp (to the millisecond) of each draw
-- 🔔 Notification showing which card was drawn
+- 🔔 Notification showing which card(s) were drawn
 
 ### Configuration Options
 
@@ -27,38 +34,54 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 - Choose where draws appear: append to end, prepend to beginning, or under a specific heading
 - Heading auto-creation if it doesn't exist
 
+**Deck Preparation**
+- Configurable shuffle count (1-7 times)
+- Optional deck cutting with intention-based position
+- Applies to both single and multiple card draws
+
 **Output Templates**
 - Fully customizable output format
-- Available variables: `{{card}}`, `{{index}}`, `{{intention}}`, `{{timestamp}}`, `{{date}}`, `{{time}}`, `{{datetime}}`, `{{orientation}}`
-- Default template maintains traditional tarot journal format
+- Card variables: `{{card}}`, `{{index}}`, `{{orientation}}`
+- Multiple card variables: `{{card_count}}`, `{{cards}}`
+- Date/time variables: `{{date}}`, `{{time}}`, `{{datetime}}`
+- Metadata variables: `{{shuffle_count}}`, `{{was_cut}}`, `{{cut_position}}`, `{{cut_position_cards}}`, `{{cut_base}}`, `{{cut_variance}}`
+- Default templates maintain traditional tarot journal format
 
 ## Usage
 
-### Drawing a Card
+### Drawing Cards
 
-1. **Click the sparkles icon** in the left ribbon, or
-   - **Run a command** (Cmd/Ctrl+P):
-     - "Draw daily tarot card" - inserts into daily note (based on settings)
-     - "Draw tarot card inline" - inserts at cursor in current note
-2. **Enter your intention** in the modal (required)
-3. **Press Enter or click "Draw card"**
+**Daily Practice:**
+1. Run command: **"Draw daily tarot"** (or click sparkles icon)
+2. Enter your intention
+3. Card count is set in Settings → Daily Practice → Number of cards
 
-The result is inserted according to your command choice and settings.
+**Inline Draws:**
+1. Position cursor where you want the draw
+2. For single card: **"Inline draw tarot card"**
+3. For multiple cards: **"Inline draw multiple tarot cards"** (choose count in modal)
 
 **Tip:** Assign hotkeys to these commands in Settings → Hotkeys for faster access.
 
 ## Settings
+
+### Deck Preparation
+*These settings apply to all draws (daily and inline)*
+- **Number of shuffles**: How many times to shuffle the deck (1-7, default: 3)
+- **Cut deck**: Enable intention-based deck cutting (default: true)
+- **Number of cards for daily practice**: How many cards to draw for daily practice (1-78, default: 1)
 
 ### Daily Practice
 - **Use daily note**: Auto-create daily notes when no file is open
 - **Daily note path pattern**: Where daily notes are created (supports Moment.js format like `YYYY-MM-DD.md`)
 - **Insert location**: Append to end, prepend to beginning, or under a specific heading
 - **Heading name**: Which heading to insert under (auto-created if missing)
-- **Output template**: Format for daily practice draws (see Template Variables below)
 
-### Inline Practice
-- **Use daily practice format**: Share the same template as daily practice
-- **Output template**: Separate format for inline draws (only shown when toggle is off)
+### Templates
+- **Daily practice output template**: Format for daily card draws (see Template Variables below)
+- **Use daily template for inline draws**: Share the same template for inline draws
+- **Inline practice output template**: Separate format for inline draws (only shown when toggle is off)
+- **Multiple cards output template**: Template for multiple card draws (daily or inline)
 
 ### Reversals
 - **Enable reversals**: Allow cards to appear reversed in readings
@@ -70,15 +93,32 @@ The result is inserted according to your command choice and settings.
 
 Customize your tarot draw output using these variables:
 
-### Basic Variables
+### Card Variables
 
 | Variable | Description | Example Output |
 |----------|-------------|----------------|
 | `{{card}}` | Card name | The Hermit |
 | `{{index}}` | Card index (0-77) | 9 |
 | `{{intention}}` | Your intention text | What do I need to know today? |
-| `{{timestamp}}` | ISO 8601 timestamp | 2026-01-11T15:45:23.818Z |
 | `{{orientation}}` | Upright/reversed indicator | reversed |
+
+### Multiple Card Variables
+
+| Variable | Description | Example Output |
+|----------|-------------|----------------|
+| `{{card_count}}` | Number of cards drawn | 3 |
+| `{{cards}}` | Formatted numbered list | 1. The Hermit reversed<br>2. The Fool<br>3. The Tower |
+
+### Draw Metadata Variables
+
+| Variable | Description | Example Output |
+|----------|-------------|----------------|
+| `{{shuffle_count}}` | Number of shuffles performed | 3 |
+| `{{was_cut}}` | Whether deck was cut | yes |
+| `{{cut_position}}` | Cut position as percentage | 54.3% |
+| `{{cut_position_cards}}` | Cut position as card number | 42 |
+| `{{cut_base}}` | RNG result before variance | 47% |
+| `{{cut_variance}}` | Variance applied to cut | +7.3% |
 
 ### Date/Time Variables
 
@@ -106,14 +146,40 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 
 ### Template Examples
 
-**Default (included with plugin):**
+**Single Card (default):**
 ```
 ## Tarot draw - {{datetime}}
 
 **Intention:** {{intention}}
 **Card:** {{card}} {{orientation}}
 **Index:** {{index}}
-**Drawn at:** {{timestamp}}
+
+---
+```
+
+**Multiple Cards (default):**
+```
+## Tarot draw - {{datetime}}
+
+**Intention:** {{intention}}
+**Cards drawn:** {{card_count}}
+
+{{cards}}
+
+---
+```
+
+**With metadata:**
+```
+## Tarot draw - {{datetime}}
+
+**Intention:** {{intention}}
+**Card:** {{card}} {{orientation}}
+
+**Draw details:**
+- Shuffles: {{shuffle_count}}
+- Cut: {{was_cut}} at {{cut_position}} (card {{cut_position_cards}})
+- RNG: {{cut_base}} + {{cut_variance}}
 
 ---
 ```
@@ -121,17 +187,6 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 **Minimal:**
 ```
 - {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
-```
-
-**Detailed:**
-```
-## {{card}} {{orientation}} - {{date:MMM D}}
-
-**Question:** {{intention}}
-**Drawn:** {{datetime:h:mm A}}
-**Index:** {{index}}
-
----
 ```
 
 **Journal style:**
@@ -171,25 +226,40 @@ Copy `main.js`, `manifest.json`, and `styles.css` to your vault's plugin folder.
 
 1. You provide an intention (any text)
 2. The exact timestamp is captured (milliseconds)
-3. System entropy is added (cryptographic randomness)
-4. These combine via the `rng-with-intention` library to generate a card index
-5. The intention is discarded (never stored)
-6. The card name and metadata are formatted using your template
-7. The result is inserted into your note based on your settings
+3. The deck is shuffled 1-7 times using intention-seeded randomness
+4. Optional cut: intention determines position (1-100%) with ±10% variance
+5. Cards are drawn consecutively from the prepared deck
+6. Reversals calculated if enabled
+7. Complete metadata captured (shuffles, cut details, variance)
+8. Result formatted using your template and inserted into your note
 
 ## Roadmap
 
 Current version includes:
-- ✅ Single-card daily practice with intention
-- ✅ Quick inline draw command with separate template support
+- ✅ Single and multiple card draws with intention
+- ✅ Traditional deck preparation (shuffle and cut)
+- ✅ Intention-influenced randomness with variance
+- ✅ Complete metadata capture for analytics
 - ✅ Reversal support with configurable indicators
+- ✅ Inline draw commands with separate templates
 
-Potential future additions:
+## Roadmap
 
+### v1.3.0 - Template System Overhaul
+- Replace inline template editors with file-based templates
+- Select template files from vault via dropdown (e.g., `Templates/Tarot - Daily.md`)
+- Support for Templates folder integration
+- Backward compatibility: auto-migrate existing inline templates to files
+- Works seamlessly with Templater plugin and other template tools
+
+### Future Additions
 - Multiple spread types (3-card, Celtic Cross, etc.)
+- Spread-specific deck preparation settings (custom shuffle/cut per spread)
+- Different shuffle/cut styles (overhand, riffle, Hindu shuffle, etc.)
+- Shuffle style variance - each shuffle slightly different based on intention/entropy
 - Card interpretation database
-- Reading history tracking
-- Custom card databases
+- Reading history tracking and analytics
+- Custom card databases (Oracle decks, etc.)
 
 ## License
 

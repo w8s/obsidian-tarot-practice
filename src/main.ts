@@ -1,7 +1,17 @@
 import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotDrawModal } from './TarotDrawModal';
+import { TarotMultipleDrawModal } from './TarotMultipleDrawModal';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
+
+interface ShuffleMetadata {
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
+}
 
 interface DrawResult {
 	intention: string;
@@ -9,6 +19,30 @@ interface DrawResult {
 	cardName: string;
 	timestamp: string;
 	isReversed: boolean;
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
+}
+
+interface CardDraw {
+	cardIndex: number;
+	cardName: string;
+	isReversed: boolean;
+}
+
+interface MultipleDrawResult {
+	intention: string;
+	cards: CardDraw[];
+	timestamp: string;
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
 }
 
 export default class TarotPracticePlugin extends Plugin {
@@ -18,25 +52,34 @@ export default class TarotPracticePlugin extends Plugin {
 		await this.loadSettings();
 
 		// Add ribbon icon for quick draw
-		this.addRibbonIcon('sparkles', 'Daily tarot practice draw', () => {
-			this.openDrawModal();
+		this.addRibbonIcon('sparkles', 'Draw daily tarot', () => {
+			this.openDailyDrawModal();
 		});
 
-		// Add command for drawing a card
+		// Add command for daily tarot draw (uses dailyCardCount setting)
 		this.addCommand({
-			id: 'draw-tarot-card',
-			name: 'Draw daily tarot card',
+			id: 'draw-daily-tarot',
+			name: 'Draw daily tarot',
 			callback: () => {
-				this.openDrawModal();
+				this.openDailyDrawModal();
 			}
 		});
 
-		// Add command for inline drawing at cursor
+		// Add command for inline single card
 		this.addCommand({
 			id: 'draw-tarot-card-inline',
-			name: 'Draw tarot card inline',
+			name: 'Inline draw tarot card',
 			callback: () => {
-				this.openInlineDrawModal();
+				this.openInlineSingleDrawModal();
+			}
+		});
+
+		// Add command for inline multiple cards
+		this.addCommand({
+			id: 'draw-multiple-tarot-cards-inline',
+			name: 'Inline draw multiple tarot cards',
+			callback: () => {
+				this.openInlineMultipleDrawModal();
 			}
 		});
 
@@ -44,15 +87,30 @@ export default class TarotPracticePlugin extends Plugin {
 		this.addSettingTab(new TarotPracticeSettingTab(this.app, this));
 	}
 
-	openDrawModal() {
-		new TarotDrawModal(this.app, this.settings, (result) => {
-			void this.insertDrawIntoNote(result);
+	openDailyDrawModal() {
+		// Use dailyCardCount setting to determine single or multiple
+		if (this.settings.dailyCardCount === 1) {
+			// Single card
+			new TarotDrawModal(this.app, this.settings, async (result) => {
+				await this.insertDrawIntoNote(result);
+			}).open();
+		} else {
+			// Multiple cards - pre-set to dailyCardCount
+			new TarotMultipleDrawModal(this.app, this.settings, async (result) => {
+				await this.insertMultipleDrawIntoNote(result);
+			}, this.settings.dailyCardCount).open();
+		}
+	}
+
+	openInlineSingleDrawModal() {
+		new TarotDrawModal(this.app, this.settings, async (result) => {
+			await this.insertDrawInline(result);
 		}).open();
 	}
 
-	openInlineDrawModal() {
-		new TarotDrawModal(this.app, this.settings, (result) => {
-			void this.insertDrawInline(result);
+	openInlineMultipleDrawModal() {
+		new TarotMultipleDrawModal(this.app, this.settings, async (result) => {
+			await this.insertMultipleDrawInline(result);
 		}).open();
 	}
 
@@ -106,7 +164,128 @@ export default class TarotPracticePlugin extends Plugin {
 			return format ? timestamp.format(format) : timestamp.format('L LT');
 		});
 		
+		// Replace shuffle/cut metadata variables
+		output = output.replace(/{{shuffle_count}}/g, result.shuffleCount.toString());
+		output = output.replace(/{{was_cut}}/g, result.wasCut ? 'yes' : 'no');
+		output = output.replace(/{{cut_position}}/g, 
+			result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A');
+		output = output.replace(/{{cut_position_cards}}/g, 
+			result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A');
+		output = output.replace(/{{cut_base}}/g, 
+			result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A');
+		output = output.replace(/{{cut_variance}}/g, 
+			result.cutVariancePercent !== null ? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` : 'N/A');
+		
 		return output;
+	}
+
+	formatMultipleTemplate(result: MultipleDrawResult, template: string): string {
+		const timestamp = moment(result.timestamp);
+		let output = template;
+		
+		// Replace simple variables
+		output = output.replace(/{{intention}}/g, result.intention);
+		output = output.replace(/{{timestamp}}/g, result.timestamp);
+		output = output.replace(/{{card_count}}/g, result.cards.length.toString());
+		
+		// Format cards list
+		const cardsList = result.cards.map((card, index) => {
+			const orientation = card.isReversed 
+				? this.settings.reversedIndicator 
+				: this.settings.uprightIndicator;
+			const orientationText = orientation ? ` ${orientation}` : '';
+			return `${index + 1}. ${card.cardName}${orientationText}`;
+		}).join('\n');
+		
+		output = output.replace(/{{cards}}/g, cardsList);
+		
+		// Replace formatted date/time variables
+		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
+			return format ? timestamp.format(format) : timestamp.format('L');
+		});
+		
+		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
+			return format ? timestamp.format(format) : timestamp.format('LT');
+		});
+		
+		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
+			return format ? timestamp.format(format) : timestamp.format('L LT');
+		});
+		
+		// Replace shuffle/cut metadata variables
+		output = output.replace(/{{shuffle_count}}/g, result.shuffleCount.toString());
+		output = output.replace(/{{was_cut}}/g, result.wasCut ? 'yes' : 'no');
+		output = output.replace(/{{cut_position}}/g, 
+			result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A');
+		output = output.replace(/{{cut_position_cards}}/g, 
+			result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A');
+		output = output.replace(/{{cut_base}}/g, 
+			result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A');
+		output = output.replace(/{{cut_variance}}/g, 
+			result.cutVariancePercent !== null ? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` : 'N/A');
+		
+		return output;
+	}
+
+	async insertMultipleDrawInline(result: MultipleDrawResult) {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		
+		if (!activeView) {
+			new Notice('No active note found');
+			return;
+		}
+		
+		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+		
+		const editor = activeView.editor;
+		editor.replaceSelection(output);
+		
+		new Notice(`${result.cards.length} cards drawn`);
+	}
+
+	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
+		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+
+		// Get target file (active file or daily note)
+		let targetFile = this.app.workspace.getActiveFile();
+		
+		if (!targetFile) {
+			if (!this.settings.useDailyNote) {
+				new Notice('Please open a note to insert the tarot draw');
+				return;
+			}
+			
+			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
+			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
+			
+			if (abstractFile instanceof TFile) {
+				targetFile = abstractFile;
+			} else {
+				targetFile = await this.app.vault.create(dailyNotePath, '');
+			}
+			
+			await this.app.workspace.openLinkText(dailyNotePath, '', false);
+		}
+
+		const fileContent = await this.app.vault.read(targetFile);
+		let newContent: string;
+
+		switch (this.settings.insertLocation) {
+			case 'append':
+				newContent = fileContent + '\n' + output;
+				break;
+			case 'prepend':
+				newContent = output + '\n' + fileContent;
+				break;
+			case 'heading':
+				newContent = this.insertUnderHeading(fileContent, output);
+				break;
+			default:
+				newContent = fileContent + '\n' + output;
+		}
+
+		await this.app.vault.modify(targetFile, newContent);
+		new Notice(`${result.cards.length} cards drawn`);
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {
