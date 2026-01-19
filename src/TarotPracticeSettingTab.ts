@@ -72,6 +72,27 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					}));
 		}
 
+		// Daily card count
+		const dailyCardCountSetting = new Setting(containerEl)
+			.setName('Number of cards')
+			.setDesc('How many cards to draw for daily practice (1-78)')
+			.addSlider(slider => slider
+				.setLimits(1, 78, 1)
+				.setValue(this.plugin.settings.dailyCardCount)
+				.setDynamicTooltip()
+				.onChange(async (value) => {
+					this.plugin.settings.dailyCardCount = value;
+					await this.plugin.saveSettings();
+					// Update the display value
+					dailyCardCountSetting.controlEl.querySelector('.tarot-daily-count-value')!.textContent = `${value}`;
+				}));
+		
+		// Add count display to the right of slider
+		dailyCardCountSetting.controlEl.createSpan({ 
+			text: `${this.plugin.settings.dailyCardCount}`,
+			cls: 'tarot-daily-count-value'
+		});
+
 		// Daily template
 		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
 
@@ -155,28 +176,8 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					}));
 		}
 
-		// ===== MULTIPLE CARDS SECTION =====
-		new Setting(containerEl).setName('Multiple cards').setHeading();
-
-		const defaultCardCountSetting = new Setting(containerEl)
-			.setName('Default card count')
-			.setDesc('Number of cards to draw by default (1-10)')
-			.addSlider(slider => slider
-				.setLimits(1, 10, 1)
-				.setValue(this.plugin.settings.multipleCardsDefault)
-				.setDynamicTooltip()
-				.onChange(async (value) => {
-					this.plugin.settings.multipleCardsDefault = value;
-					await this.plugin.saveSettings();
-					// Update the display value
-					defaultCardCountSetting.controlEl.querySelector('.tarot-card-count-value')!.textContent = `${value}`;
-				}));
-		
-		// Add count display to the right of slider
-		defaultCardCountSetting.controlEl.createSpan({ 
-			text: `${this.plugin.settings.multipleCardsDefault}`,
-			cls: 'tarot-card-count-value'
-		});
+		// ===== TEMPLATES SECTION =====
+		new Setting(containerEl).setName('Templates').setHeading();
 
 		this.addMultipleCardsTemplateEditor(containerEl);
 	}

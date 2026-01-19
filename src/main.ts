@@ -31,41 +31,32 @@ export default class TarotPracticePlugin extends Plugin {
 		await this.loadSettings();
 
 		// Add ribbon icon for quick draw
-		this.addRibbonIcon('sparkles', 'Daily tarot practice draw', () => {
-			this.openDrawModal();
+		this.addRibbonIcon('sparkles', 'Draw daily tarot', () => {
+			this.openDailyDrawModal();
 		});
 
-		// Add command for drawing a card
+		// Add command for daily tarot draw (uses dailyCardCount setting)
 		this.addCommand({
-			id: 'draw-tarot-card',
-			name: 'Draw daily tarot card',
+			id: 'draw-daily-tarot',
+			name: 'Draw daily tarot',
 			callback: () => {
-				this.openDrawModal();
+				this.openDailyDrawModal();
 			}
 		});
 
-		// Add command for inline drawing at cursor
+		// Add command for inline single card
 		this.addCommand({
 			id: 'draw-tarot-card-inline',
-			name: 'Draw tarot card inline',
+			name: 'Inline draw tarot card',
 			callback: () => {
-				this.openInlineDrawModal();
+				this.openInlineSingleDrawModal();
 			}
 		});
 
-		// Add command for multiple cards (daily)
-		this.addCommand({
-			id: 'draw-multiple-tarot-cards',
-			name: 'Draw multiple tarot cards',
-			callback: () => {
-				this.openMultipleDrawModal();
-			}
-		});
-
-		// Add command for multiple cards (inline)
+		// Add command for inline multiple cards
 		this.addCommand({
 			id: 'draw-multiple-tarot-cards-inline',
-			name: 'Draw multiple tarot cards inline',
+			name: 'Inline draw multiple tarot cards',
 			callback: () => {
 				this.openInlineMultipleDrawModal();
 			}
@@ -75,21 +66,24 @@ export default class TarotPracticePlugin extends Plugin {
 		this.addSettingTab(new TarotPracticeSettingTab(this.app, this));
 	}
 
-	openDrawModal() {
-		new TarotDrawModal(this.app, this.settings, (result) => {
-			void this.insertDrawIntoNote(result);
-		}).open();
+	openDailyDrawModal() {
+		// Use dailyCardCount setting to determine single or multiple
+		if (this.settings.dailyCardCount === 1) {
+			// Single card
+			new TarotDrawModal(this.app, this.settings, (result) => {
+				void this.insertDrawIntoNote(result);
+			}).open();
+		} else {
+			// Multiple cards - pre-set to dailyCardCount
+			new TarotMultipleDrawModal(this.app, this.settings, (result) => {
+				void this.insertMultipleDrawIntoNote(result);
+			}, this.settings.dailyCardCount).open();
+		}
 	}
 
-	openInlineDrawModal() {
+	openInlineSingleDrawModal() {
 		new TarotDrawModal(this.app, this.settings, (result) => {
 			void this.insertDrawInline(result);
-		}).open();
-	}
-
-	openMultipleDrawModal() {
-		new TarotMultipleDrawModal(this.app, this.settings, (result) => {
-			void this.insertMultipleDrawIntoNote(result);
 		}).open();
 	}
 

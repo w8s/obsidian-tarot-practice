@@ -86,7 +86,6 @@ Customize your tarot draw output using these variables:
 | `{{card}}` | Card name | The Hermit |
 | `{{index}}` | Card index (0-77) | 9 |
 | `{{intention}}` | Your intention text | What do I need to know today? |
-| `{{timestamp}}` | ISO 8601 timestamp | 2026-01-11T15:45:23.818Z |
 | `{{orientation}}` | Upright/reversed indicator | reversed |
 
 ### Multiple Card Variables
@@ -129,7 +128,6 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 **Intention:** {{intention}}
 **Card:** {{card}} {{orientation}}
 **Index:** {{index}}
-**Drawn at:** {{timestamp}}
 
 ---
 ```
@@ -142,8 +140,6 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 **Cards drawn:** {{card_count}}
 
 {{cards}}
-
-**Drawn at:** {{timestamp}}
 
 ---
 ```

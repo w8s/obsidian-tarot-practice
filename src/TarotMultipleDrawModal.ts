@@ -18,13 +18,20 @@ interface MultipleDrawResult {
 export class TarotMultipleDrawModal extends Modal {
 	intention: string = '';
 	cardCount: number;
+	fixedCardCount: boolean;
 	onSubmit: (result: MultipleDrawResult) => void;
 	settings: TarotPracticeSettings;
 
-	constructor(app: App, settings: TarotPracticeSettings, onSubmit: (result: MultipleDrawResult) => void) {
+	constructor(app: App, settings: TarotPracticeSettings, onSubmit: (result: MultipleDrawResult) => void, fixedCount?: number) {
 		super(app);
 		this.settings = settings;
-		this.cardCount = settings.multipleCardsDefault;
+		if (fixedCount !== undefined) {
+			this.cardCount = fixedCount;
+			this.fixedCardCount = true;
+		} else {
+			this.cardCount = 3; // Default for inline multiple
+			this.fixedCardCount = false;
+		}
 		this.onSubmit = onSubmit;
 	}
 
@@ -53,24 +60,27 @@ export class TarotMultipleDrawModal extends Modal {
 				});
 			});
 
-		const cardCountSetting = new Setting(contentEl)
-			.setName('Number of cards')
-			.setDesc('How many cards to draw (1-78)')
-			.addSlider(slider => slider
-				.setLimits(1, 78, 1)
-				.setValue(this.cardCount)
-				.setDynamicTooltip()
-				.onChange(value => {
-					this.cardCount = value;
-					// Update the display value
-					cardCountSetting.controlEl.querySelector('.tarot-modal-card-count')!.textContent = `${value}`;
-				}));
-		
-		// Add count display to the right of slider
-		cardCountSetting.controlEl.createSpan({ 
-			text: `${this.cardCount}`,
-			cls: 'tarot-modal-card-count'
-		});
+		// Only show card count slider if not fixed (inline multiple only)
+		if (!this.fixedCardCount) {
+			const cardCountSetting = new Setting(contentEl)
+				.setName('Number of cards')
+				.setDesc('How many cards to draw (1-78)')
+				.addSlider(slider => slider
+					.setLimits(1, 78, 1)
+					.setValue(this.cardCount)
+					.setDynamicTooltip()
+					.onChange(value => {
+						this.cardCount = value;
+						// Update the display value
+						cardCountSetting.controlEl.querySelector('.tarot-modal-card-count')!.textContent = `${value}`;
+					}));
+			
+			// Add count display to the right of slider
+			cardCountSetting.controlEl.createSpan({ 
+				text: `${this.cardCount}`,
+				cls: 'tarot-modal-card-count'
+			});
+		}
 
 		new Setting(contentEl)
 			.addButton(btn => btn
@@ -93,41 +103,52 @@ export class TarotMultipleDrawModal extends Modal {
 		}
 
 		const rngi = new RngWithIntention();
-		const cards: CardDraw[] = [];
-		const drawnIndices = new Set<number>();
-
-		// Draw unique cards
 		const timestamp = new Date().toISOString();
+		
+		// Use intention + timestamp to get a seed index
+		const seedResult = rngi.draw(this.intention + timestamp, 78);
+		
+		// Create array of all card indices [0-77]
+		const availableCards = Array.from({ length: 78 }, (_, i) => i);
+		
+		// Fisher-Yates shuffle starting from the seed position
+		// This ensures uniqueness and uses the intention for randomness
+		const shuffled: number[] = [];
+		const remaining = [...availableCards];
+		
 		for (let i = 0; i < this.cardCount; i++) {
-			let cardIndex: number;
-			let attempts = 0;
+			// Use intention + index to get random position in remaining cards
+			const drawSeed = `${this.intention}-${timestamp}-${i}`;
+			const result = rngi.draw(drawSeed, remaining.length);
+			const selectedIndex = result.index;
 			
-			// Keep drawing until we get a unique card (with safety limit)
-			do {
-				const result = rngi.draw(`${this.intention}-${i}-${attempts}`, 78);
-				cardIndex = result.index;
-				attempts++;
-			} while (drawnIndices.has(cardIndex) && attempts < 100);
-
-			if (drawnIndices.has(cardIndex)) {
-				new Notice('Error: Could not draw unique cards');
+			// Take the card at that position
+			const cardIndex = remaining[selectedIndex];
+			if (cardIndex === undefined) {
+				new Notice('Error: Could not draw cards');
 				return;
 			}
-
-			drawnIndices.add(cardIndex);
-
+			
+			shuffled.push(cardIndex);
+			
+			// Remove it from remaining cards
+			remaining.splice(selectedIndex, 1);
+		}
+		
+		// Build the result with reversals
+		const cards: CardDraw[] = shuffled.map(cardIndex => {
 			// Calculate reversal if enabled
 			let isReversed = false;
 			if (this.settings.enableReversals) {
 				isReversed = Math.random() < (this.settings.reversalChance / 100);
 			}
-
-			cards.push({
+			
+			return {
 				cardIndex: cardIndex,
 				cardName: getCardName(cardIndex),
 				isReversed: isReversed
-			});
-		}
+			};
+		});
 
 		const drawResult: MultipleDrawResult = {
 			intention: this.intention,

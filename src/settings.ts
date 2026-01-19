@@ -6,13 +6,13 @@ export interface TarotPracticeSettings {
 	insertLocation: InsertLocation;
 	headingName: string;
 	outputTemplate: string;
+	dailyCardCount: number;
 	useSharedTemplate: boolean;
 	inlineOutputTemplate: string;
 	enableReversals: boolean;
 	reversalChance: number;
 	uprightIndicator: string;
 	reversedIndicator: string;
-	multipleCardsDefault: number;
 	multipleCardsTemplate: string;
 }
 
@@ -21,7 +21,6 @@ export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
 **Intention:** {{intention}}
 **Card:** {{card}} {{orientation}}
 **Index:** {{index}}
-**Drawn at:** {{timestamp}}
 
 ---
 `;
@@ -33,8 +32,6 @@ export const DEFAULT_MULTIPLE_TEMPLATE = `## Tarot draw - {{datetime}}
 
 {{cards}}
 
-**Drawn at:** {{timestamp}}
-
 ---
 `;
 
@@ -44,12 +41,12 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	insertLocation: 'append',
 	headingName: '## Tarot',
 	outputTemplate: DEFAULT_TEMPLATE,
+	dailyCardCount: 1,
 	useSharedTemplate: true,
 	inlineOutputTemplate: DEFAULT_TEMPLATE,
 	enableReversals: false,
 	reversalChance: 50,
 	uprightIndicator: '',
 	reversedIndicator: 'reversed',
-	multipleCardsDefault: 3,
 	multipleCardsTemplate: DEFAULT_MULTIPLE_TEMPLATE
 };
