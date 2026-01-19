@@ -2,6 +2,9 @@ import { App, PluginSettingTab, Setting } from 'obsidian';
 import TarotPracticePlugin from './main';
 import { InsertLocation } from './settings';
 import { FileSuggest } from './FileSuggest';
+import { TemplateMigrator } from './TemplateMigrator';
+import { TemplateFolderDetector } from './TemplateFolderDetector';
+import { TemplateMigrationModal } from './TemplateMigrationModal';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -14,6 +17,13 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
+
+		// Check if migration is needed
+		const migrator = new TemplateMigrator(this.app, this.plugin.settings);
+		if (migrator.needsMigration()) {
+			this.showMigrationPrompt(migrator);
+			return; // Don't show settings until migration is handled
+		}
 
 		// ===== DECK PREPARATION SECTION =====
 		new Setting(containerEl).setName('Deck preparation').setHeading();
@@ -259,5 +269,52 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						});
 				});
 		}
+	}
+
+	/**
+	 * Show migration prompt to user
+	 */
+	private showMigrationPrompt(migrator: TemplateMigrator): void {
+		const { containerEl } = this;
+		
+		// Show explanation
+		containerEl.createEl('h2', { text: 'Template System Update' });
+		containerEl.createEl('p', {
+			text: 'The Tarot Practice plugin now uses file-based templates. Would you like to migrate your customized templates?'
+		});
+
+		new Setting(containerEl)
+			.setName('Migrate templates')
+			.setDesc('Convert your inline templates to files in your vault')
+			.addButton(button => button
+				.setButtonText('Migrate Now')
+				.setCta()
+				.onClick(async () => {
+					const detector = new TemplateFolderDetector(this.app);
+					const detectedFolder = detector.detectTemplateFolder();
+					const templates = migrator.getExistingTemplates();
+
+					new TemplateMigrationModal(
+						this.app,
+						detectedFolder,
+						templates,
+						async (folderPath) => {
+							await migrator.migrate(folderPath);
+							await this.plugin.saveSettings();
+							this.display(); // Refresh settings
+						}
+					).open();
+				}));
+
+		new Setting(containerEl)
+			.setName('Skip migration')
+			.setDesc('Use built-in templates and mark migration as complete')
+			.addButton(button => button
+				.setButtonText('Skip')
+				.onClick(async () => {
+					this.plugin.settings.hasTemplatesMigrated = true;
+					await this.plugin.saveSettings();
+					this.display(); // Refresh settings
+				}));
 	}
 }
