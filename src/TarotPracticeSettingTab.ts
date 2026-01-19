@@ -93,6 +93,17 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			cls: 'tarot-daily-count-value'
 		});
 
+		// Daily template
+		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
+
+		// ===== DECK PREPARATION SECTION =====
+		new Setting(containerEl).setName('Deck preparation').setHeading();
+
+		new Setting(containerEl)
+			.setName('')
+			.setDesc('These settings apply to all draws (daily and inline)')
+			.setClass('setting-item-description');
+
 		// Shuffle count
 		const shuffleCountSetting = new Setting(containerEl)
 			.setName('Number of shuffles')
@@ -124,9 +135,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					this.plugin.settings.cutDeck = value;
 					await this.plugin.saveSettings();
 				}));
-
-		// Daily template
-		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
 
 		// ===== INLINE TAROT PRACTICE SECTION =====
 		new Setting(containerEl).setName('Inline practice').setHeading();

@@ -71,9 +71,12 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 - **Insert location**: Append to end, prepend to beginning, or under a specific heading
 - **Heading name**: Which heading to insert under (auto-created if missing)
 - **Number of cards**: How many cards to draw for daily practice (1-78, default: 1)
+- **Output template**: Format for single card daily draws (see Template Variables below)
+
+### Deck Preparation
+*These settings apply to all draws (daily and inline)*
 - **Number of shuffles**: How many times to shuffle the deck (1-7, default: 3)
 - **Cut deck**: Enable intention-based deck cutting (default: true)
-- **Output template**: Format for single card daily draws (see Template Variables below)
 
 ### Inline Practice
 - **Use daily practice format**: Share the same template as daily practice
@@ -245,6 +248,7 @@ Current version includes:
 Potential future additions:
 
 - Multiple spread types (3-card, Celtic Cross, etc.)
+- Spread-specific deck preparation settings (custom shuffle/cut per spread)
 - Different shuffle/cut styles (overhand, riffle, Hindu shuffle, etc.)
 - Shuffle style variance - each shuffle slightly different based on intention/entropy
 - Card interpretation database
