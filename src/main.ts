@@ -253,8 +253,9 @@ export default class TarotPracticePlugin extends Plugin {
 
 	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
 		// Get template using resolver
+		// This is called from daily draw, so use daily template
 		const resolver = new TemplateResolver(this.app, this.settings);
-		const template = await resolver.getMultipleTemplate();
+		const template = await resolver.getDailyTemplate();
 		const output = this.formatMultipleTemplate(result, template);
 
 		// Get target file (active file or daily note)
