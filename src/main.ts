@@ -1,7 +1,7 @@
 import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotDrawModal } from './TarotDrawModal';
 import { TarotMultipleDrawModal } from './TarotMultipleDrawModal';
-import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
+import { TarotPracticeSettings, DEFAULT_SETTINGS, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
 
 interface ShuffleMetadata {
@@ -125,8 +125,8 @@ export default class TarotPracticePlugin extends Plugin {
 		
 		// Format the output using appropriate template
 		const output = this.formatTemplate(result, this.settings.useSharedTemplate 
-			? this.settings.outputTemplate 
-			: this.settings.inlineOutputTemplate);
+			? (this.settings.outputTemplate || DEFAULT_TEMPLATE)
+			: (this.settings.inlineOutputTemplate || DEFAULT_TEMPLATE));
 		
 		// Insert at current cursor position ONLY
 		const editor = activeView.editor;
@@ -235,7 +235,7 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate || DEFAULT_MULTIPLE_TEMPLATE);
 		
 		const editor = activeView.editor;
 		editor.replaceSelection(output);
@@ -244,7 +244,7 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
-		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate || DEFAULT_MULTIPLE_TEMPLATE);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();
@@ -290,7 +290,7 @@ export default class TarotPracticePlugin extends Plugin {
 
 	async insertDrawIntoNote(result: DrawResult) {
 		// Format the output using template
-		const output = this.formatTemplate(result, this.settings.outputTemplate);
+		const output = this.formatTemplate(result, this.settings.outputTemplate || DEFAULT_TEMPLATE);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();

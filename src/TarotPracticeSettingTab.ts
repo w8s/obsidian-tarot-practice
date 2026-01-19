@@ -204,7 +204,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.setName('Use daily template for inline draws')
 			.setDesc('Use the same output template for inline draws as daily practice')
 			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.useSharedTemplate)
+				.setValue(this.plugin.settings.useSharedTemplate ?? true)
 				.onChange(async (value) => {
 					this.plugin.settings.useSharedTemplate = value;
 					await this.plugin.saveSettings();
@@ -234,7 +234,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const textArea = containerEl.createEl('textarea', { 
 			cls: 'tarot-template-textarea'
 		});
-		textArea.value = this.plugin.settings[settingKey];
+		textArea.value = this.plugin.settings[settingKey] || '';
 		textArea.rows = 10;
 		textArea.addEventListener('input', () => {
 			this.plugin.settings[settingKey] = textArea.value;
@@ -256,7 +256,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const textArea = containerEl.createEl('textarea', { 
 			cls: 'tarot-template-textarea'
 		});
-		textArea.value = this.plugin.settings.multipleCardsTemplate;
+		textArea.value = this.plugin.settings.multipleCardsTemplate || '';
 		textArea.rows = 10;
 		textArea.addEventListener('input', () => {
 			this.plugin.settings.multipleCardsTemplate = textArea.value;
