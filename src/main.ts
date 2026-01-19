@@ -4,12 +4,27 @@ import { TarotMultipleDrawModal } from './TarotMultipleDrawModal';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
 
+interface ShuffleMetadata {
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
+}
+
 interface DrawResult {
 	intention: string;
 	cardIndex: number;
 	cardName: string;
 	timestamp: string;
 	isReversed: boolean;
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
 }
 
 interface CardDraw {
@@ -22,6 +37,12 @@ interface MultipleDrawResult {
 	intention: string;
 	cards: CardDraw[];
 	timestamp: string;
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
 }
 
 export default class TarotPracticePlugin extends Plugin {
@@ -70,26 +91,26 @@ export default class TarotPracticePlugin extends Plugin {
 		// Use dailyCardCount setting to determine single or multiple
 		if (this.settings.dailyCardCount === 1) {
 			// Single card
-			new TarotDrawModal(this.app, this.settings, (result) => {
-				void this.insertDrawIntoNote(result);
+			new TarotDrawModal(this.app, this.settings, async (result) => {
+				await this.insertDrawIntoNote(result);
 			}).open();
 		} else {
 			// Multiple cards - pre-set to dailyCardCount
-			new TarotMultipleDrawModal(this.app, this.settings, (result) => {
-				void this.insertMultipleDrawIntoNote(result);
+			new TarotMultipleDrawModal(this.app, this.settings, async (result) => {
+				await this.insertMultipleDrawIntoNote(result);
 			}, this.settings.dailyCardCount).open();
 		}
 	}
 
 	openInlineSingleDrawModal() {
-		new TarotDrawModal(this.app, this.settings, (result) => {
-			void this.insertDrawInline(result);
+		new TarotDrawModal(this.app, this.settings, async (result) => {
+			await this.insertDrawInline(result);
 		}).open();
 	}
 
 	openInlineMultipleDrawModal() {
-		new TarotMultipleDrawModal(this.app, this.settings, (result) => {
-			void this.insertMultipleDrawInline(result);
+		new TarotMultipleDrawModal(this.app, this.settings, async (result) => {
+			await this.insertMultipleDrawInline(result);
 		}).open();
 	}
 
@@ -143,6 +164,18 @@ export default class TarotPracticePlugin extends Plugin {
 			return format ? timestamp.format(format) : timestamp.format('L LT');
 		});
 		
+		// Replace shuffle/cut metadata variables
+		output = output.replace(/{{shuffle_count}}/g, result.shuffleCount.toString());
+		output = output.replace(/{{was_cut}}/g, result.wasCut ? 'yes' : 'no');
+		output = output.replace(/{{cut_position}}/g, 
+			result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A');
+		output = output.replace(/{{cut_position_cards}}/g, 
+			result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A');
+		output = output.replace(/{{cut_base}}/g, 
+			result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A');
+		output = output.replace(/{{cut_variance}}/g, 
+			result.cutVariancePercent !== null ? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` : 'N/A');
+		
 		return output;
 	}
 
@@ -178,6 +211,18 @@ export default class TarotPracticePlugin extends Plugin {
 		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
 			return format ? timestamp.format(format) : timestamp.format('L LT');
 		});
+		
+		// Replace shuffle/cut metadata variables
+		output = output.replace(/{{shuffle_count}}/g, result.shuffleCount.toString());
+		output = output.replace(/{{was_cut}}/g, result.wasCut ? 'yes' : 'no');
+		output = output.replace(/{{cut_position}}/g, 
+			result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A');
+		output = output.replace(/{{cut_position_cards}}/g, 
+			result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A');
+		output = output.replace(/{{cut_base}}/g, 
+			result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A');
+		output = output.replace(/{{cut_variance}}/g, 
+			result.cutVariancePercent !== null ? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` : 'N/A');
 		
 		return output;
 	}

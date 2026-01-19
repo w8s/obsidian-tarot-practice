@@ -93,6 +93,38 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			cls: 'tarot-daily-count-value'
 		});
 
+		// Shuffle count
+		const shuffleCountSetting = new Setting(containerEl)
+			.setName('Number of shuffles')
+			.setDesc('How many times to shuffle the deck before drawing (1-7)')
+			.addSlider(slider => slider
+				.setLimits(1, 7, 1)
+				.setValue(this.plugin.settings.shuffleCount)
+				.setDynamicTooltip()
+				.onChange(async (value) => {
+					this.plugin.settings.shuffleCount = value;
+					await this.plugin.saveSettings();
+					// Update the display value
+					shuffleCountSetting.controlEl.querySelector('.tarot-shuffle-count-value')!.textContent = `${value}`;
+				}));
+		
+		// Add count display to the right of slider
+		shuffleCountSetting.controlEl.createSpan({ 
+			text: `${this.plugin.settings.shuffleCount}`,
+			cls: 'tarot-shuffle-count-value'
+		});
+
+		// Cut deck toggle
+		new Setting(containerEl)
+			.setName('Cut deck')
+			.setDesc('Cut the deck after shuffling (cut position influenced by intention)')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.cutDeck)
+				.onChange(async (value) => {
+					this.plugin.settings.cutDeck = value;
+					await this.plugin.saveSettings();
+				}));
+
 		// Daily template
 		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
 

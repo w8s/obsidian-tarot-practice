@@ -28,6 +28,6 @@
 	},
 	"dependencies": {
 		"obsidian": "latest",
-		"rng-with-intention": "^0.1.0"
+		"rng-with-intention": "^0.2.2"
 	}
 }

@@ -7,6 +7,8 @@ export interface TarotPracticeSettings {
 	headingName: string;
 	outputTemplate: string;
 	dailyCardCount: number;
+	shuffleCount: number;
+	cutDeck: boolean;
 	useSharedTemplate: boolean;
 	inlineOutputTemplate: string;
 	enableReversals: boolean;
@@ -42,6 +44,8 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	headingName: '## Tarot',
 	outputTemplate: DEFAULT_TEMPLATE,
 	dailyCardCount: 1,
+	shuffleCount: 3,
+	cutDeck: true,
 	useSharedTemplate: true,
 	inlineOutputTemplate: DEFAULT_TEMPLATE,
 	enableReversals: false,

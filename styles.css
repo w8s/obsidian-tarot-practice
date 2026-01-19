@@ -28,6 +28,7 @@ available in the app when your plugin is enabled.
 .tarot-reversal-value,
 .tarot-card-count-value,
 .tarot-daily-count-value,
+.tarot-shuffle-count-value,
 .tarot-modal-card-count {
 	margin-left: 1em;
 	min-width: 3em;

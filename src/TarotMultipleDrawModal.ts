@@ -1,7 +1,7 @@
 import { App, Modal, Notice, Setting } from 'obsidian';
-import { RngWithIntention } from 'rng-with-intention';
 import { getCardName } from './CardDatabase';
 import { TarotPracticeSettings } from './settings';
+import { prepareDeck } from './DeckPreparation';
 
 interface CardDraw {
 	cardIndex: number;
@@ -13,16 +13,22 @@ interface MultipleDrawResult {
 	intention: string;
 	cards: CardDraw[];
 	timestamp: string;
+	shuffleCount: number;
+	wasCut: boolean;
+	cutPositionPercent: number | null;
+	cutPositionCards: number | null;
+	cutBasePercent: number | null;
+	cutVariancePercent: number | null;
 }
 
 export class TarotMultipleDrawModal extends Modal {
 	intention: string = '';
 	cardCount: number;
 	fixedCardCount: boolean;
-	onSubmit: (result: MultipleDrawResult) => void;
+	onSubmit: (result: MultipleDrawResult) => void | Promise<void>;
 	settings: TarotPracticeSettings;
 
-	constructor(app: App, settings: TarotPracticeSettings, onSubmit: (result: MultipleDrawResult) => void, fixedCount?: number) {
+	constructor(app: App, settings: TarotPracticeSettings, onSubmit: (result: MultipleDrawResult) => void | Promise<void>, fixedCount?: number) {
 		super(app);
 		this.settings = settings;
 		if (fixedCount !== undefined) {
@@ -91,7 +97,7 @@ export class TarotMultipleDrawModal extends Modal {
 				}));
 	}
 
-	drawCards() {
+	async drawCards() {
 		if (!this.intention || this.intention.trim() === '') {
 			new Notice('Please enter an intention before drawing');
 			return;
@@ -102,62 +108,48 @@ export class TarotMultipleDrawModal extends Modal {
 			return;
 		}
 
-		const rngi = new RngWithIntention();
-		const timestamp = new Date().toISOString();
-		
-		// Use intention + timestamp to get a seed index
-		const seedResult = rngi.draw(this.intention + timestamp, 78);
-		
-		// Create array of all card indices [0-77]
-		const availableCards = Array.from({ length: 78 }, (_, i) => i);
-		
-		// Fisher-Yates shuffle starting from the seed position
-		// This ensures uniqueness and uses the intention for randomness
-		const shuffled: number[] = [];
-		const remaining = [...availableCards];
-		
-		for (let i = 0; i < this.cardCount; i++) {
-			// Use intention + index to get random position in remaining cards
-			const drawSeed = `${this.intention}-${timestamp}-${i}`;
-			const result = rngi.draw(drawSeed, remaining.length);
-			const selectedIndex = result.index;
+		try {
+			const timestamp = new Date().toISOString();
 			
-			// Take the card at that position
-			const cardIndex = remaining[selectedIndex];
-			if (cardIndex === undefined) {
-				new Notice('Error: Could not draw cards');
-				return;
-			}
+			// Prepare deck (shuffle and cut)
+			const { deck, metadata } = await prepareDeck(this.intention, timestamp, this.settings);
 			
-			shuffled.push(cardIndex);
+			// Draw consecutive cards from top
+			const drawnCards = deck.slice(0, this.cardCount);
 			
-			// Remove it from remaining cards
-			remaining.splice(selectedIndex, 1);
-		}
-		
-		// Build the result with reversals
-		const cards: CardDraw[] = shuffled.map(cardIndex => {
-			// Calculate reversal if enabled
-			let isReversed = false;
-			if (this.settings.enableReversals) {
-				isReversed = Math.random() < (this.settings.reversalChance / 100);
-			}
-			
-			return {
-				cardIndex: cardIndex,
-				cardName: getCardName(cardIndex),
-				isReversed: isReversed
+			// Build the result with reversals
+			const cards: CardDraw[] = drawnCards.map(cardIndex => {
+				// Calculate reversal if enabled
+				let isReversed = false;
+				if (this.settings.enableReversals) {
+					isReversed = Math.random() < (this.settings.reversalChance / 100);
+				}
+				
+				return {
+					cardIndex: cardIndex,
+					cardName: getCardName(cardIndex),
+					isReversed: isReversed
+				};
+			});
+
+			const drawResult: MultipleDrawResult = {
+				intention: this.intention,
+				cards: cards,
+				timestamp: timestamp,
+				shuffleCount: metadata.shuffleCount,
+				wasCut: metadata.wasCut,
+				cutPositionPercent: metadata.cutPositionPercent,
+				cutPositionCards: metadata.cutPositionCards,
+				cutBasePercent: metadata.cutBasePercent,
+				cutVariancePercent: metadata.cutVariancePercent
 			};
-		});
 
-		const drawResult: MultipleDrawResult = {
-			intention: this.intention,
-			cards: cards,
-			timestamp: timestamp
-		};
-
-		this.close();
-		this.onSubmit(drawResult);
+			this.close();
+			await this.onSubmit(drawResult);
+		} catch (error) {
+			console.error('Tarot draw error:', error);
+			new Notice('Error drawing cards. Check console for details.');
+		}
 	}
 
 	onClose() {
