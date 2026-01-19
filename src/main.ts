@@ -3,6 +3,7 @@ import { TarotDrawModal } from './TarotDrawModal';
 import { TarotMultipleDrawModal } from './TarotMultipleDrawModal';
 import { TarotPracticeSettings, DEFAULT_SETTINGS, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
+import { TemplateResolver } from './TemplateResolver';
 
 interface ShuffleMetadata {
 	shuffleCount: number;
@@ -123,10 +124,14 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		// Format the output using appropriate template
-		const output = this.formatTemplate(result, this.settings.useSharedTemplate 
-			? (this.settings.outputTemplate || DEFAULT_TEMPLATE)
-			: (this.settings.inlineOutputTemplate || DEFAULT_TEMPLATE));
+		// Get template using resolver
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = this.settings.useSharedTemplate 
+			? await resolver.getDailyTemplate()
+			: await resolver.getInlineTemplate();
+		
+		// Format the output
+		const output = this.formatTemplate(result, template);
 		
 		// Insert at current cursor position ONLY
 		const editor = activeView.editor;
@@ -235,7 +240,10 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate || DEFAULT_MULTIPLE_TEMPLATE);
+		// Get template using resolver
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getMultipleTemplate();
+		const output = this.formatMultipleTemplate(result, template);
 		
 		const editor = activeView.editor;
 		editor.replaceSelection(output);
@@ -244,7 +252,10 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
-		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate || DEFAULT_MULTIPLE_TEMPLATE);
+		// Get template using resolver
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getMultipleTemplate();
+		const output = this.formatMultipleTemplate(result, template);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();
@@ -289,8 +300,10 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {
-		// Format the output using template
-		const output = this.formatTemplate(result, this.settings.outputTemplate || DEFAULT_TEMPLATE);
+		// Get template using resolver
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getDailyTemplate();
+		const output = this.formatTemplate(result, template);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();
