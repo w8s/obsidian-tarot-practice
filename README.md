@@ -9,13 +9,14 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 ## Features
 
 ### Core Functionality
-- 🎴 Single card draw with intention input
+- 🎴 Single or multiple card draws with intention input
 - ✨ Uses [rng-with-intention](https://github.com/w8s/rng-with-intention) for meaningful randomness
 - 🔄 Optional reversal support with configurable probability and indicators
 - 📝 Highly customizable output format with template variables
 - 🃏 Standard Rider-Waite-Smith (RWS) card ordering (0-77)
+- 🎯 Unique card draws (no duplicates in multi-card draws)
 - ⏱️ Captures exact timestamp (to the millisecond) of each draw
-- 🔔 Notification showing which card was drawn
+- 🔔 Notification showing which card(s) were drawn
 
 ### Configuration Options
 
@@ -30,18 +31,22 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 **Output Templates**
 - Fully customizable output format
 - Available variables: `{{card}}`, `{{index}}`, `{{intention}}`, `{{timestamp}}`, `{{date}}`, `{{time}}`, `{{datetime}}`, `{{orientation}}`
+- Multiple card draws: `{{card_count}}`, `{{cards}}`
 - Default template maintains traditional tarot journal format
 
 ## Usage
 
-### Drawing a Card
+### Drawing Cards
 
 1. **Click the sparkles icon** in the left ribbon, or
    - **Run a command** (Cmd/Ctrl+P):
-     - "Draw daily tarot card" - inserts into daily note (based on settings)
-     - "Draw tarot card inline" - inserts at cursor in current note
+     - "Draw daily tarot card" - single card into daily note
+     - "Draw tarot card inline" - single card at cursor
+     - "Draw multiple tarot cards" - multiple cards into daily note
+     - "Draw multiple tarot cards inline" - multiple cards at cursor
 2. **Enter your intention** in the modal (required)
-3. **Press Enter or click "Draw card"**
+3. **For multiple cards:** Adjust the card count slider (1-78)
+4. **Press Enter or click "Draw card(s)"**
 
 The result is inserted according to your command choice and settings.
 
@@ -66,6 +71,10 @@ The result is inserted according to your command choice and settings.
 - **Upright indicator**: Text for upright cards (default: empty)
 - **Reversed indicator**: Text for reversed cards (default: "reversed")
 
+### Multiple Cards
+- **Default card count**: Number of cards for multi-card draws (1-10, default 3)
+- **Output template**: Template for multiple card draws
+
 ## Template Variables
 
 Customize your tarot draw output using these variables:
@@ -79,6 +88,13 @@ Customize your tarot draw output using these variables:
 | `{{intention}}` | Your intention text | What do I need to know today? |
 | `{{timestamp}}` | ISO 8601 timestamp | 2026-01-11T15:45:23.818Z |
 | `{{orientation}}` | Upright/reversed indicator | reversed |
+
+### Multiple Card Variables
+
+| Variable | Description | Example Output |
+|----------|-------------|----------------|
+| `{{card_count}}` | Number of cards drawn | 3 |
+| `{{cards}}` | Formatted numbered list | 1. The Hermit reversed<br>2. The Fool<br>3. The Tower |
 
 ### Date/Time Variables
 
@@ -106,7 +122,7 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 
 ### Template Examples
 
-**Default (included with plugin):**
+**Single Card (default):**
 ```
 ## Tarot draw - {{datetime}}
 
@@ -118,12 +134,26 @@ All date/time variables support [Moment.js format strings](https://momentjs.com/
 ---
 ```
 
-**Minimal:**
+**Multiple Cards (default):**
+```
+## Tarot draw - {{datetime}}
+
+**Intention:** {{intention}}
+**Cards drawn:** {{card_count}}
+
+{{cards}}
+
+**Drawn at:** {{timestamp}}
+
+---
+```
+
+**Minimal single:**
 ```
 - {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
 ```
 
-**Detailed:**
+**Detailed single:**
 ```
 ## {{card}} {{orientation}} - {{date:MMM D}}
 
@@ -183,6 +213,7 @@ Current version includes:
 - ✅ Single-card daily practice with intention
 - ✅ Quick inline draw command with separate template support
 - ✅ Reversal support with configurable indicators
+- ✅ Multiple card draws (1-78 unique cards)
 
 Potential future additions:
 
