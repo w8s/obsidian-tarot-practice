@@ -65,31 +65,29 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 
 ## Settings
 
+### Deck Preparation
+*These settings apply to all draws (daily and inline)*
+- **Number of shuffles**: How many times to shuffle the deck (1-7, default: 3)
+- **Cut deck**: Enable intention-based deck cutting (default: true)
+- **Number of cards for daily practice**: How many cards to draw for daily practice (1-78, default: 1)
+
 ### Daily Practice
 - **Use daily note**: Auto-create daily notes when no file is open
 - **Daily note path pattern**: Where daily notes are created (supports Moment.js format like `YYYY-MM-DD.md`)
 - **Insert location**: Append to end, prepend to beginning, or under a specific heading
 - **Heading name**: Which heading to insert under (auto-created if missing)
-- **Number of cards**: How many cards to draw for daily practice (1-78, default: 1)
-- **Output template**: Format for single card daily draws (see Template Variables below)
 
-### Deck Preparation
-*These settings apply to all draws (daily and inline)*
-- **Number of shuffles**: How many times to shuffle the deck (1-7, default: 3)
-- **Cut deck**: Enable intention-based deck cutting (default: true)
-
-### Inline Practice
-- **Use daily practice format**: Share the same template as daily practice
-- **Output template**: Separate format for inline single card draws (only shown when toggle is off)
+### Templates
+- **Daily practice output template**: Format for daily card draws (see Template Variables below)
+- **Use daily template for inline draws**: Share the same template for inline draws
+- **Inline practice output template**: Separate format for inline draws (only shown when toggle is off)
+- **Multiple cards output template**: Template for multiple card draws (daily or inline)
 
 ### Reversals
 - **Enable reversals**: Allow cards to appear reversed in readings
 - **Reversal chance**: Probability of reversal (0-100%, default 50%)
 - **Upright indicator**: Text for upright cards (default: empty)
 - **Reversed indicator**: Text for reversed cards (default: "reversed")
-
-### Templates
-- **Multiple cards output template**: Template for multiple card draws (daily or inline)
 
 ## Template Variables
 
@@ -245,8 +243,16 @@ Current version includes:
 - ✅ Reversal support with configurable indicators
 - ✅ Inline draw commands with separate templates
 
-Potential future additions:
+## Roadmap
 
+### v1.3.0 - Template System Overhaul
+- Replace inline template editors with file-based templates
+- Select template files from vault via dropdown (e.g., `Templates/Tarot - Daily.md`)
+- Support for Templates folder integration
+- Backward compatibility: auto-migrate existing inline templates to files
+- Works seamlessly with Templater plugin and other template tools
+
+### Future Additions
 - Multiple spread types (3-card, Celtic Cross, etc.)
 - Spread-specific deck preparation settings (custom shuffle/cut per spread)
 - Different shuffle/cut styles (overhand, riffle, Hindu shuffle, etc.)
