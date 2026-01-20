@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.3.1] - 2025-01-20
+
+### Added
+- List-based template UI with action buttons (View, Edit, Reset)
+- TemplateViewModal to preview template content
+- TemplateEditModal for selecting custom templates
+- Visual indication of template source (Built-in or file path)
+
+### Changed
+- Templates section now uses intuitive list interface (inspired by Obsidian Hotkeys UI)
+- Settings UI with grouped section styling for better visual hierarchy
+
+### Improved
+- Much cleaner and more intuitive template management
+- Action buttons provide immediate access to view and edit templates
+- Reset button disabled when already using built-in template
+
 ## [1.3.0] - 2025-01-19
 
 ### Added
