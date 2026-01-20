@@ -88,6 +88,11 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 - **Inline practice template**: Choose built-in or custom file from your vault  
 - **Multiple cards template**: Choose built-in or custom file from your vault
 
+Each template shows its current source (Built-in or file path) with action buttons to:
+- 📄 **View** - Preview template content
+- ✏️ **Edit** - Select a custom template file
+- 🔄 **Reset** - Revert to built-in template
+
 Template files support all standard template variables and work seamlessly with Templater plugin and other template tools.
 
 ### Reversals

@@ -5,7 +5,7 @@ This document provides context for AI agents working on the Tarot Practice plugi
 ## Project Context
 
 **Purpose**: Obsidian plugin for tarot practice with intention-seeded randomness
-**Current Version**: 1.3.0
+**Current Version**: 1.3.1
 **Tech Stack**: TypeScript, Obsidian API, rng-with-intention library
 
 ## Key Design Principles
@@ -52,6 +52,13 @@ this.settings.shuffleCount ?? 3  // Use ?? for deprecated optional fields
 ```
 
 ## Version History Summary
+
+**v1.3.1** (2025-01-20) - List-based template UI
+- Redesigned template settings with list interface
+- Added TemplateViewModal and TemplateEditModal
+- Action buttons for view/edit/reset templates
+- Grouped section styling for cleaner UI
+- Inspired by Obsidian Hotkeys/Bindings interface
 
 **v1.3.0** (2025-01-19) - File-based templates
 - Replaced inline template editors with file pickers
