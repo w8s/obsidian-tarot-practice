@@ -5,6 +5,41 @@ available in the app when your plugin is enabled.
 
 */
 
+/* Create grouped sections like Obsidian's General settings */
+.tarot-practice-settings {
+	/* Use CSS Grid to group settings into sections */
+}
+
+/* Remove default setting item styling */
+.tarot-practice-settings .setting-item:not(.setting-item-heading):not(.setting-item-description) {
+	background: var(--background-primary-alt);
+	border: 1px solid var(--background-modifier-border);
+	border-radius: 0;
+	margin-bottom: -1px; /* Collapse borders between items */
+}
+
+/* First setting after heading gets top radius */
+.tarot-practice-settings .setting-item-heading + .setting-item-description + .setting-item:not(.setting-item-heading),
+.tarot-practice-settings .setting-item-heading + .setting-item:not(.setting-item-heading):not(.setting-item-description) {
+	border-top-left-radius: 6px;
+	border-top-right-radius: 6px;
+}
+
+/* Last setting before next heading or at end gets bottom radius */
+.tarot-practice-settings .setting-item:not(.setting-item-heading):not(.setting-item-description):has(+ .setting-item-heading),
+.tarot-practice-settings .setting-item:not(.setting-item-heading):not(.setting-item-description):last-child {
+	border-bottom-left-radius: 6px;
+	border-bottom-right-radius: 6px;
+	margin-bottom: 18px;
+}
+
+/* Headings and descriptions shouldn't have section styling */
+.tarot-practice-settings .setting-item-heading,
+.tarot-practice-settings .setting-item-description {
+	background: transparent;
+	border: none;
+}
+
 /* Template textarea styling */
 .tarot-template-textarea {
 	width: 100%;

@@ -17,6 +17,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
+		containerEl.addClass('tarot-practice-settings');
 
 		// Check if migration is needed
 		const migrator = new TemplateMigrator(this.app, this.plugin.settings);
@@ -27,11 +28,9 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// ===== DECK PREPARATION SECTION =====
 		new Setting(containerEl).setName('Deck preparation').setHeading();
-
-		new Setting(containerEl)
-			.setName('')
-			.setDesc('These settings apply to all draws (daily and inline)')
-			.setClass('setting-item-description');
+		containerEl.createDiv('setting-item-description', el => {
+			el.setText('These settings apply to all draws (daily and inline)');
+		});
 
 		// Shuffle count
 		const shuffleCountSetting = new Setting(containerEl)
