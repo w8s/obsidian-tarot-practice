@@ -1,42 +1,10 @@
 import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
-import { TarotDrawModal } from './TarotDrawModal';
-import { TarotMultipleDrawModal } from './TarotMultipleDrawModal';
-import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
+import { TarotDrawModal, DrawResult, MultipleDrawResult } from './TarotDrawModal';
+import { TarotPracticeSettings, DEFAULT_SETTINGS, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
+import { TemplateResolver } from './TemplateResolver';
 
 interface ShuffleMetadata {
-	shuffleCount: number;
-	wasCut: boolean;
-	cutPositionPercent: number | null;
-	cutPositionCards: number | null;
-	cutBasePercent: number | null;
-	cutVariancePercent: number | null;
-}
-
-interface DrawResult {
-	intention: string;
-	cardIndex: number;
-	cardName: string;
-	timestamp: string;
-	isReversed: boolean;
-	shuffleCount: number;
-	wasCut: boolean;
-	cutPositionPercent: number | null;
-	cutPositionCards: number | null;
-	cutBasePercent: number | null;
-	cutVariancePercent: number | null;
-}
-
-interface CardDraw {
-	cardIndex: number;
-	cardName: string;
-	isReversed: boolean;
-}
-
-interface MultipleDrawResult {
-	intention: string;
-	cards: CardDraw[];
-	timestamp: string;
 	shuffleCount: number;
 	wasCut: boolean;
 	cutPositionPercent: number | null;
@@ -88,30 +56,33 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	openDailyDrawModal() {
-		// Use dailyCardCount setting to determine single or multiple
+		// Always use the same modal, just with different card counts
+		// Card count comes from dailyCardCount setting
+		// showCardCountSetting = false (fixed count for daily)
 		if (this.settings.dailyCardCount === 1) {
-			// Single card
-			new TarotDrawModal(this.app, this.settings, async (result) => {
+			new TarotDrawModal(this.app, this.settings, async (result: DrawResult) => {
 				await this.insertDrawIntoNote(result);
-			}).open();
+			}, 1, false, 'Daily tarot draw').open();
 		} else {
-			// Multiple cards - pre-set to dailyCardCount
-			new TarotMultipleDrawModal(this.app, this.settings, async (result) => {
+			new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
 				await this.insertMultipleDrawIntoNote(result);
-			}, this.settings.dailyCardCount).open();
+			}, this.settings.dailyCardCount, false, 'Daily tarot draw').open();
 		}
 	}
 
 	openInlineSingleDrawModal() {
-		new TarotDrawModal(this.app, this.settings, async (result) => {
+		// Single card inline draw
+		new TarotDrawModal(this.app, this.settings, async (result: DrawResult) => {
 			await this.insertDrawInline(result);
-		}).open();
+		}, 1, false, 'Inline tarot draw').open();
 	}
 
 	openInlineMultipleDrawModal() {
-		new TarotMultipleDrawModal(this.app, this.settings, async (result) => {
+		// Multiple card inline draw with user-editable count
+		// showCardCountSetting = true (user can change count)
+		new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
 			await this.insertMultipleDrawInline(result);
-		}).open();
+		}, 3, true, 'Inline draw multiple cards').open();
 	}
 
 	async insertDrawInline(result: DrawResult) {
@@ -123,10 +94,12 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		// Format the output using appropriate template
-		const output = this.formatTemplate(result, this.settings.useSharedTemplate 
-			? this.settings.outputTemplate 
-			: this.settings.inlineOutputTemplate);
+		// Get template using resolver - always use inline template
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getInlineTemplate();
+		
+		// Format the output
+		const output = this.formatTemplate(result, template);
 		
 		// Insert at current cursor position ONLY
 		const editor = activeView.editor;
@@ -235,7 +208,10 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+		// Get template using resolver
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getMultipleTemplate();
+		const output = this.formatMultipleTemplate(result, template);
 		
 		const editor = activeView.editor;
 		editor.replaceSelection(output);
@@ -244,7 +220,11 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
-		const output = this.formatMultipleTemplate(result, this.settings.multipleCardsTemplate);
+		// Get template using resolver
+		// This is called from daily draw, so use daily template
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getDailyTemplate();
+		const output = this.formatMultipleTemplate(result, template);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();
@@ -289,8 +269,10 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async insertDrawIntoNote(result: DrawResult) {
-		// Format the output using template
-		const output = this.formatTemplate(result, this.settings.outputTemplate);
+		// Get template using resolver
+		const resolver = new TemplateResolver(this.app, this.settings);
+		const template = await resolver.getDailyTemplate();
+		const output = this.formatTemplate(result, template);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();

@@ -5,17 +5,31 @@ export interface TarotPracticeSettings {
 	dailyNotePathPattern: string;
 	insertLocation: InsertLocation;
 	headingName: string;
-	outputTemplate: string;
 	dailyCardCount: number;
 	shuffleCount: number;
 	cutDeck: boolean;
-	useSharedTemplate: boolean;
-	inlineOutputTemplate: string;
 	enableReversals: boolean;
 	reversalChance: number;
 	uprightIndicator: string;
 	reversedIndicator: string;
-	multipleCardsTemplate: string;
+	
+	// File-based templates (v1.3.0+)
+	useCustomDailyTemplate: boolean;
+	customDailyTemplatePath: string;
+	useCustomInlineTemplate: boolean;
+	customInlineTemplatePath: string;
+	useCustomMultipleTemplate: boolean;
+	customMultipleTemplatePath: string;
+	
+	// Migration flag
+	hasTemplatesMigrated: boolean;
+	
+	// DEPRECATED: Kept for backward compatibility and migration
+	// Will be removed in v2.0.0
+	outputTemplate?: string;
+	useSharedTemplate?: boolean;
+	inlineOutputTemplate?: string;
+	multipleCardsTemplate?: string;
 }
 
 export const DEFAULT_TEMPLATE = `## Tarot draw - {{datetime}}
@@ -42,15 +56,28 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	dailyNotePathPattern: 'YYYY-MM-DD.md',
 	insertLocation: 'append',
 	headingName: '## Tarot',
-	outputTemplate: DEFAULT_TEMPLATE,
 	dailyCardCount: 1,
 	shuffleCount: 3,
 	cutDeck: true,
-	useSharedTemplate: true,
-	inlineOutputTemplate: DEFAULT_TEMPLATE,
 	enableReversals: false,
 	reversalChance: 50,
 	uprightIndicator: '',
 	reversedIndicator: 'reversed',
+	
+	// File-based templates (v1.3.0+)
+	useCustomDailyTemplate: false,
+	customDailyTemplatePath: '',
+	useCustomInlineTemplate: false,
+	customInlineTemplatePath: '',
+	useCustomMultipleTemplate: false,
+	customMultipleTemplatePath: '',
+	
+	// Migration flag
+	hasTemplatesMigrated: false,
+	
+	// DEPRECATED: Keep for migration
+	outputTemplate: DEFAULT_TEMPLATE,
+	useSharedTemplate: true,
+	inlineOutputTemplate: DEFAULT_TEMPLATE,
 	multipleCardsTemplate: DEFAULT_MULTIPLE_TEMPLATE
 };

@@ -1,6 +1,10 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import TarotPracticePlugin from './main';
 import { InsertLocation } from './settings';
+import { FileSuggest } from './FileSuggest';
+import { TemplateMigrator } from './TemplateMigrator';
+import { TemplateFolderDetector } from './TemplateFolderDetector';
+import { TemplateMigrationModal } from './TemplateMigrationModal';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -13,6 +17,13 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 	display(): void {
 		const { containerEl } = this;
 		containerEl.empty();
+
+		// Check if migration is needed
+		const migrator = new TemplateMigrator(this.app, this.plugin.settings);
+		if (migrator.needsMigration()) {
+			this.showMigrationPrompt(migrator);
+			return; // Don't show settings until migration is handled
+		}
 
 		// ===== DECK PREPARATION SECTION =====
 		new Setting(containerEl).setName('Deck preparation').setHeading();
@@ -197,70 +208,113 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName('Templates').setHeading();
 
 		// Daily template
-		this.addTemplateEditor(containerEl, 'Daily practice output template', 'outputTemplate');
+		this.addTemplateSection(
+			containerEl,
+			'Daily practice template',
+			'Template for daily tarot draws',
+			'useCustomDailyTemplate',
+			'customDailyTemplatePath'
+		);
 
-		// Use shared template toggle
-		new Setting(containerEl)
-			.setName('Use daily template for inline draws')
-			.setDesc('Use the same output template for inline draws as daily practice')
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings.useSharedTemplate)
-				.onChange(async (value) => {
-					this.plugin.settings.useSharedTemplate = value;
-					await this.plugin.saveSettings();
-					this.display();
-				}));
-
-		// Only show inline template if NOT using shared
-		if (!this.plugin.settings.useSharedTemplate) {
-			this.addTemplateEditor(containerEl, 'Inline practice output template', 'inlineOutputTemplate');
-		}
+		// Inline template
+		this.addTemplateSection(
+			containerEl,
+			'Inline practice template',
+			'Template for inline single-card draws',
+			'useCustomInlineTemplate',
+			'customInlineTemplatePath'
+		);
 
 		// Multiple cards template
-		this.addMultipleCardsTemplateEditor(containerEl);
+		this.addTemplateSection(
+			containerEl,
+			'Multiple cards template',
+			'Template for multiple card draws',
+			'useCustomMultipleTemplate',
+			'customMultipleTemplatePath'
+		);
 	}
 
-	addTemplateEditor(containerEl: HTMLElement, title: string, settingKey: 'outputTemplate' | 'inlineOutputTemplate'): void {
-		new Setting(containerEl).setName(title).setHeading();
-		
-		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
-		helpText.createEl('span', { text: 'Customize output using template variables. See ' });
-		helpText.createEl('a', { 
-			text: 'template documentation',
-			href: 'https://github.com/w8s/obsidian-tarot-practice#template-variables'
-		});
-		helpText.createEl('span', { text: ' for available variables and examples.' });
-		
-		const textArea = containerEl.createEl('textarea', { 
-			cls: 'tarot-template-textarea'
-		});
-		textArea.value = this.plugin.settings[settingKey];
-		textArea.rows = 10;
-		textArea.addEventListener('input', () => {
-			this.plugin.settings[settingKey] = textArea.value;
-			void this.plugin.saveSettings();
-		});
+	addTemplateSection(
+		containerEl: HTMLElement,
+		name: string,
+		desc: string,
+		useCustomKey: 'useCustomDailyTemplate' | 'useCustomInlineTemplate' | 'useCustomMultipleTemplate',
+		pathKey: 'customDailyTemplatePath' | 'customInlineTemplatePath' | 'customMultipleTemplatePath'
+	): void {
+		// Toggle for using custom template
+		new Setting(containerEl)
+			.setName(name)
+			.setDesc(desc)
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings[useCustomKey])
+				.onChange(async (value) => {
+					this.plugin.settings[useCustomKey] = value;
+					await this.plugin.saveSettings();
+					this.display(); // Refresh to show/hide file picker
+				}));
+
+		// Only show file picker if custom template enabled
+		if (this.plugin.settings[useCustomKey]) {
+			new Setting(containerEl)
+				.setName('Template file')
+				.setDesc('Select a markdown file from your vault')
+				.addText(text => {
+					new FileSuggest(this.app, text.inputEl);
+					text.setPlaceholder('Example: Templates/Tarot/Daily.md')
+						.setValue(this.plugin.settings[pathKey])
+						.onChange(async (value) => {
+							this.plugin.settings[pathKey] = value;
+							await this.plugin.saveSettings();
+						});
+				});
+		}
 	}
 
-	addMultipleCardsTemplateEditor(containerEl: HTMLElement): void {
-		new Setting(containerEl).setName('Multiple cards output template').setHeading();
+	/**
+	 * Show migration prompt to user
+	 */
+	private showMigrationPrompt(migrator: TemplateMigrator): void {
+		const { containerEl } = this;
 		
-		const helpText = containerEl.createEl('p', { cls: 'setting-item-description' });
-		helpText.createEl('span', { text: 'Template for multiple card draws. Available variables: {{intention}}, {{card_count}}, {{cards}}, {{timestamp}}, {{date}}, {{time}}, {{datetime}}. See ' });
-		helpText.createEl('a', { 
-			text: 'template documentation',
-			href: 'https://github.com/w8s/obsidian-tarot-practice#template-variables'
+		// Show explanation
+		containerEl.createEl('h2', { text: 'Template System Update' });
+		containerEl.createEl('p', {
+			text: 'The Tarot Practice plugin now uses file-based templates. Would you like to migrate your customized templates?'
 		});
-		helpText.createEl('span', { text: ' for formatting options.' });
-		
-		const textArea = containerEl.createEl('textarea', { 
-			cls: 'tarot-template-textarea'
-		});
-		textArea.value = this.plugin.settings.multipleCardsTemplate;
-		textArea.rows = 10;
-		textArea.addEventListener('input', () => {
-			this.plugin.settings.multipleCardsTemplate = textArea.value;
-			void this.plugin.saveSettings();
-		});
+
+		new Setting(containerEl)
+			.setName('Migrate templates')
+			.setDesc('Convert your inline templates to files in your vault')
+			.addButton(button => button
+				.setButtonText('Migrate Now')
+				.setCta()
+				.onClick(async () => {
+					const detector = new TemplateFolderDetector(this.app);
+					const detectedFolder = detector.detectTemplateFolder();
+					const templates = migrator.getExistingTemplates();
+
+					new TemplateMigrationModal(
+						this.app,
+						detectedFolder,
+						templates,
+						async (folderPath) => {
+							await migrator.migrate(folderPath);
+							await this.plugin.saveSettings();
+							this.display(); // Refresh settings
+						}
+					).open();
+				}));
+
+		new Setting(containerEl)
+			.setName('Skip migration')
+			.setDesc('Use built-in templates and mark migration as complete')
+			.addButton(button => button
+				.setButtonText('Skip')
+				.onClick(async () => {
+					this.plugin.settings.hasTemplatesMigrated = true;
+					await this.plugin.saveSettings();
+					this.display(); // Refresh settings
+				}));
 	}
 }

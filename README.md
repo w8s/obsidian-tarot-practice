@@ -84,10 +84,11 @@ Digital tarot tools often feel hollow because they lack the intentionality prese
 - **Heading name**: Which heading to insert under (auto-created if missing)
 
 ### Templates
-- **Daily practice output template**: Format for daily card draws (see Template Variables below)
-- **Use daily template for inline draws**: Share the same template for inline draws
-- **Inline practice output template**: Separate format for inline draws (only shown when toggle is off)
-- **Multiple cards output template**: Template for multiple card draws (daily or inline)
+- **Daily practice template**: Choose built-in or custom file from your vault
+- **Inline practice template**: Choose built-in or custom file from your vault  
+- **Multiple cards template**: Choose built-in or custom file from your vault
+
+Template files support all standard template variables and work seamlessly with Templater plugin and other template tools.
 
 ### Reversals
 - **Enable reversals**: Allow cards to appear reversed in readings
@@ -248,15 +249,7 @@ Current version includes:
 - ✅ Complete metadata capture for analytics
 - ✅ Reversal support with configurable indicators
 - ✅ Inline draw commands with separate templates
-
-## Roadmap
-
-### v1.3.0 - Template System Overhaul
-- Replace inline template editors with file-based templates
-- Select template files from vault via dropdown (e.g., `Templates/Tarot - Daily.md`)
-- Support for Templates folder integration
-- Backward compatibility: auto-migrate existing inline templates to files
-- Works seamlessly with Templater plugin and other template tools
+- ✅ File-based template system with vault integration
 
 ### Future Additions
 - Multiple spread types (3-card, Celtic Cross, etc.)
