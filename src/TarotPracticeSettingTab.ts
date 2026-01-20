@@ -5,6 +5,9 @@ import { FileSuggest } from './FileSuggest';
 import { TemplateMigrator } from './TemplateMigrator';
 import { TemplateFolderDetector } from './TemplateFolderDetector';
 import { TemplateMigrationModal } from './TemplateMigrationModal';
+import { TemplateViewModal } from './TemplateViewModal';
+import { TemplateEditModal } from './TemplateEditModal';
+import { TemplateResolver } from './TemplateResolver';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -207,67 +210,92 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName('Templates').setHeading();
 
 		// Daily template
-		this.addTemplateSection(
+		this.addTemplateListItem(
 			containerEl,
-			'Daily practice template',
-			'Template for daily tarot draws',
+			'Daily practice',
 			'useCustomDailyTemplate',
 			'customDailyTemplatePath'
 		);
 
 		// Inline template
-		this.addTemplateSection(
+		this.addTemplateListItem(
 			containerEl,
-			'Inline practice template',
-			'Template for inline single-card draws',
+			'Inline practice',
 			'useCustomInlineTemplate',
 			'customInlineTemplatePath'
 		);
 
 		// Multiple cards template
-		this.addTemplateSection(
+		this.addTemplateListItem(
 			containerEl,
-			'Multiple cards template',
-			'Template for multiple card draws',
+			'Multiple cards',
 			'useCustomMultipleTemplate',
 			'customMultipleTemplatePath'
 		);
 	}
 
-	addTemplateSection(
+	/**
+	 * Add a template list item with view/edit/reset actions
+	 */
+	addTemplateListItem(
 		containerEl: HTMLElement,
 		name: string,
-		desc: string,
 		useCustomKey: 'useCustomDailyTemplate' | 'useCustomInlineTemplate' | 'useCustomMultipleTemplate',
 		pathKey: 'customDailyTemplatePath' | 'customInlineTemplatePath' | 'customMultipleTemplatePath'
 	): void {
-		// Toggle for using custom template
+		const isCustom = this.plugin.settings[useCustomKey];
+		const customPath = this.plugin.settings[pathKey];
+		const description = isCustom && customPath ? customPath : 'Built-in template';
+
 		new Setting(containerEl)
 			.setName(name)
-			.setDesc(desc)
-			.addToggle(toggle => toggle
-				.setValue(this.plugin.settings[useCustomKey])
-				.onChange(async (value) => {
-					this.plugin.settings[useCustomKey] = value;
-					await this.plugin.saveSettings();
-					this.display(); // Refresh to show/hide file picker
-				}));
+			.setDesc(description)
+			.addExtraButton(button => button
+				.setIcon('document')
+				.setTooltip('View template')
+				.onClick(async () => {
+					// Get template content
+					const resolver = new TemplateResolver(this.app, this.plugin.settings);
+					let content: string;
 
-		// Only show file picker if custom template enabled
-		if (this.plugin.settings[useCustomKey]) {
-			new Setting(containerEl)
-				.setName('Template file')
-				.setDesc('Select a markdown file from your vault')
-				.addText(text => {
-					new FileSuggest(this.app, text.inputEl);
-					text.setPlaceholder('Example: Templates/Tarot/Daily.md')
-						.setValue(this.plugin.settings[pathKey])
-						.onChange(async (value) => {
-							this.plugin.settings[pathKey] = value;
+					// Determine template type and get content
+					if (useCustomKey === 'useCustomDailyTemplate') {
+						content = await resolver.getDailyTemplate();
+					} else if (useCustomKey === 'useCustomInlineTemplate') {
+						content = await resolver.getInlineTemplate();
+					} else {
+						content = await resolver.getMultipleTemplate();
+					}
+					
+					new TemplateViewModal(this.app, name, content).open();
+				}))
+			.addExtraButton(button => button
+				.setIcon('pencil')
+				.setTooltip('Edit template')
+				.onClick(() => {
+					new TemplateEditModal(
+						this.app,
+						name,
+						customPath || '',
+						async (newPath) => {
+							// Save the new path
+							this.plugin.settings[useCustomKey] = newPath !== '';
+							this.plugin.settings[pathKey] = newPath;
 							await this.plugin.saveSettings();
-						});
-				});
-		}
+							this.display(); // Refresh UI
+						}
+					).open();
+				}))
+			.addExtraButton(button => button
+				.setIcon('reset')
+				.setTooltip('Reset to built-in')
+				.setDisabled(!isCustom) // Disable if already using built-in
+				.onClick(async () => {
+					this.plugin.settings[useCustomKey] = false;
+					this.plugin.settings[pathKey] = '';
+					await this.plugin.saveSettings();
+					this.display(); // Refresh UI
+				}));
 	}
 
 	/**
