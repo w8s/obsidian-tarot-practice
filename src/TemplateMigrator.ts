@@ -100,9 +100,6 @@ export class TemplateMigrator {
 	/**
 	 * Check if a template has been customized from default
 	 */
-	/**
-	 * Check if a template has been customized from default
-	 */
 	private isCustomized(template: string | undefined, builtIn: string): boolean {
 		if (!template) {
 			return false;
