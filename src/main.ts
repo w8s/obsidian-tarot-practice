@@ -94,11 +94,9 @@ export default class TarotPracticePlugin extends Plugin {
 			return;
 		}
 		
-		// Get template using resolver
+		// Get template using resolver - always use inline template
 		const resolver = new TemplateResolver(this.app, this.settings);
-		const template = this.settings.useSharedTemplate 
-			? await resolver.getDailyTemplate()
-			: await resolver.getInlineTemplate();
+		const template = await resolver.getInlineTemplate();
 		
 		// Format the output
 		const output = this.formatTemplate(result, template);
