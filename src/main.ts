@@ -62,11 +62,11 @@ export default class TarotPracticePlugin extends Plugin {
 		if (this.settings.dailyCardCount === 1) {
 			new TarotDrawModal(this.app, this.settings, async (result: DrawResult) => {
 				await this.insertDrawIntoNote(result);
-			}, 1, false).open();
+			}, 1, false, 'Daily tarot draw').open();
 		} else {
 			new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
 				await this.insertMultipleDrawIntoNote(result);
-			}, this.settings.dailyCardCount, false).open();
+			}, this.settings.dailyCardCount, false, 'Daily tarot draw').open();
 		}
 	}
 
@@ -74,7 +74,7 @@ export default class TarotPracticePlugin extends Plugin {
 		// Single card inline draw
 		new TarotDrawModal(this.app, this.settings, async (result: DrawResult) => {
 			await this.insertDrawInline(result);
-		}, 1, false).open();
+		}, 1, false, 'Inline tarot draw').open();
 	}
 
 	openInlineMultipleDrawModal() {
@@ -82,7 +82,7 @@ export default class TarotPracticePlugin extends Plugin {
 		// showCardCountSetting = true (user can change count)
 		new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
 			await this.insertMultipleDrawInline(result);
-		}, 3, true).open();
+		}, 3, true, 'Inline draw multiple cards').open();
 	}
 
 	async insertDrawInline(result: DrawResult) {

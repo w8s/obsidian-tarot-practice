@@ -42,26 +42,31 @@ export class TarotDrawModal extends Modal {
 	intention: string = '';
 	cardCount: number;
 	showCardCountSetting: boolean;
+	title: string;
 	onSubmit: ((result: DrawResult) => void | Promise<void>) | ((result: MultipleDrawResult) => void | Promise<void>);
 	settings: TarotPracticeSettings;
 
 	/**
 	 * Unified modal for drawing single or multiple cards
 	 * @param cardCount Number of cards to draw (default: 1)
-	 * @param showCardCountSetting Whether to show card count input (default: false for daily, true for inline multiple)
+	 * @param showCardCountSetting Whether to show card count input (default: false)
+	 * @param title Modal title (default: auto-generated based on card count)
 	 */
 	constructor(
 		app: App,
 		settings: TarotPracticeSettings,
 		onSubmit: ((result: DrawResult) => void | Promise<void>) | ((result: MultipleDrawResult) => void | Promise<void>),
 		cardCount: number = 1,
-		showCardCountSetting: boolean = false
+		showCardCountSetting: boolean = false,
+		title?: string
 	) {
 		super(app);
 		this.settings = settings;
 		this.onSubmit = onSubmit;
 		this.cardCount = cardCount;
 		this.showCardCountSetting = showCardCountSetting;
+		// Auto-generate title if not provided
+		this.title = title || (cardCount === 1 ? 'Tarot draw' : `Draw ${cardCount} cards`);
 	}
 
 	onOpen() {
@@ -69,9 +74,8 @@ export class TarotDrawModal extends Modal {
 		
 		contentEl.empty();
 		
-		// Title varies based on mode
-		const title = this.cardCount === 1 ? 'Daily tarot draw' : 'Draw multiple tarot cards';
-		contentEl.createEl('h2', { text: title });
+		// Use configurable title
+		contentEl.createEl('h2', { text: this.title });
 
 		// Intention input
 		new Setting(contentEl)
