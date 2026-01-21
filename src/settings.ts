@@ -23,6 +23,9 @@ export interface TarotPracticeSettings {
 	useCustomMultipleTemplate: boolean;
 	customMultipleTemplatePath: string;
 	
+	// Template organization (v1.4.0+)
+	templateBaseFolder: string;
+	
 	// Spreads (v1.4.0+)
 	customSpreads: Spread[];
 	
@@ -76,6 +79,9 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	customInlineTemplatePath: '',
 	useCustomMultipleTemplate: false,
 	customMultipleTemplatePath: '',
+	
+	// Template organization (v1.4.0+)
+	templateBaseFolder: 'Templates/Tarot',
 	
 	// Spreads (v1.4.0+)
 	customSpreads: [],

@@ -211,6 +211,23 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					}));
 		}
 
+		// ===== TEMPLATE ORGANIZATION SECTION =====
+		new Setting(containerEl).setName('Template organization').setHeading();
+		containerEl.createDiv('setting-item-description', el => {
+			el.setText('Configure where template files are stored in your vault');
+		});
+
+		new Setting(containerEl)
+			.setName('Template base folder')
+			.setDesc('Base folder for all template files (e.g., Templates/Tarot)')
+			.addText(text => text
+				.setPlaceholder('Templates/Tarot')
+				.setValue(this.plugin.settings.templateBaseFolder)
+				.onChange(async (value) => {
+					this.plugin.settings.templateBaseFolder = value;
+					await this.plugin.saveSettings();
+				}));
+
 		// ===== SPREADS SECTION =====
 		new Setting(containerEl).setName('Spreads').setHeading();
 		containerEl.createDiv('setting-item-description', el => {
