@@ -3,6 +3,12 @@ import { TarotDrawModal, DrawResult, MultipleDrawResult } from './TarotDrawModal
 import { TarotPracticeSettings, DEFAULT_SETTINGS, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
 import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
 import { TemplateResolver } from './TemplateResolver';
+import { SpreadDrawModal } from './SpreadDrawModal';
+import { SpreadResolver } from './SpreadResolver';
+import { SpreadFormatter, registerHandlebarsHelpers } from './SpreadFormatter';
+import { Spread, SpreadDrawResult, SpreadPositionResult } from './spreads';
+import { prepareDeck } from './DeckPreparation';
+import { CARDS } from './cards';
 
 interface ShuffleMetadata {
 	shuffleCount: number;
@@ -18,6 +24,9 @@ export default class TarotPracticePlugin extends Plugin {
 
 	async onload() {
 		await this.loadSettings();
+
+		// Register Handlebars helpers for spread templates
+		registerHandlebarsHelpers();
 
 		// Add ribbon icon for quick draw
 		this.addRibbonIcon('sparkles', 'Draw daily tarot', () => {
@@ -48,6 +57,15 @@ export default class TarotPracticePlugin extends Plugin {
 			name: 'Inline draw multiple tarot cards',
 			callback: () => {
 				this.openInlineMultipleDrawModal();
+			}
+		});
+
+		// Add command for spread draw
+		this.addCommand({
+			id: 'draw-tarot-spread',
+			name: 'Draw tarot spread',
+			callback: () => {
+				this.openSpreadDrawModal();
 			}
 		});
 
@@ -83,6 +101,131 @@ export default class TarotPracticePlugin extends Plugin {
 		new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
 			await this.insertMultipleDrawInline(result);
 		}, 3, true, 'Inline draw multiple cards').open();
+	}
+
+	openSpreadDrawModal() {
+		// Get all available spreads
+		const spreadResolver = new SpreadResolver(this.app);
+		const allSpreads = spreadResolver.getAllSpreads(this.settings.customSpreads);
+
+		// Open modal to select spread and enter intention
+		new SpreadDrawModal(this.app, allSpreads, async (spread: Spread, intention: string) => {
+			await this.drawSpread(spread, intention);
+		}).open();
+	}
+
+	async drawSpread(spread: Spread, intention: string) {
+		try {
+			// Prepare the deck using spread's shuffle settings
+			const timestamp = Date.now();
+			const seed = `${intention}:${timestamp}`;
+			const preparedDeck = await prepareDeck(
+				seed,
+				spread.shuffleCount,
+				spread.cutDeck
+			);
+
+			// Draw cards for each position
+			const positions: SpreadPositionResult[] = [];
+			for (let i = 0; i < spread.positions.length; i++) {
+				const cardIndex = preparedDeck.deck[i];
+				const card = CARDS[cardIndex];
+				
+				// Determine reversal
+				let isReversed = false;
+				if (this.settings.enableReversals) {
+					// Use a simple hash of the card index + position to determine reversal
+					const reversalSeed = cardIndex + i + timestamp;
+					isReversed = (reversalSeed % 100) < this.settings.reversalChance;
+				}
+
+				const orientation = isReversed 
+					? this.settings.reversedIndicator 
+					: this.settings.uprightIndicator;
+
+				positions.push({
+					index: i,
+					number: i + 1,
+					label: spread.positions[i].label,
+					card: card.name,
+					cardIndex: cardIndex,
+					orientation: orientation,
+					isReversed: isReversed
+				});
+			}
+
+			// Build draw result
+			const drawResult: SpreadDrawResult = {
+				spread: spread,
+				intention: intention,
+				timestamp: timestamp,
+				positions: positions,
+				shuffleCount: spread.shuffleCount,
+				wasCut: spread.cutDeck,
+				cutPosition: preparedDeck.cutPositionPercent,
+				cutPositionCards: preparedDeck.cutPositionCards,
+				cutBase: preparedDeck.cutBasePercent,
+				cutVariance: preparedDeck.cutVariancePercent
+			};
+
+			// Insert into note
+			await this.insertSpreadIntoNote(drawResult);
+
+		} catch (error) {
+			console.error('Error drawing spread:', error);
+			new Notice('Failed to draw spread: ' + error.message);
+		}
+	}
+
+	async insertSpreadIntoNote(result: SpreadDrawResult) {
+		// Get spread template
+		const spreadResolver = new SpreadResolver(this.app);
+		const template = await spreadResolver.getSpreadTemplate(result.spread);
+
+		// Format using Handlebars
+		const formatter = new SpreadFormatter();
+		const output = formatter.format(result, template);
+
+		// Get target file (active file or daily note)
+		let targetFile = this.app.workspace.getActiveFile();
+		
+		if (!targetFile) {
+			if (!this.settings.useDailyNote) {
+				new Notice('Please open a note to insert the spread');
+				return;
+			}
+			
+			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
+			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
+			
+			if (abstractFile instanceof TFile) {
+				targetFile = abstractFile;
+			} else {
+				targetFile = await this.app.vault.create(dailyNotePath, '');
+			}
+			
+			await this.app.workspace.openLinkText(dailyNotePath, '', false);
+		}
+
+		const fileContent = await this.app.vault.read(targetFile);
+		let newContent: string;
+
+		switch (this.settings.insertLocation) {
+			case 'append':
+				newContent = fileContent + '\n' + output;
+				break;
+			case 'prepend':
+				newContent = output + '\n' + fileContent;
+				break;
+			case 'heading':
+				newContent = this.insertUnderHeading(fileContent, output);
+				break;
+			default:
+				newContent = fileContent + '\n' + output;
+		}
+
+		await this.app.vault.modify(targetFile, newContent);
+		new Notice(`${result.spread.name} drawn`);
 	}
 
 	async insertDrawInline(result: DrawResult) {
