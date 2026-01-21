@@ -255,10 +255,17 @@ Current version includes:
 - ✅ Reversal support with configurable indicators
 - ✅ Inline draw commands with separate templates
 - ✅ File-based template system with vault integration
+- ✅ List-based template management UI
+
+### In Development (v1.4.0)
+- 🚧 Structured spread system (3-card, Celtic Cross, etc.)
+- 🚧 Handlebars template engine for advanced formatting
+- 🚧 5 built-in spreads with customizable templates
+- 🚧 Per-spread deck preparation settings
 
 ### Future Additions
-- Multiple spread types (3-card, Celtic Cross, etc.)
-- Spread-specific deck preparation settings (custom shuffle/cut per spread)
+- Custom user-defined spreads
+- Spread import/export functionality
 - Different shuffle/cut styles (overhand, riffle, Hindu shuffle, etc.)
 - Shuffle style variance - each shuffle slightly different based on intention/entropy
 - Card interpretation database

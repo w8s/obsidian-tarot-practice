@@ -30,6 +30,11 @@ This document provides context for AI agents working on the Tarot Practice plugi
 - `TemplateMigrator.ts` - Migrate v1.2.0 inline templates to files
 - `settings.ts` - Settings interface and defaults
 - `BuiltInTemplates.ts` - Default template constants
+- **Spreads (in progress)**:
+  - `spreads.ts` - Spread interfaces and types
+  - `BuiltInSpreads.ts` - 5 built-in spread definitions
+  - `BuiltInSpreadTemplates.ts` - Default Handlebars templates
+  - `SpreadResolver.ts` - Load spreads and templates (separate from TemplateResolver for now)
 
 ### Important Patterns
 
@@ -52,6 +57,14 @@ this.settings.shuffleCount ?? 3  // Use ?? for deprecated optional fields
 ```
 
 ## Version History Summary
+
+**In Progress - v1.4.0** - Spreads feature
+- Adding support for structured spreads (Celtic Cross, 3-card, etc.)
+- Handlebars template engine for advanced templating
+- 5 built-in spreads with customizable templates
+- Per-spread deck preparation settings
+- SpreadResolver for spread and template management
+- Example templates in docs/spread-templates/
 
 **v1.3.1** (2025-01-20) - List-based template UI
 - Redesigned template settings with list interface
