@@ -7,13 +7,37 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### In Progress - Spreads Feature (v1.4.0)
-- Spread data structures and interfaces
-- 5 built-in spreads: Single Card, Three Card (2 variants), Week Ahead, Celtic Cross
-- Handlebars template engine integration for advanced templating
-- Built-in spread templates with loop and conditional support
-- SpreadResolver for loading spreads and templates
-- Example spread templates in docs/spread-templates/
+## [1.4.0] - 2025-01-21
+
+### Added - Spreads Feature
+- **5 Built-in Spreads**: Single Card, Three Card - Past/Present/Future, Three Card - Situation/Action/Outcome, Five Card - Week Ahead, Celtic Cross (10 cards)
+- **Handlebars Template Engine**: Advanced templating with loops, conditionals, and helpers
+- **Spread Management UI**: List-based interface in settings with View/Edit/Delete actions
+- **SpreadDrawModal**: Select spread and enter intention before drawing
+- **SpreadResolver**: Handles loading spread definitions and templates
+- **SpreadFormatter**: Formats draw results using Handlebars templates
+- **Built-in Templates**: Default templates for each spread type
+- **Example Templates**: Comprehensive examples in docs/spread-templates/ with README
+- **"Draw tarot spread" Command**: New command palette entry for spread draws
+
+### Added - Template Organization
+- **Template Base Folder Setting**: Customize where templates are stored (default: Templates/Tarot)
+- **TemplatePaths Utility**: Standardized folder structure (Spreads/, Daily/, Inline/, Multiple/)
+- **TemplateExporter**: Copy templates from built-in examples to vault
+- **"Create from Example" Feature**: 
+  - Built-in spreads can have customized templates via dropdown
+  - Custom spreads can start with example templates
+  - Templates auto-created in proper folders with parent directory creation
+- **Built-in Spread Overrides**: Customize shuffle count, cut deck, and templates for built-in spreads
+
+### Changed
+- Spread draw results now use Handlebars for formatting instead of simple variable replacement
+- Built-in spreads are now extensible with custom templates and settings
+
+### Fixed
+- TypeScript errors with array access safety in SpreadCreateModal
+- Moment.js timestamp handling in SpreadFormatter
+- Built-in spread customizations now persist correctly via override system
 
 ## [1.3.1] - 2025-01-20
 

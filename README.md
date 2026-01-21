@@ -256,15 +256,13 @@ Current version includes:
 - ✅ Inline draw commands with separate templates
 - ✅ File-based template system with vault integration
 - ✅ List-based template management UI
-
-### In Development (v1.4.0)
-- 🚧 Structured spread system (3-card, Celtic Cross, etc.)
-- 🚧 Handlebars template engine for advanced formatting
-- 🚧 5 built-in spreads with customizable templates
-- 🚧 Per-spread deck preparation settings
+- ✅ Structured spread system (Single, Three Card x2, Five Card, Celtic Cross)
+- ✅ Handlebars template engine for advanced formatting
+- ✅ "Create from Example" template customization
+- ✅ Per-spread deck preparation settings
 
 ### Future Additions
-- Custom user-defined spreads
+- Custom user-defined spreads with custom positions
 - Spread import/export functionality
 - Different shuffle/cut styles (overhand, riffle, Hindu shuffle, etc.)
 - Shuffle style variance - each shuffle slightly different based on intention/entropy
