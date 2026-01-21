@@ -33,9 +33,22 @@ export class SpreadResolver {
 
 	/**
 	 * Get all available spreads (built-in + custom)
+	 * Applies any overrides to built-in spreads
 	 */
-	getAllSpreads(customSpreads: Spread[] = []): Spread[] {
-		return [...BUILTIN_SPREADS, ...customSpreads];
+	getAllSpreads(
+		customSpreads: Spread[] = [], 
+		builtInOverrides: Record<string, Partial<Spread>> = {}
+	): Spread[] {
+		// Apply overrides to built-in spreads
+		const builtInWithOverrides = BUILTIN_SPREADS.map(spread => {
+			const override = builtInOverrides[spread.id];
+			if (override) {
+				return { ...spread, ...override };
+			}
+			return spread;
+		});
+		
+		return [...builtInWithOverrides, ...customSpreads];
 	}
 
 	/**

@@ -28,6 +28,7 @@ export interface TarotPracticeSettings {
 	
 	// Spreads (v1.4.0+)
 	customSpreads: Spread[];
+	builtInSpreadOverrides: Record<string, Partial<Spread>>;
 	
 	// Migration flag
 	hasTemplatesMigrated: boolean;
@@ -85,6 +86,7 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	
 	// Spreads (v1.4.0+)
 	customSpreads: [],
+	builtInSpreadOverrides: {},
 	
 	// Migration flag
 	hasTemplatesMigrated: false,

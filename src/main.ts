@@ -106,7 +106,10 @@ export default class TarotPracticePlugin extends Plugin {
 	openSpreadDrawModal() {
 		// Get all available spreads
 		const spreadResolver = new SpreadResolver(this.app);
-		const allSpreads = spreadResolver.getAllSpreads(this.settings.customSpreads);
+		const allSpreads = spreadResolver.getAllSpreads(
+			this.settings.customSpreads,
+			this.settings.builtInSpreadOverrides
+		);
 
 		// Open modal to select spread and enter intention
 		new SpreadDrawModal(this.app, allSpreads, async (spread: Spread, intention: string) => {

@@ -236,7 +236,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// Get all spreads (built-in + custom)
 		const spreadResolver = new SpreadResolver(this.app);
-		const allSpreads = spreadResolver.getAllSpreads(this.plugin.settings.customSpreads);
+		const allSpreads = spreadResolver.getAllSpreads(
+			this.plugin.settings.customSpreads,
+			this.plugin.settings.builtInSpreadOverrides
+		);
 
 		// Add spreads list
 		allSpreads.forEach(spread => {
@@ -380,10 +383,14 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.onClick(() => {
 				new SpreadEditModal(this.app, spread, this.plugin.settings, async (updatedSpread) => {
 					if (spread.isBuiltIn) {
-						// For built-in spreads, we can't modify the original
-						// but we could store overrides in settings if needed
-						// For now, just show a notice
-						// TODO: Implement built-in spread customization
+						// For built-in spreads, store overrides
+						this.plugin.settings.builtInSpreadOverrides[spread.id] = {
+							shuffleCount: updatedSpread.shuffleCount,
+							cutDeck: updatedSpread.cutDeck,
+							templatePath: updatedSpread.templatePath
+						};
+						await this.plugin.saveSettings();
+						this.display(); // Refresh UI
 					} else {
 						// Update custom spread
 						const index = this.plugin.settings.customSpreads.findIndex(s => s.id === spread.id);
