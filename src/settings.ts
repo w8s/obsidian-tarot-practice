@@ -1,5 +1,7 @@
 export type InsertLocation = 'append' | 'prepend' | 'heading';
 
+import { Spread } from './spreads';
+
 export interface TarotPracticeSettings {
 	useDailyNote: boolean;
 	dailyNotePathPattern: string;
@@ -20,6 +22,9 @@ export interface TarotPracticeSettings {
 	customInlineTemplatePath: string;
 	useCustomMultipleTemplate: boolean;
 	customMultipleTemplatePath: string;
+	
+	// Spreads (v1.4.0+)
+	customSpreads: Spread[];
 	
 	// Migration flag
 	hasTemplatesMigrated: boolean;
@@ -71,6 +76,9 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	customInlineTemplatePath: '',
 	useCustomMultipleTemplate: false,
 	customMultipleTemplatePath: '',
+	
+	// Spreads (v1.4.0+)
+	customSpreads: [],
 	
 	// Migration flag
 	hasTemplatesMigrated: false,
