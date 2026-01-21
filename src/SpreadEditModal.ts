@@ -1,6 +1,8 @@
-import { App, Modal, Setting } from 'obsidian';
+import { App, Modal, Setting, Notice } from 'obsidian';
 import { Spread } from './spreads';
 import { FileSuggest } from './FileSuggest';
+import { TemplateExporter } from './TemplateExporter';
+import { TarotPracticeSettings } from './settings';
 
 /**
  * Modal to edit spread settings (shuffle count, cut, template)
@@ -9,6 +11,7 @@ import { FileSuggest } from './FileSuggest';
 export class SpreadEditModal extends Modal {
 	private spread: Spread;
 	private callback: (updatedSpread: Spread) => void;
+	private settings: TarotPracticeSettings;
 	
 	// Editable fields
 	private shuffleCount: number;
@@ -18,11 +21,13 @@ export class SpreadEditModal extends Modal {
 	constructor(
 		app: App,
 		spread: Spread,
+		settings: TarotPracticeSettings,
 		callback: (updatedSpread: Spread) => void
 	) {
 		super(app);
 		this.spread = spread;
 		this.callback = callback;
+		this.settings = settings;
 		
 		// Initialize editable fields
 		this.shuffleCount = spread.shuffleCount;
@@ -70,20 +75,49 @@ export class SpreadEditModal extends Modal {
 					this.cutDeck = value;
 				}));
 
-		// Template path
-		new Setting(contentEl)
-			.setName('Template file')
-			.setDesc('Path to custom template file (leave empty for built-in)')
-			.addSearch(search => {
-				search
-					.setPlaceholder('e.g., Templates/Spreads/Celtic-Cross.md')
-					.setValue(this.templatePath)
-					.onChange((value) => {
-						this.templatePath = value;
-					});
-				
-				new FileSuggest(this.app, search.inputEl);
+		// Template path with "Create from Example" option
+		const templateSetting = new Setting(contentEl)
+			.setName('Template')
+			.setDesc('Choose how to configure the template for this spread');
+
+		// Create dropdown for template options
+		templateSetting.addDropdown(dropdown => {
+			const isUsingBuiltIn = !this.templatePath || this.templatePath === '';
+			
+			// Add options
+			dropdown.addOption('builtin', isUsingBuiltIn ? 'Built-in (current)' : 'Built-in');
+			dropdown.addOption('create-builtin', 'Create from Built-in');
+			dropdown.addOption('create-example', 'Create from Example...');
+			dropdown.addOption('custom', this.templatePath ? `Custom: ${this.templatePath}` : 'Choose Custom File...');
+			
+			// Set current value
+			if (isUsingBuiltIn) {
+				dropdown.setValue('builtin');
+			} else {
+				dropdown.setValue('custom');
+			}
+			
+			// Handle changes
+			dropdown.onChange(async (value) => {
+				if (value === 'create-builtin') {
+					await this.createFromBuiltIn();
+					dropdown.setValue('custom');
+				} else if (value === 'create-example') {
+					await this.createFromExample();
+					dropdown.setValue('custom');
+				} else if (value === 'builtin') {
+					this.templatePath = '';
+					this.updateTemplateDescription();
+				} else if (value === 'custom') {
+					// Show file picker
+					this.showFilePicker();
+				}
 			});
+		});
+
+		// Template path display/edit (only if custom)
+		const templatePathContainer = contentEl.createDiv({ cls: 'template-path-container' });
+		this.updateTemplateDescription(templatePathContainer);
 
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
@@ -119,6 +153,68 @@ export class SpreadEditModal extends Modal {
 
 		this.callback(updatedSpread);
 		this.close();
+	}
+
+	private async createFromBuiltIn() {
+		try {
+			const exporter = new TemplateExporter(this.app, this.settings);
+			const path = await exporter.createSpreadTemplateFromBuiltIn(this.spread.id);
+			this.templatePath = path;
+			this.updateTemplateDescription();
+			new Notice(`Template created at ${path}`);
+		} catch (error) {
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			new Notice(`Failed to create template: ${errorMessage}`);
+		}
+	}
+
+	private async createFromExample() {
+		// For now, just create from built-in for this spread
+		// In the future, could show a modal to choose which example
+		await this.createFromBuiltIn();
+	}
+
+	private showFilePicker() {
+		// Create a temporary input for file path
+		const pathInput = this.contentEl.createEl('input', {
+			type: 'text',
+			placeholder: 'Templates/Tarot/Spreads/my-spread.md',
+			value: this.templatePath
+		});
+		pathInput.style.display = 'none';
+		
+		// Add FileSuggest
+		new FileSuggest(this.app, pathInput);
+		
+		// Show it and focus
+		pathInput.style.display = 'block';
+		pathInput.focus();
+		
+		// Handle changes
+		pathInput.addEventListener('change', () => {
+			this.templatePath = pathInput.value;
+			this.updateTemplateDescription();
+			pathInput.remove();
+		});
+	}
+
+	private updateTemplateDescription(container?: HTMLElement) {
+		const targetContainer = container || this.contentEl.querySelector('.template-path-container') as HTMLElement;
+		if (!targetContainer) return;
+
+		targetContainer.empty();
+		
+		if (this.templatePath) {
+			targetContainer.createEl('div', {
+				text: `Using: ${this.templatePath}`,
+				cls: 'setting-item-description'
+			}).style.marginTop = '8px';
+		} else {
+			targetContainer.createEl('div', {
+				text: 'Using built-in template',
+				cls: 'setting-item-description'
+			}).style.marginTop = '8px';
+		}
 	}
 
 	onClose() {

@@ -1,12 +1,15 @@
-import { App, Modal, Setting, TextComponent } from 'obsidian';
+import { App, Modal, Setting, TextComponent, Notice } from 'obsidian';
 import { Spread, SpreadPositionDefinition } from './spreads';
 import { FileSuggest } from './FileSuggest';
+import { TemplateExporter } from './TemplateExporter';
+import { TarotPracticeSettings } from './settings';
 
 /**
  * Modal to create a new custom spread
  */
 export class SpreadCreateModal extends Modal {
 	private callback: (spread: Spread) => void;
+	private settings: TarotPracticeSettings;
 	
 	// Spread fields
 	private name: string = '';
@@ -15,12 +18,15 @@ export class SpreadCreateModal extends Modal {
 	private shuffleCount: number = 3;
 	private cutDeck: boolean = true;
 	private templatePath: string = '';
+	private templateExample: string = 'generic'; // Which example to use
 
 	constructor(
 		app: App,
+		settings: TarotPracticeSettings,
 		callback: (spread: Spread) => void
 	) {
 		super(app);
+		this.settings = settings;
 		this.callback = callback;
 	}
 
@@ -100,19 +106,22 @@ export class SpreadCreateModal extends Modal {
 					this.cutDeck = value;
 				}));
 
-		// Template path
+		// Template selection with "Start with template" dropdown
 		new Setting(contentEl)
-			.setName('Template file (optional)')
-			.setDesc('Path to custom template file (leave empty for generic template)')
-			.addSearch(search => {
-				search
-					.setPlaceholder('e.g., Templates/Spreads/My-Spread.md')
-					.setValue(this.templatePath)
-					.onChange((value) => {
-						this.templatePath = value;
-					});
+			.setName('Start with template')
+			.setDesc('Choose a template example to customize')
+			.addDropdown(dropdown => {
+				const exporter = new TemplateExporter(this.app, this.settings);
+				const examples = exporter.getAvailableExamples();
 				
-				new FileSuggest(this.app, search.inputEl);
+				examples.forEach(example => {
+					dropdown.addOption(example.id, example.name);
+				});
+				
+				dropdown.setValue(this.templateExample);
+				dropdown.onChange((value) => {
+					this.templateExample = value;
+				});
 			});
 
 		// Buttons
@@ -166,10 +175,10 @@ export class SpreadCreateModal extends Modal {
 		});
 	}
 
-	private create() {
+	private async create() {
 		// Validation
 		if (!this.name.trim()) {
-			// Could add a Notice here
+			new Notice('Please enter a spread name');
 			return;
 		}
 
@@ -177,12 +186,29 @@ export class SpreadCreateModal extends Modal {
 		const validPositions = this.positions.filter(p => p && p.label.trim() !== '');
 		
 		if (validPositions.length === 0) {
-			// Could add a Notice here
+			new Notice('Please add at least one position');
 			return;
 		}
 
 		// Generate ID from name
 		const id = 'custom-' + this.name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+
+		// Create template from example if not 'generic'
+		let templatePath = '';
+		if (this.templateExample !== 'generic') {
+			try {
+				const exporter = new TemplateExporter(this.app, this.settings);
+				templatePath = await exporter.createSpreadTemplateFromExample(
+					this.templateExample,
+					id
+				);
+				new Notice(`Template created at ${templatePath}`);
+			} catch (error) {
+				const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+				new Notice(`Failed to create template: ${errorMessage}`);
+				// Continue without template path
+			}
+		}
 
 		// Create spread object
 		const spread: Spread = {
@@ -193,7 +219,7 @@ export class SpreadCreateModal extends Modal {
 			positions: validPositions,
 			shuffleCount: this.shuffleCount,
 			cutDeck: this.cutDeck,
-			templatePath: this.templatePath
+			templatePath: templatePath
 		};
 
 		this.callback(spread);

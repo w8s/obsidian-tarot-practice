@@ -255,7 +255,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		});
 		createButton.style.width = '100%';
 		createButton.addEventListener('click', () => {
-			new SpreadCreateModal(this.app, async (newSpread) => {
+			new SpreadCreateModal(this.app, this.plugin.settings, async (newSpread) => {
 				// Add to custom spreads
 				this.plugin.settings.customSpreads.push(newSpread);
 				await this.plugin.saveSettings();
@@ -378,7 +378,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.setIcon('pencil')
 			.setTooltip('Edit spread settings')
 			.onClick(() => {
-				new SpreadEditModal(this.app, spread, async (updatedSpread) => {
+				new SpreadEditModal(this.app, spread, this.plugin.settings, async (updatedSpread) => {
 					if (spread.isBuiltIn) {
 						// For built-in spreads, we can't modify the original
 						// but we could store overrides in settings if needed
