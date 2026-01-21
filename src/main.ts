@@ -8,7 +8,7 @@ import { SpreadResolver } from './SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from './SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from './spreads';
 import { prepareDeck } from './DeckPreparation';
-import { CARDS } from './cards';
+import { getCardName } from './CardDatabase';
 
 interface ShuffleMetadata {
 	shuffleCount: number;
@@ -119,17 +119,30 @@ export default class TarotPracticePlugin extends Plugin {
 			// Prepare the deck using spread's shuffle settings
 			const timestamp = Date.now();
 			const seed = `${intention}:${timestamp}`;
+			
+			// Create a settings object for deck preparation
+			const deckSettings = {
+				...this.settings,
+				shuffleCount: spread.shuffleCount,
+				cutDeck: spread.cutDeck
+			};
+			
 			const preparedDeck = await prepareDeck(
-				seed,
-				spread.shuffleCount,
-				spread.cutDeck
+				intention,
+				timestamp.toString(),
+				deckSettings
 			);
 
 			// Draw cards for each position
 			const positions: SpreadPositionResult[] = [];
 			for (let i = 0; i < spread.positions.length; i++) {
 				const cardIndex = preparedDeck.deck[i];
-				const card = CARDS[cardIndex];
+				
+				if (cardIndex === undefined) {
+					throw new Error(`Failed to draw card at position ${i}`);
+				}
+				
+				const cardName = getCardName(cardIndex);
 				
 				// Determine reversal
 				let isReversed = false;
@@ -143,11 +156,16 @@ export default class TarotPracticePlugin extends Plugin {
 					? this.settings.reversedIndicator 
 					: this.settings.uprightIndicator;
 
+				const positionDef = spread.positions[i];
+				if (!positionDef) {
+					throw new Error(`Missing position definition at index ${i}`);
+				}
+
 				positions.push({
 					index: i,
 					number: i + 1,
-					label: spread.positions[i].label,
-					card: card.name,
+					label: positionDef.label,
+					card: cardName,
 					cardIndex: cardIndex,
 					orientation: orientation,
 					isReversed: isReversed
@@ -160,12 +178,12 @@ export default class TarotPracticePlugin extends Plugin {
 				intention: intention,
 				timestamp: timestamp,
 				positions: positions,
-				shuffleCount: spread.shuffleCount,
-				wasCut: spread.cutDeck,
-				cutPosition: preparedDeck.cutPositionPercent,
-				cutPositionCards: preparedDeck.cutPositionCards,
-				cutBase: preparedDeck.cutBasePercent,
-				cutVariance: preparedDeck.cutVariancePercent
+				shuffleCount: preparedDeck.metadata.shuffleCount,
+				wasCut: preparedDeck.metadata.wasCut,
+				cutPosition: preparedDeck.metadata.cutPositionPercent ?? undefined,
+				cutPositionCards: preparedDeck.metadata.cutPositionCards ?? undefined,
+				cutBase: preparedDeck.metadata.cutBasePercent ?? undefined,
+				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined
 			};
 
 			// Insert into note
@@ -173,7 +191,8 @@ export default class TarotPracticePlugin extends Plugin {
 
 		} catch (error) {
 			console.error('Error drawing spread:', error);
-			new Notice('Failed to draw spread: ' + error.message);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			new Notice('Failed to draw spread: ' + errorMessage);
 		}
 	}
 

@@ -17,7 +17,17 @@ export class SpreadDrawModal extends Modal {
 	) {
 		super(app);
 		this.spreads = spreads;
-		this.selectedSpread = spreads[0]; // Default to first spread
+		
+		if (spreads.length === 0) {
+			throw new Error('No spreads available');
+		}
+		
+		const firstSpread = spreads[0];
+		if (!firstSpread) {
+			throw new Error('No spreads available');
+		}
+		
+		this.selectedSpread = firstSpread;
 		this.callback = callback;
 	}
 

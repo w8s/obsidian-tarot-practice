@@ -25,7 +25,12 @@ export class SpreadFormatter {
 	 * Prepare the data object for Handlebars template rendering
 	 */
 	private prepareTemplateData(result: SpreadDrawResult): Record<string, any> {
-		const date = moment(result.timestamp);
+		// Ensure timestamp is a number
+		const timestampNum = typeof result.timestamp === 'number' 
+			? result.timestamp 
+			: parseInt(result.timestamp as any, 10);
+		
+		const date = moment(timestampNum);
 
 		return {
 			// Spread information
@@ -33,6 +38,9 @@ export class SpreadFormatter {
 			spread_description: result.spread.description,
 			intention: result.intention,
 			card_count: result.positions.length,
+
+			// Raw timestamp for Handlebars helpers
+			timestamp: timestampNum,
 
 			// Positions array for loops
 			positions: result.positions.map(pos => ({
@@ -66,22 +74,21 @@ export class SpreadFormatter {
  * Call this once during plugin initialization
  */
 export function registerHandlebarsHelpers(): void {
-	// Custom date/time formatting helper
-	// Usage: {{date:YYYY-MM-DD}} or {{time:HH:mm}}
-	Handlebars.registerHelper('date', function(this: any, format?: string) {
-		const timestamp = this.timestamp || Date.now();
+	// Custom date/time formatting helpers
+	// These helpers accept the timestamp and optional format as parameters
+	// Usage: {{formatDate timestamp "YYYY-MM-DD"}}
+	
+	Handlebars.registerHelper('formatDate', function(timestamp: number, format?: string) {
 		const m = moment(timestamp);
 		return format ? m.format(format) : m.format('L');
 	});
 
-	Handlebars.registerHelper('time', function(this: any, format?: string) {
-		const timestamp = this.timestamp || Date.now();
+	Handlebars.registerHelper('formatTime', function(timestamp: number, format?: string) {
 		const m = moment(timestamp);
 		return format ? m.format(format) : m.format('LT');
 	});
 
-	Handlebars.registerHelper('datetime', function(this: any, format?: string) {
-		const timestamp = this.timestamp || Date.now();
+	Handlebars.registerHelper('formatDateTime', function(timestamp: number, format?: string) {
 		const m = moment(timestamp);
 		return format ? m.format(format) : m.format('L LT');
 	});

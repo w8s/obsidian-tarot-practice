@@ -146,9 +146,12 @@ export class SpreadCreateModal extends Modal {
 				.setName(`Position ${index + 1}`)
 				.addText(text => text
 					.setPlaceholder('e.g., Past, Present, Future')
-					.setValue(position.label)
+					.setValue(position.label || '')
 					.onChange((value) => {
-						this.positions[index].label = value;
+						const pos = this.positions[index];
+						if (pos) {
+							pos.label = value;
+						}
 					}));
 
 			// Remove button (only if more than 1 position)
@@ -171,7 +174,7 @@ export class SpreadCreateModal extends Modal {
 		}
 
 		// Filter out empty position labels
-		const validPositions = this.positions.filter(p => p.label.trim() !== '');
+		const validPositions = this.positions.filter(p => p && p.label.trim() !== '');
 		
 		if (validPositions.length === 0) {
 			// Could add a Notice here
