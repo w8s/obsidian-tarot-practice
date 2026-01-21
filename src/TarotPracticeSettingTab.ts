@@ -8,6 +8,11 @@ import { TemplateMigrationModal } from './TemplateMigrationModal';
 import { TemplateViewModal } from './TemplateViewModal';
 import { TemplateEditModal } from './TemplateEditModal';
 import { TemplateResolver } from './TemplateResolver';
+import { SpreadResolver } from './SpreadResolver';
+import { SpreadViewModal } from './SpreadViewModal';
+import { SpreadEditModal } from './SpreadEditModal';
+import { SpreadCreateModal } from './SpreadCreateModal';
+import { Spread } from './spreads';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -206,6 +211,41 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					}));
 		}
 
+		// ===== SPREADS SECTION =====
+		new Setting(containerEl).setName('Spreads').setHeading();
+		containerEl.createDiv('setting-item-description', el => {
+			el.setText('Manage spread layouts for structured readings');
+		});
+
+		// Get all spreads (built-in + custom)
+		const spreadResolver = new SpreadResolver(this.app);
+		const allSpreads = spreadResolver.getAllSpreads(this.plugin.settings.customSpreads);
+
+		// Add spreads list
+		allSpreads.forEach(spread => {
+			this.addSpreadListItem(containerEl, spread);
+		});
+
+		// Create new spread button
+		const createSpreadContainer = containerEl.createDiv({ cls: 'setting-item' });
+		createSpreadContainer.style.borderTop = '1px solid var(--background-modifier-border)';
+		createSpreadContainer.style.paddingTop = '12px';
+		createSpreadContainer.style.marginTop = '8px';
+		
+		const createButton = createSpreadContainer.createEl('button', {
+			text: '+ Create Custom Spread',
+			cls: 'mod-cta'
+		});
+		createButton.style.width = '100%';
+		createButton.addEventListener('click', () => {
+			new SpreadCreateModal(this.app, async (newSpread) => {
+				// Add to custom spreads
+				this.plugin.settings.customSpreads.push(newSpread);
+				await this.plugin.saveSettings();
+				this.display(); // Refresh UI
+			}).open();
+		});
+
 		// ===== TEMPLATES SECTION =====
 		new Setting(containerEl).setName('Templates').setHeading();
 
@@ -296,6 +336,61 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 					this.display(); // Refresh UI
 				}));
+	}
+
+	/**
+	 * Add a spread list item with view/edit/delete actions
+	 */
+	addSpreadListItem(containerEl: HTMLElement, spread: Spread): void {
+		const description = `${spread.positions.length} card${spread.positions.length === 1 ? '' : 's'} • ${spread.shuffleCount} shuffle${spread.shuffleCount === 1 ? '' : 's'}${spread.cutDeck ? ' • Cut' : ''}`;
+
+		const setting = new Setting(containerEl)
+			.setName(spread.name)
+			.setDesc(description);
+
+		// View button
+		setting.addExtraButton(button => button
+			.setIcon('document')
+			.setTooltip('View spread details')
+			.onClick(() => {
+				new SpreadViewModal(this.app, spread).open();
+			}));
+
+		// Edit button
+		setting.addExtraButton(button => button
+			.setIcon('pencil')
+			.setTooltip('Edit spread settings')
+			.onClick(() => {
+				new SpreadEditModal(this.app, spread, async (updatedSpread) => {
+					if (spread.isBuiltIn) {
+						// For built-in spreads, we can't modify the original
+						// but we could store overrides in settings if needed
+						// For now, just show a notice
+						// TODO: Implement built-in spread customization
+					} else {
+						// Update custom spread
+						const index = this.plugin.settings.customSpreads.findIndex(s => s.id === spread.id);
+						if (index !== -1) {
+							this.plugin.settings.customSpreads[index] = updatedSpread;
+							await this.plugin.saveSettings();
+							this.display(); // Refresh UI
+						}
+					}
+				}).open();
+			}));
+
+		// Delete button (only for custom spreads)
+		if (!spread.isBuiltIn) {
+			setting.addExtraButton(button => button
+				.setIcon('trash')
+				.setTooltip('Delete custom spread')
+				.onClick(async () => {
+					// Remove from custom spreads
+					this.plugin.settings.customSpreads = this.plugin.settings.customSpreads.filter(s => s.id !== spread.id);
+					await this.plugin.saveSettings();
+					this.display(); // Refresh UI
+				}));
+		}
 	}
 
 	/**
