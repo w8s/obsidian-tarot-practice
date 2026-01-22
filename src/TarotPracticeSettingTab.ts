@@ -72,27 +72,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		// Daily card count
-		const dailyCardCountSetting = new Setting(containerEl)
-			.setName('Number of cards for daily practice')
-			.setDesc('How many cards to draw for daily practice (1-78)')
-			.addSlider(slider => slider
-				.setLimits(1, 78, 1)
-				.setValue(this.plugin.settings.dailyCardCount)
-				.setDynamicTooltip()
-				.onChange(async (value) => {
-					this.plugin.settings.dailyCardCount = value;
-					await this.plugin.saveSettings();
-					// Update the display value
-					dailyCardCountSetting.controlEl.querySelector('.tarot-daily-count-value')!.textContent = `${value}`;
-				}));
-		
-		// Add count display to the right of slider
-		dailyCardCountSetting.controlEl.createSpan({ 
-			text: `${this.plugin.settings.dailyCardCount}`,
-			cls: 'tarot-daily-count-value'
-		});
-
 		// ===== DAILY TAROT PRACTICE SECTION =====
 		new Setting(containerEl).setName('Daily practice').setHeading();
 
@@ -265,33 +244,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				this.display(); // Refresh UI
 			}).open();
 		});
-
-		// ===== TEMPLATES SECTION =====
-		new Setting(containerEl).setName('Templates').setHeading();
-
-		// Daily template
-		this.addTemplateListItem(
-			containerEl,
-			'Daily practice',
-			'useCustomDailyTemplate',
-			'customDailyTemplatePath'
-		);
-
-		// Inline template
-		this.addTemplateListItem(
-			containerEl,
-			'Inline practice',
-			'useCustomInlineTemplate',
-			'customInlineTemplatePath'
-		);
-
-		// Multiple cards template
-		this.addTemplateListItem(
-			containerEl,
-			'Multiple cards',
-			'useCustomMultipleTemplate',
-			'customMultipleTemplatePath'
-		);
 	}
 
 	/**
@@ -362,7 +314,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 	 * Add a spread list item with view/edit/delete actions
 	 */
 	addSpreadListItem(containerEl: HTMLElement, spread: Spread): void {
-		const description = `${spread.positions.length} card${spread.positions.length === 1 ? '' : 's'} • ${spread.shuffleCount} shuffle${spread.shuffleCount === 1 ? '' : 's'}${spread.cutDeck ? ' • Cut' : ''}`;
+		// Build description with insert mode
+		const insertModeLabel = spread.insertMode === 'daily-note' ? 'daily note' : 
+		                        spread.insertMode === 'inline' ? 'inline' : 'new note';
+		const description = `${spread.positions.length} card${spread.positions.length === 1 ? '' : 's'} • ${insertModeLabel}`;
 
 		const setting = new Setting(containerEl)
 			.setName(spread.name)
