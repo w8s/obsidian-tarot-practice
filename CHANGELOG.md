@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2025-01-22
+
+### Added
+- **Deck Metadata System**: Foundation for custom deck support
+  - `Deck` interface with id, name, type, cardCount, supportsReversals, isBuiltIn
+  - `DeckType` type: 'tarot' | 'oracle' | 'lenormand' | 'playing-cards' | 'other'
+  - `DEFAULT_DECK` constant for Rider-Waite-Smith
+  - All draw results now include deck information
+- **New Template Variables**:
+  - `{{deck_name}}` - Current deck name (e.g., "Rider-Waite-Smith")
+  - `{{deck_type}}` - Deck type (e.g., "tarot")
+  - Available in all draw types (daily, inline, multiple, spreads)
+
+### Changed
+- **BREAKING**: Template variable `{{card}}` renamed to `{{name}}` for consistency across all draw types
+- All built-in templates now use triple braces `{{{intention}}}` to prevent HTML escaping
+- DrawResult, MultipleDrawResult, and SpreadDrawResult interfaces include `deck: Deck` field
+- Updated all documentation to reflect unified Handlebars template system
+
+### Fixed
+- **HTML Escaping**: User input (intentions) with apostrophes and quotes now render correctly
+  - Before: "peppa's back" → "peppa&#x27;s back"
+  - After: "peppa's back" → "peppa's back"
+  - Solution: Triple braces `{{{intention}}}` for unescaped output
+
+### Documentation
+- Added HTML escaping section to TEMPLATE-VARIABLES.md explaining double vs triple braces
+- Updated all template examples to use `{{name}}` and `{{{intention}}}`
+- Fixed spread template documentation to use `{{positions}}` array correctly
+- Updated AGENTS.md with current template workflow
+- Corrected README tagline to "necessary imprecision"
+- Added CHANGELOG-v1.5.0.md with detailed migration notes
+
 ## [1.4.0] - 2025-01-21
 
 ### Added - Spreads Feature
