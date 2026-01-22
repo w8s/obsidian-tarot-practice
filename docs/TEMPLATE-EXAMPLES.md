@@ -4,8 +4,8 @@
 ```markdown
 ## Tarot draw - {{datetime}}
 
-**Intention:** {{intention}}
-**Card:** {{card}} {{orientation}}
+**Intention:** {{{intention}}}
+**Card:** {{name}} {{orientation}}
 **Index:** {{index}}
 
 **Draw Metadata:**

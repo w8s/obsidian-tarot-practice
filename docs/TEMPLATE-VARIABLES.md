@@ -24,15 +24,17 @@ Variables for individual card information. Available in all draw types.
 
 | Variable | Type | Description | Example Output |
 |----------|------|-------------|----------------|
-| `{{card}}` | String | Card name | `"The Hermit"` |
+| `{{name}}` | String | Card name | `"The Hermit"` |
 | `{{index}}` | Number | Card index (0-77) | `9` |
 | `{{orientation}}` | String | Upright/reversed indicator | `"reversed"` or `""` |
 | `{{intention}}` | String | Your intention text | `"What do I need to know today?"` |
+| `{{deck_name}}` | String | Deck name | `"Rider-Waite-Smith"` |
+| `{{deck_type}}` | String | Deck type | `"tarot"` |
 
 ### Details
 
-**`{{card}}`**
-- Full card name from Rider-Waite-Smith deck
+**`{{name}}`**
+- Full card name from the deck
 - Major Arcana: "The Fool", "The Magician", etc.
 - Minor Arcana: "Ace of Wands", "Two of Cups", "King of Swords", etc.
 - Always capitalized
@@ -51,12 +53,23 @@ Variables for individual card information. Available in all draw types.
 - If reversals disabled: Always empty string `""`
 - If upright: Contains "Upright indicator" setting (default: `""`)
 - If reversed: Contains "Reversed indicator" setting (default: `"reversed"`)
-- Use in templates: `{{card}} {{orientation}}`
+- Use in templates: `{{name}} {{orientation}}`
 
-**`{{intention}}`**
+**`{{{intention}}}`** (note: triple braces recommended)
 - Exactly as you typed it
 - Preserves capitalization, punctuation, line breaks
 - Can be multi-line if entered that way
+- **Use triple braces `{{{intention}}}` to prevent HTML escaping of quotes/apostrophes**
+
+**`{{deck_name}}`**
+- Current deck name
+- Default: `"Rider-Waite-Smith"`
+- Useful for multi-deck setups or custom decks
+
+**`{{deck_type}}`**
+- Type of divination deck
+- Values: `"tarot"`, `"oracle"`, `"lenormand"`, `"playing-cards"`, `"other"`
+- Default: `"tarot"`
 
 ---
 
@@ -67,7 +80,7 @@ Additional variables available when drawing multiple cards (inline multiple or d
 | Variable | Type | Description | Example Output |
 |----------|------|-------------|----------------|
 | `{{card_count}}` | Number | Number of cards drawn | `3` |
-| `{{cards}}` | String | Pre-formatted numbered list | See below |
+| `{{cards}}` | Array | Array of card objects for loops | See below |
 
 ### Details
 
@@ -76,20 +89,32 @@ Additional variables available when drawing multiple cards (inline multiple or d
 - Useful for conditional formatting
 - Range: 1-78
 
-**`{{cards}}`**
-- Auto-formatted numbered list of all cards
-- Format: `1. Card Name orientation\n2. Card Name orientation\n...`
-- Example output:
+**`{{cards}}`** - Array for Handlebars loops
+- Each card object contains: `number`, `name`, `index`, `orientation`, `isReversed`
+- Use with `{{#each cards}}` loops
+- Example:
+  ```handlebars
+  {{#each cards}}
+  {{number}}. {{name}} {{orientation}}
+  {{/each}}
+  ```
+- Output:
   ```
   1. The Fool
   2. The Hermit reversed
   3. The Tower
   ```
-- Each card on its own line
-- Includes orientation indicators
-- Ready to use directly in templates
 
-**Note:** For spreads, use the spread-specific `{{cards}}` array instead (see [Spread Variables](#spread-variables)).
+**Card object structure:**
+```javascript
+{
+  number: 1,              // 1-based position
+  name: "The Hermit",     // Card name
+  index: 9,               // Card index (0-77)
+  orientation: "reversed", // Orientation indicator
+  isReversed: true        // Boolean for conditionals
+}
+```
 
 ---
 
@@ -100,49 +125,52 @@ Variables available in spread templates (Handlebars templates only).
 | Variable | Type | Description | Example |
 |----------|------|-------------|---------|
 | `{{spread_name}}` | String | Name of the spread | `"Celtic Cross"` |
-| `{{cards}}` | Array | Array of card objects | See below |
-| `{{cards.[0]}}` | Object | First card object | See below |
-| `{{cards.[0].name}}` | String | Card name | `"The Fool"` |
-| `{{cards.[0].position}}` | String | Position label | `"Past"` |
-| `{{cards.[0].orientation}}` | String | Orientation indicator | `"reversed"` |
-| `{{cards.[0].index}}` | Number | Card index | `0` |
+| `{{spread_description}}` | String | Purpose/explanation | `"A comprehensive 10-card reading"` |
+| `{{positions}}` | Array | Array of position objects | See below |
+| `{{positions.[0]}}` | Object | First position object | See below |
+| `{{positions.[0].name}}` | String | Card name | `"The Fool"` |
+| `{{positions.[0].label}}` | String | Position label | `"Past"` |
+| `{{positions.[0].orientation}}` | String | Orientation indicator | `"reversed"` |
+| `{{positions.[0].index}}` | Number | Card index | `0` |
 
-### Card Object Structure
+### Position Object Structure
 
-Each card in the `{{cards}}` array contains:
+Each position in the `{{positions}}` array contains:
 
 ```javascript
 {
-  name: "The Hermit",           // Card name
-  position: "Present",          // Position in spread
-  orientation: "reversed",      // Orientation indicator (or "")
-  index: 9                      // Card index (0-77)
+  number: 1,               // 1-based position number
+  label: "Present",        // Position label
+  name: "The Hermit",      // Card name
+  index: 9,                // Card index (0-77)
+  orientation: "reversed", // Orientation indicator (or "")
+  isReversed: true         // Boolean for conditionals
 }
 ```
 
 ### Using Loops
 
-Iterate through all cards in a spread:
+Iterate through all positions in a spread:
 
 ```handlebars
-{{#each cards}}
-**{{position}}:** {{name}} {{orientation}}
+{{#each positions}}
+**{{number}}. {{label}}:** {{name}} {{orientation}}
 {{/each}}
 ```
 
 Output:
 ```markdown
-**Past:** The Fool
-**Present:** The Hermit reversed
-**Future:** The Tower
+**1. Past:** The Fool
+**2. Present:** The Hermit reversed
+**3. Future:** The Tower
 ```
 
-### Accessing Specific Cards
+### Accessing Specific Positions
 
 ```handlebars
-First card: {{cards.[0].name}}
-Second card: {{cards.[1].name}}
-Last card: {{cards.[2].name}}
+First position: {{positions.[0].name}}
+Second position: {{positions.[1].name}}
+Last position: {{positions.[2].name}}
 ```
 
 ---
@@ -268,6 +296,34 @@ Output:
 
 Templates support full Handlebars functionality for advanced formatting.
 
+### HTML Escaping
+
+**Important:** Handlebars has two types of variable output:
+
+**Double braces `{{variable}}`** - HTML-escapes the output
+- Converts special characters: `'` → `&#x27;`, `"` → `&#x22;`, `&` → `&#x38;`
+- Use for card names and controlled data
+- Example: `{{name}}` outputs card names safely
+
+**Triple braces `{{{variable}}}`** - Raw output, no escaping
+- Outputs exactly as entered
+- Use for user input fields like `{{{intention}}}`
+- Preserves apostrophes, quotes, and special characters
+- Example: `{{{intention}}}` keeps "peppa's back" as-is instead of "peppa&#x27;s back"
+
+**Best Practice:**
+```handlebars
+**Intention:** {{{intention}}}     ← Triple braces for user input
+**Card:** {{name}} {{orientation}} ← Double braces for card names
+```
+
+**When to use which:**
+- `{{{intention}}}` - User's text (may contain quotes/apostrophes)
+- `{{name}}` - Card name (controlled data)
+- `{{orientation}}` - Controlled data
+- `{{spread_name}}` - Controlled data
+- `{{date}}`, `{{time}}` - Controlled data
+
 ### Conditionals
 
 ```handlebars
@@ -312,7 +368,7 @@ Full reference: [Handlebars Guide](https://handlebarsjs.com/guide/)
 ### Minimal Daily Draw
 
 ```markdown
-- {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
+- {{time}}: [[{{name}}]] {{orientation}} - {{{intention}}}
 ```
 
 Output:
@@ -325,9 +381,9 @@ Output:
 ```markdown
 ### Daily Tarot
 
-> {{intention}}
+> {{{intention}}}
 
-**Card:** {{card}} {{orientation}}  
+**Card:** {{name}} {{orientation}}  
 **Date:** {{date:MMMM D, YYYY}}
 **Time:** {{time}}
 
@@ -339,8 +395,8 @@ Output:
 ```markdown
 ## Tarot Draw - {{datetime:YYYY-MM-DD HH:mm}}
 
-**Intention:** {{intention}}  
-**Card:** {{card}} {{orientation}}  
+**Intention:** {{{intention}}}  
+**Card:** {{name}} {{orientation}}  
 **Index:** {{index}}
 
 **Draw Details:**
@@ -351,14 +407,17 @@ Output:
 ---
 ```
 
-### Multiple Cards
+### Multiple Cards with Deck Info
 
 ```markdown
 ## {{card_count}}-Card Draw - {{date}}
+**Deck:** {{deck_name}} ({{deck_type}})
 
-**Intention:** {{intention}}
+**Intention:** {{{intention}}}
 
-{{cards}}
+{{#each cards}}
+{{number}}. {{name}} {{orientation}}
+{{/each}}
 
 *Drawn at {{time}}*
 ```
@@ -368,10 +427,10 @@ Output:
 ```markdown
 ## {{spread_name}} - {{datetime}}
 
-**Intention:** {{intention}}
+**Intention:** {{{intention}}}
 
-{{#each cards}}
-### {{position}}
+{{#each positions}}
+### {{label}}
 {{name}} {{orientation}}
 
 {{/each}}
@@ -380,36 +439,10 @@ Output:
 *Shuffled {{shuffle_count}}x, cut at {{cut_position}}*
 ```
 
-### Celtic Cross with Sections
-
-```markdown
-## {{spread_name}}
-**Date:** {{date:dddd, MMMM Do YYYY}}  
-**Intention:** {{intention}}
-
-### The Cross
-{{#each cards}}
-{{#if @first}}**1. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 1)}}**2. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 2)}}**3. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 3)}}**4. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 4)}}**5. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 5)}}**6. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{/each}}
-
-### The Staff
-{{#each cards}}
-{{#if (eq @index 6)}}**7. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 7)}}**8. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if (eq @index 8)}}**9. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{#if @last}}**10. {{position}}:** {{name}} {{orientation}}{{/if}}
-{{/each}}
-```
-
 ### Conditional Orientation
 
 ```markdown
-**Card:** {{card}}{{#if orientation}} ({{orientation}}){{/if}}
+**Card:** {{name}}{{#if orientation}} ({{orientation}}){{/if}}
 ```
 
 Output when upright (empty indicator):

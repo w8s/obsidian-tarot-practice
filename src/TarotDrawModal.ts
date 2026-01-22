@@ -2,6 +2,7 @@ import { App, Modal, Notice, Setting } from 'obsidian';
 import { getCardName } from './CardDatabase';
 import { TarotPracticeSettings } from './settings';
 import { prepareDeck } from './DeckPreparation';
+import { Deck, DEFAULT_DECK } from './Deck';
 
 // Single card draw result
 export interface DrawResult {
@@ -16,6 +17,7 @@ export interface DrawResult {
 	cutPositionCards: number | null;
 	cutBasePercent: number | null;
 	cutVariancePercent: number | null;
+	deck: Deck;
 }
 
 // Individual card in a multiple card draw
@@ -36,6 +38,7 @@ export interface MultipleDrawResult {
 	cutPositionCards: number | null;
 	cutBasePercent: number | null;
 	cutVariancePercent: number | null;
+	deck: Deck;
 }
 
 export class TarotDrawModal extends Modal {
@@ -166,7 +169,8 @@ export class TarotDrawModal extends Modal {
 					cutPositionPercent: metadata.cutPositionPercent,
 					cutPositionCards: metadata.cutPositionCards,
 					cutBasePercent: metadata.cutBasePercent,
-					cutVariancePercent: metadata.cutVariancePercent
+					cutVariancePercent: metadata.cutVariancePercent,
+					deck: DEFAULT_DECK
 				};
 
 				this.close();
@@ -205,7 +209,8 @@ export class TarotDrawModal extends Modal {
 					cutPositionPercent: metadata.cutPositionPercent,
 					cutPositionCards: metadata.cutPositionCards,
 					cutBasePercent: metadata.cutBasePercent,
-					cutVariancePercent: metadata.cutVariancePercent
+					cutVariancePercent: metadata.cutVariancePercent,
+					deck: DEFAULT_DECK
 				};
 
 				this.close();

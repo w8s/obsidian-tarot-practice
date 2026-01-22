@@ -100,11 +100,11 @@ this.settings.shuffleCount ?? 3  // Use ?? for deprecated optional fields
 
 ### Adding a New Template Variable
 
-1. Add to `DrawResult` or `MultipleDrawResult` interface in `TarotDrawModal.ts`
-2. Populate in `drawCards()` method
-3. Add replacement in `formatTemplate()` or `formatMultipleTemplate()` in `main.ts`
-4. Update built-in templates in `BuiltInTemplates.ts`
-5. Document in README.md and TEMPLATE-EXAMPLES.md
+1. Add to `DrawResult`, `MultipleDrawResult`, or `SpreadDrawResult` interface
+2. Populate in draw method (e.g., `drawCards()` or spread draw)
+3. Add to template data preparation in `SpreadFormatter.ts` (all draws now use Handlebars)
+4. Update built-in templates in `BuiltInTemplates.ts` or `BuiltInSpreadTemplates.ts`
+5. Document in `TEMPLATE-VARIABLES.md` and update examples
 
 ### Modifying Settings
 

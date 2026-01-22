@@ -1,23 +1,24 @@
 import Handlebars from 'handlebars';
 import { moment } from 'obsidian';
 import { SpreadDrawResult } from './spreads';
+import { DrawResult, MultipleDrawResult } from './TarotDrawModal';
+import { TarotPracticeSettings } from './settings';
 
 /**
- * Formats spread draw results using Handlebars templates
+ * Formats draw results using Handlebars templates
  * Handles all template variable substitution including loops and conditionals
+ * Used for spreads, single draws, and multiple draws
  */
 export class SpreadFormatter {
+	constructor(private settings: TarotPracticeSettings) {}
+
 	/**
 	 * Format a spread draw result using a Handlebars template
 	 */
 	format(result: SpreadDrawResult, template: string): string {
-		// Compile the Handlebars template
-		const compiledTemplate = Handlebars.compile(template);
-
-		// Prepare the data object for Handlebars
+		const processedTemplate = this.preprocessTemplate(template);
+		const compiledTemplate = Handlebars.compile(processedTemplate);
 		const data = this.prepareTemplateData(result);
-
-		// Render the template with the data
 		return compiledTemplate(data);
 	}
 
@@ -39,16 +40,19 @@ export class SpreadFormatter {
 			intention: result.intention,
 			card_count: result.positions.length,
 
+			// Deck information
+			deck_name: result.deck.name,
+			deck_type: result.deck.type,
+
 			// Raw timestamp for Handlebars helpers
 			timestamp: timestampNum,
 
 			// Positions array for loops
 			positions: result.positions.map(pos => ({
-				index: pos.index,
+				index: pos.cardIndex,
 				number: pos.number,
 				label: pos.label,
-				card: pos.card,
-				cardIndex: pos.cardIndex,
+				name: pos.card,
 				orientation: pos.orientation,
 				isReversed: pos.isReversed
 			})),
@@ -60,11 +64,139 @@ export class SpreadFormatter {
 
 			// Deck preparation metadata
 			shuffle_count: result.shuffleCount,
-			was_cut: result.wasCut,
-			cut_position: result.cutPosition ? `${result.cutPosition.toFixed(1)}%` : '',
-			cut_position_cards: result.cutPositionCards || '',
-			cut_base: result.cutBase ? `${result.cutBase.toFixed(1)}%` : '',
-			cut_variance: result.cutVariance ? `${result.cutVariance >= 0 ? '+' : ''}${result.cutVariance.toFixed(1)}%` : ''
+			was_cut: result.wasCut ? 'yes' : 'no',
+			cut_position: result.cutPosition ? `${result.cutPosition.toFixed(1)}%` : 'N/A',
+			cut_position_cards: result.cutPositionCards || 'N/A',
+			cut_base: result.cutBase ? `${result.cutBase.toFixed(1)}%` : 'N/A',
+			cut_variance: result.cutVariance ? `${result.cutVariance >= 0 ? '+' : ''}${result.cutVariance.toFixed(1)}%` : 'N/A'
+		};
+	}
+
+	/**
+	 * Format a single card draw using a Handlebars template
+	 */
+	formatSingle(result: DrawResult, template: string): string {
+		const processedTemplate = this.preprocessTemplate(template);
+		const compiledTemplate = Handlebars.compile(processedTemplate);
+		const data = this.prepareSingleDrawData(result);
+		return compiledTemplate(data);
+	}
+
+	/**
+	 * Format a multiple card draw using a Handlebars template
+	 */
+	formatMultiple(result: MultipleDrawResult, template: string): string {
+		const processedTemplate = this.preprocessTemplate(template);
+		const compiledTemplate = Handlebars.compile(processedTemplate);
+		const data = this.prepareMultipleDrawData(result);
+		return compiledTemplate(data);
+	}
+
+	/**
+	 * Preprocess template to convert {{date:FORMAT}} syntax to Handlebars helper calls
+	 * This maintains backward compatibility with existing templates
+	 */
+	private preprocessTemplate(template: string): string {
+		// Convert {{date:FORMAT}} to {{formatDate timestamp "FORMAT"}}
+		template = template.replace(/\{\{date:([^}]+)\}\}/g, '{{formatDate timestamp "$1"}}');
+		
+		// Convert {{time:FORMAT}} to {{formatTime timestamp "FORMAT"}}
+		template = template.replace(/\{\{time:([^}]+)\}\}/g, '{{formatTime timestamp "$1"}}');
+		
+		// Convert {{datetime:FORMAT}} to {{formatDateTime timestamp "FORMAT"}}
+		template = template.replace(/\{\{datetime:([^}]+)\}\}/g, '{{formatDateTime timestamp "$1"}}');
+		
+		return template;
+	}
+
+	/**
+	 * Prepare data for single card draw
+	 */
+	private prepareSingleDrawData(result: DrawResult): Record<string, any> {
+		const date = moment(result.timestamp);
+		
+		// Calculate orientation from settings
+		const orientation = result.isReversed 
+			? this.settings.reversedIndicator 
+			: this.settings.uprightIndicator;
+
+		return {
+			// Card information
+			name: result.cardName,
+			index: result.cardIndex,
+			intention: result.intention,
+			orientation: orientation,
+
+			// Deck information
+			deck_name: result.deck.name,
+			deck_type: result.deck.type,
+
+			// Timestamp for helpers
+			timestamp: result.timestamp,
+
+			// Date/time variables (default formats)
+			date: date.format('L'),
+			time: date.format('LT'),
+			datetime: date.format('L LT'),
+
+			// Deck preparation metadata
+			shuffle_count: result.shuffleCount,
+			was_cut: result.wasCut ? 'yes' : 'no',
+			cut_position: result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A',
+			cut_position_cards: result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A',
+			cut_base: result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A',
+			cut_variance: result.cutVariancePercent !== null 
+				? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` 
+				: 'N/A'
+		};
+	}
+
+	/**
+	 * Prepare data for multiple card draw
+	 */
+	private prepareMultipleDrawData(result: MultipleDrawResult): Record<string, any> {
+		const date = moment(result.timestamp);
+
+		// Provide cards as array for loops
+		const cards = result.cards.map((card, index) => ({
+			number: index + 1,
+			name: card.cardName,
+			index: card.cardIndex,
+			orientation: card.isReversed 
+				? this.settings.reversedIndicator 
+				: this.settings.uprightIndicator,
+			isReversed: card.isReversed
+		}));
+
+		return {
+			// Draw information
+			intention: result.intention,
+			card_count: result.cards.length,
+
+			// Deck information
+			deck_name: result.deck.name,
+			deck_type: result.deck.type,
+
+			// Timestamp for helpers
+			timestamp: result.timestamp,
+
+			// Cards as array for loops
+			cards: cards,
+
+			// Date/time variables (default formats)
+			date: date.format('L'),
+			time: date.format('LT'),
+			datetime: date.format('L LT'),
+
+			// Deck preparation metadata
+			shuffle_count: result.shuffleCount,
+			was_cut: result.wasCut ? 'yes' : 'no',
+			cut_position: result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A',
+			cut_position_cards: result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A',
+			cut_base: result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A',
+			cut_variance: result.cutVariancePercent !== null 
+				? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` 
+				: 'N/A'
 		};
 	}
 }

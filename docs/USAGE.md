@@ -479,15 +479,15 @@ start fresh rather than patching old work.
 
 **Minimal template for quick logging:**
 ```markdown
-- {{time}}: [[{{card}}]] {{orientation}} - {{intention}}
+- {{time}}: [[{{name}}]] {{orientation}} - {{{intention}}}
 ```
 
 **Detailed template for analysis:**
 ```markdown
 ## Tarot Draw
 **Date:** {{datetime:YYYY-MM-DD HH:mm}}
-**Intention:** {{intention}}
-**Card:** {{card}} {{orientation}} (Index: {{index}})
+**Intention:** {{{intention}}}
+**Card:** {{name}} {{orientation}} (Index: {{index}})
 
 **Draw Details:**
 - Shuffles: {{shuffle_count}}
@@ -537,7 +537,7 @@ start fresh rather than patching old work.
 Use metadata variables in templates:
 ```markdown
 draw:: {{datetime:YYYY-MM-DD HH:mm}}
-card:: {{card}}
+card:: {{name}}
 orientation:: {{orientation}}
 shuffle_count:: {{shuffle_count}}
 cut_position:: {{cut_position}}

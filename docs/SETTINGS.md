@@ -193,7 +193,7 @@ Settings for reversed card appearances in readings.
 **Template usage:**
 The `{{orientation}}` variable contains the appropriate indicator:
 ```markdown
-**Card:** {{card}} {{orientation}}
+**Card:** {{name}} {{orientation}}
 ```
 Output examples:
 - Upright (empty indicator): "The Fool"
