@@ -5,17 +5,32 @@ import { Spread } from './spreads';
  * These cannot be deleted by users but can be customized
  */
 
+export const DAILY_DRAW_SPREAD: Spread = {
+	id: 'daily-draw',
+	name: 'Daily Draw',
+	description: 'Daily tarot practice - customize card count and deck as needed',
+	isBuiltIn: true,
+	positions: [
+		{ label: 'Card', description: 'Daily guidance card' }
+	],
+	shuffleCount: 3,
+	cutDeck: true,
+	templatePath: '',
+	insertMode: 'daily-note'
+};
+
 export const SINGLE_CARD_SPREAD: Spread = {
 	id: 'single-card',
 	name: 'Single Card',
-	description: 'Quick guidance or daily insight',
+	description: 'Quick inline guidance',
 	isBuiltIn: true,
 	positions: [
 		{ label: 'Guidance', description: 'The card drawn for guidance' }
 	],
 	shuffleCount: 3,
 	cutDeck: true,
-	templatePath: ''
+	templatePath: '',
+	insertMode: 'inline'
 };
 
 export const THREE_CARD_PAST_PRESENT_FUTURE: Spread = {
@@ -30,7 +45,8 @@ export const THREE_CARD_PAST_PRESENT_FUTURE: Spread = {
 	],
 	shuffleCount: 3,
 	cutDeck: true,
-	templatePath: ''
+	templatePath: '',
+	insertMode: 'new-note'
 };
 
 export const THREE_CARD_SITUATION_ACTION_OUTCOME: Spread = {
@@ -45,7 +61,8 @@ export const THREE_CARD_SITUATION_ACTION_OUTCOME: Spread = {
 	],
 	shuffleCount: 3,
 	cutDeck: true,
-	templatePath: ''
+	templatePath: '',
+	insertMode: 'new-note'
 };
 
 export const FIVE_CARD_WEEK_AHEAD: Spread = {
@@ -62,7 +79,8 @@ export const FIVE_CARD_WEEK_AHEAD: Spread = {
 	],
 	shuffleCount: 5,
 	cutDeck: true,
-	templatePath: ''
+	templatePath: '',
+	insertMode: 'new-note'
 };
 
 export const CELTIC_CROSS: Spread = {
@@ -84,13 +102,15 @@ export const CELTIC_CROSS: Spread = {
 	],
 	shuffleCount: 7,
 	cutDeck: true,
-	templatePath: ''
+	templatePath: '',
+	insertMode: 'new-note'
 };
 
 /**
  * Array of all built-in spreads
  */
 export const BUILTIN_SPREADS: Spread[] = [
+	DAILY_DRAW_SPREAD,
 	SINGLE_CARD_SPREAD,
 	THREE_CARD_PAST_PRESENT_FUTURE,
 	THREE_CARD_SITUATION_ACTION_OUTCOME,

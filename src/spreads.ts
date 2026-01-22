@@ -27,6 +27,9 @@ export interface Spread {
 	
 	/** Path to template file, or empty string for built-in template */
 	templatePath: string;
+	
+	/** Where to insert the reading result */
+	insertMode: 'daily-note' | 'new-note' | 'inline';
 }
 
 /**

@@ -113,18 +113,23 @@ export default class TarotPracticePlugin extends Plugin {
 		);
 
 		// Open modal to select spread and enter intention
-		new SpreadDrawModal(this.app, allSpreads, async (spread: Spread, intention: string) => {
-			await this.drawSpread(spread, intention);
+		new SpreadDrawModal(this.app, allSpreads, (spread: Spread, intention: string) => {
+			void this.drawSpread(spread, intention);
 		}).open();
 	}
 
 	async drawSpread(spread: Spread, intention: string) {
+		// Delegate to unified execution method
+		await this.executeSpread(spread, intention);
+	}
+
+	/**
+	 * Unified spread execution that handles all insert modes
+	 */
+	async executeSpread(spread: Spread, intention: string): Promise<void> {
 		try {
 			// Prepare the deck using spread's shuffle settings
 			const timestamp = Date.now();
-			const seed = `${intention}:${timestamp}`;
-			
-			// Create a settings object for deck preparation
 			const deckSettings = {
 				...this.settings,
 				shuffleCount: spread.shuffleCount,
@@ -151,7 +156,6 @@ export default class TarotPracticePlugin extends Plugin {
 				// Determine reversal
 				let isReversed = false;
 				if (this.settings.enableReversals) {
-					// Use a simple hash of the card index + position to determine reversal
 					const reversalSeed = cardIndex + i + timestamp;
 					isReversed = (reversalSeed % 100) < this.settings.reversalChance;
 				}
@@ -191,14 +195,107 @@ export default class TarotPracticePlugin extends Plugin {
 				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined
 			};
 
-			// Insert into note
-			await this.insertSpreadIntoNote(drawResult);
+			// Get template
+			const spreadResolver = new SpreadResolver(this.app);
+			const template = await spreadResolver.getSpreadTemplate(spread);
+
+			// Format using Handlebars
+			const formatter = new SpreadFormatter(this.settings);
+			const output = formatter.format(drawResult, template);
+
+			// Insert based on spread's insertMode
+			switch (spread.insertMode) {
+				case 'daily-note':
+					await this.insertIntoDailyNote(output, spread.name);
+					break;
+				case 'inline':
+					await this.insertInline(output, spread.name);
+					break;
+				case 'new-note':
+					await this.insertIntoNewNote(output, spread.name, intention);
+					break;
+			}
 
 		} catch (error) {
-			console.error('Error drawing spread:', error);
+			console.error('Error executing spread:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			new Notice('Failed to draw spread: ' + errorMessage);
+			new Notice('Failed to execute spread: ' + errorMessage);
 		}
+	}
+
+	/**
+	 * Insert content into daily note
+	 */
+	async insertIntoDailyNote(output: string, spreadName: string): Promise<void> {
+		// Get or create daily note
+		const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
+		const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
+		
+		let targetFile: TFile;
+		if (abstractFile instanceof TFile) {
+			targetFile = abstractFile;
+		} else {
+			targetFile = await this.app.vault.create(dailyNotePath, '');
+		}
+		
+		// Open the daily note
+		await this.app.workspace.openLinkText(dailyNotePath, '', false);
+		
+		// Insert based on settings
+		const currentContent = await this.app.vault.read(targetFile);
+		let newContent: string;
+
+		switch (this.settings.insertLocation) {
+			case 'prepend':
+				newContent = output + '\n' + currentContent;
+				break;
+			case 'heading':
+				newContent = this.insertUnderHeading(currentContent, output);
+				break;
+			case 'append':
+			default:
+				const separator = currentContent.endsWith('\n') ? '' : '\n';
+				newContent = currentContent + separator + output;
+				break;
+		}
+
+		await this.app.vault.modify(targetFile, newContent);
+		new Notice(`${spreadName} drawn`);
+	}
+
+	/**
+	 * Insert content inline at cursor position
+	 */
+	async insertInline(output: string, spreadName: string): Promise<void> {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		
+		if (!activeView) {
+			new Notice('No active note found');
+			return;
+		}
+		
+		const editor = activeView.editor;
+		editor.replaceSelection(output);
+		
+		new Notice(`${spreadName} drawn`);
+	}
+
+	/**
+	 * Insert content into a new note
+	 */
+	async insertIntoNewNote(output: string, spreadName: string, intention: string): Promise<void> {
+		// Create filename: SpreadName - Intention - Timestamp
+		const timestamp = moment().format('YYYY-MM-DD-HHmmss');
+		const sanitizedIntention = intention.replace(/[\\/:*?"<>|]/g, '-').substring(0, 50);
+		const filename = `${spreadName} - ${sanitizedIntention} - ${timestamp}.md`;
+		
+		// Create the new file
+		const newFile = await this.app.vault.create(filename, output);
+		
+		// Open the new file
+		await this.app.workspace.getLeaf(false).openFile(newFile);
+		
+		new Notice(`${spreadName} created`);
 	}
 
 	async insertSpreadIntoNote(result: SpreadDrawResult) {

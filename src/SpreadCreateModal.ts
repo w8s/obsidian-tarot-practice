@@ -219,7 +219,8 @@ export class SpreadCreateModal extends Modal {
 			positions: validPositions,
 			shuffleCount: this.shuffleCount,
 			cutDeck: this.cutDeck,
-			templatePath: templatePath
+			templatePath: templatePath,
+			insertMode: 'new-note' // Default for custom spreads
 		};
 
 		this.callback(spread);
