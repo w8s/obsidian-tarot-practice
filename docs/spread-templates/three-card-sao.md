@@ -2,13 +2,13 @@
 
 ## {{spread_name}}
 
-**Intention:** {{intention}}
+**Intention:** {{{intention}}}
 
 ---
 
 {{#each positions}}
 ### {{label}}
-**{{card}}**{{#if isReversed}} (reversed){{/if}}
+**{{name}}**{{#if isReversed}} (reversed){{/if}}
 
 {{/each}}
 

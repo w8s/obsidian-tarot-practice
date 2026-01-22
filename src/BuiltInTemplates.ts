@@ -5,8 +5,8 @@
 
 export const BUILTIN_DAILY_TEMPLATE = `## Tarot draw - {{datetime}}
 
-**Intention:** {{intention}}
-**Card:** {{card}} {{orientation}}
+**Intention:** {{{intention}}}
+**Card:** {{name}} {{orientation}}
 
 **Draw details:**
 - Shuffles: {{shuffle_count}}
@@ -18,8 +18,8 @@ export const BUILTIN_DAILY_TEMPLATE = `## Tarot draw - {{datetime}}
 
 export const BUILTIN_INLINE_TEMPLATE = `## Tarot draw - {{datetime}}
 
-**Intention:** {{intention}}
-**Card:** {{card}} {{orientation}}
+**Intention:** {{{intention}}}
+**Card:** {{name}} {{orientation}}
 **Index:** {{index}}
 
 ---
@@ -27,10 +27,12 @@ export const BUILTIN_INLINE_TEMPLATE = `## Tarot draw - {{datetime}}
 
 export const BUILTIN_MULTIPLE_TEMPLATE = `## Tarot draw - {{datetime}}
 
-**Intention:** {{intention}}
+**Intention:** {{{intention}}}
 **Cards drawn:** {{card_count}}
 
-{{cards}}
+{{#each cards}}
+{{number}}. {{name}} {{orientation}}
+{{/each}}
 
 **Draw details:**
 - Shuffles: {{shuffle_count}}

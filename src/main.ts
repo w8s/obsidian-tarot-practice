@@ -9,6 +9,7 @@ import { SpreadFormatter, registerHandlebarsHelpers } from './SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from './spreads';
 import { prepareDeck } from './DeckPreparation';
 import { getCardName } from './CardDatabase';
+import { DEFAULT_DECK } from './Deck';
 
 interface ShuffleMetadata {
 	shuffleCount: number;
@@ -181,6 +182,7 @@ export default class TarotPracticePlugin extends Plugin {
 				intention: intention,
 				timestamp: timestamp,
 				positions: positions,
+				deck: DEFAULT_DECK,
 				shuffleCount: preparedDeck.metadata.shuffleCount,
 				wasCut: preparedDeck.metadata.wasCut,
 				cutPosition: preparedDeck.metadata.cutPositionPercent ?? undefined,
@@ -205,7 +207,7 @@ export default class TarotPracticePlugin extends Plugin {
 		const template = await spreadResolver.getSpreadTemplate(result.spread);
 
 		// Format using Handlebars
-		const formatter = new SpreadFormatter();
+		const formatter = new SpreadFormatter(this.settings);
 		const output = formatter.format(result, template);
 
 		// Get target file (active file or daily note)
@@ -263,8 +265,9 @@ export default class TarotPracticePlugin extends Plugin {
 		const resolver = new TemplateResolver(this.app, this.settings);
 		const template = await resolver.getInlineTemplate();
 		
-		// Format the output
-		const output = this.formatTemplate(result, template);
+		// Format the output using SpreadFormatter
+		const formatter = new SpreadFormatter(this.settings);
+		const output = formatter.formatSingle(result, template);
 		
 		// Insert at current cursor position ONLY
 		const editor = activeView.editor;
@@ -274,95 +277,13 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	formatTemplate(result: DrawResult, template: string): string {
-		const timestamp = moment(result.timestamp);
-		let output = template;
-		
-		// Replace simple variables
-		output = output.replace(/{{card}}/g, result.cardName);
-		output = output.replace(/{{index}}/g, result.cardIndex.toString());
-		output = output.replace(/{{intention}}/g, result.intention);
-		output = output.replace(/{{timestamp}}/g, result.timestamp);
-		
-		// Replace orientation variable
-		const orientation = result.isReversed 
-			? this.settings.reversedIndicator 
-			: this.settings.uprightIndicator;
-		output = output.replace(/{{orientation}}/g, orientation);
-		
-		// Replace formatted date/time variables
-		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('L');
-		});
-		
-		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('LT');
-		});
-		
-		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('L LT');
-		});
-		
-		// Replace shuffle/cut metadata variables
-		output = output.replace(/{{shuffle_count}}/g, result.shuffleCount.toString());
-		output = output.replace(/{{was_cut}}/g, result.wasCut ? 'yes' : 'no');
-		output = output.replace(/{{cut_position}}/g, 
-			result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A');
-		output = output.replace(/{{cut_position_cards}}/g, 
-			result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A');
-		output = output.replace(/{{cut_base}}/g, 
-			result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A');
-		output = output.replace(/{{cut_variance}}/g, 
-			result.cutVariancePercent !== null ? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` : 'N/A');
-		
-		return output;
+		const formatter = new SpreadFormatter(this.settings);
+		return formatter.formatSingle(result, template);
 	}
 
 	formatMultipleTemplate(result: MultipleDrawResult, template: string): string {
-		const timestamp = moment(result.timestamp);
-		let output = template;
-		
-		// Replace simple variables
-		output = output.replace(/{{intention}}/g, result.intention);
-		output = output.replace(/{{timestamp}}/g, result.timestamp);
-		output = output.replace(/{{card_count}}/g, result.cards.length.toString());
-		
-		// Format cards list
-		const cardsList = result.cards.map((card, index) => {
-			const orientation = card.isReversed 
-				? this.settings.reversedIndicator 
-				: this.settings.uprightIndicator;
-			const orientationText = orientation ? ` ${orientation}` : '';
-			return `${index + 1}. ${card.cardName}${orientationText}`;
-		}).join('\n');
-		
-		output = output.replace(/{{cards}}/g, cardsList);
-		
-		// Replace formatted date/time variables
-		output = output.replace(/{{date(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('L');
-		});
-		
-		output = output.replace(/{{time(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('LT');
-		});
-		
-		output = output.replace(/{{datetime(?::([^}]+))?}}/g, (_match, format: string | undefined) => {
-			return format ? timestamp.format(format) : timestamp.format('L LT');
-		});
-		
-		// Replace shuffle/cut metadata variables
-		output = output.replace(/{{shuffle_count}}/g, result.shuffleCount.toString());
-		output = output.replace(/{{was_cut}}/g, result.wasCut ? 'yes' : 'no');
-		output = output.replace(/{{cut_position}}/g, 
-			result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A');
-		output = output.replace(/{{cut_position_cards}}/g, 
-			result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A');
-		output = output.replace(/{{cut_base}}/g, 
-			result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A');
-		output = output.replace(/{{cut_variance}}/g, 
-			result.cutVariancePercent !== null ? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` : 'N/A');
-		
-		return output;
+		const formatter = new SpreadFormatter(this.settings);
+		return formatter.formatMultiple(result, template);
 	}
 
 	async insertMultipleDrawInline(result: MultipleDrawResult) {
@@ -376,7 +297,10 @@ export default class TarotPracticePlugin extends Plugin {
 		// Get template using resolver
 		const resolver = new TemplateResolver(this.app, this.settings);
 		const template = await resolver.getMultipleTemplate();
-		const output = this.formatMultipleTemplate(result, template);
+		
+		// Format the output using SpreadFormatter
+		const formatter = new SpreadFormatter(this.settings);
+		const output = formatter.formatMultiple(result, template);
 		
 		const editor = activeView.editor;
 		editor.replaceSelection(output);
@@ -389,7 +313,10 @@ export default class TarotPracticePlugin extends Plugin {
 		// This is called from daily draw, so use daily template
 		const resolver = new TemplateResolver(this.app, this.settings);
 		const template = await resolver.getDailyTemplate();
-		const output = this.formatMultipleTemplate(result, template);
+		
+		// Format the output using SpreadFormatter
+		const formatter = new SpreadFormatter(this.settings);
+		const output = formatter.formatMultiple(result, template);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();
@@ -437,7 +364,10 @@ export default class TarotPracticePlugin extends Plugin {
 		// Get template using resolver
 		const resolver = new TemplateResolver(this.app, this.settings);
 		const template = await resolver.getDailyTemplate();
-		const output = this.formatTemplate(result, template);
+		
+		// Format the output using SpreadFormatter
+		const formatter = new SpreadFormatter(this.settings);
+		const output = formatter.formatSingle(result, template);
 
 		// Get target file (active file or daily note)
 		let targetFile = this.app.workspace.getActiveFile();

@@ -1,3 +1,5 @@
+import { Deck } from './Deck';
+
 /**
  * Definition of a tarot spread
  */
@@ -53,6 +55,9 @@ export interface SpreadDrawResult {
 	
 	/** Results for each position */
 	positions: SpreadPositionResult[];
+	
+	/** Deck used for this draw */
+	deck: Deck;
 	
 	/** Deck preparation metadata */
 	shuffleCount: number;
