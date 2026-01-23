@@ -86,12 +86,13 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					this.display();
 				}));
 
-		// Only show path pattern if daily note is enabled
+		// Daily note path pattern
 		if (this.plugin.settings.useDailyNote) {
 			new Setting(containerEl)
 				.setName('Daily note path pattern')
-				.setDesc('Pattern for daily notes (e.g., YYYY-MM-DD.md or Daily Notes/YYYY-MM-DD.md)')
+				.setDesc('pattern for daily notes (e.g., YYYY-MM-DD.md or daily notes/YYYY-MM-DD.md)')
 				.addText(text => text
+					// eslint-disable-next-line obsidianmd/ui/sentence-case
 					.setPlaceholder('YYYY-MM-DD.md')
 					.setValue(this.plugin.settings.dailyNotePathPattern)
 					.onChange(async (value) => {
@@ -115,13 +116,13 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					this.display();
 				}));
 
-		// Only show heading name if "Under heading" is selected
+		// Heading name if needed
 		if (this.plugin.settings.insertLocation === 'heading') {
 			new Setting(containerEl)
 				.setName('Heading name')
 				.setDesc('The heading to insert under (will be created if it doesn\'t exist)')
 				.addText(text => text
-					.setPlaceholder('## Tarot')
+					.setPlaceholder('## tarot')
 					.setValue(this.plugin.settings.headingName)
 					.onChange(async (value) => {
 						this.plugin.settings.headingName = value;
@@ -168,7 +169,8 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 			new Setting(containerEl)
 				.setName('Upright indicator')
-				.setDesc('Text to append for upright cards (leave empty for none)')
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
+				.setDesc('text to append for upright cards (leave empty for none)')
 				.addText(text => text
 					.setPlaceholder('')
 					.setValue(this.plugin.settings.uprightIndicator)
@@ -179,8 +181,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 			new Setting(containerEl)
 				.setName('Reversed indicator')
-				.setDesc('Text to append for reversed cards')
+				// eslint-disable-next-line obsidianmd/ui/sentence-case
+				.setDesc('text to append for reversed cards')
 				.addText(text => text
+					// eslint-disable-next-line obsidianmd/ui/sentence-case
 					.setPlaceholder('reversed')
 					.setValue(this.plugin.settings.reversedIndicator)
 					.onChange(async (value) => {
@@ -197,9 +201,9 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		new Setting(containerEl)
 			.setName('Template base folder')
-			.setDesc('Base folder for all template files (e.g., Templates/Tarot)')
+			.setDesc('Base folder for all template files (e.g., Templates/tarot)')
 			.addText(text => text
-				.setPlaceholder('Templates/Tarot')
+				.setPlaceholder('Templates/tarot')
 				.setValue(this.plugin.settings.templateBaseFolder)
 				.onChange(async (value) => {
 					this.plugin.settings.templateBaseFolder = value;
@@ -226,21 +230,27 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// Create new spread button
 		const createSpreadContainer = containerEl.createDiv({ cls: 'setting-item' });
-		createSpreadContainer.style.borderTop = '1px solid var(--background-modifier-border)';
-		createSpreadContainer.style.paddingTop = '12px';
-		createSpreadContainer.style.marginTop = '8px';
+		createSpreadContainer.setCssProps({
+			'border-top': '1px solid var(--background-modifier-border)',
+			'padding-top': '12px',
+			'margin-top': '8px'
+		});
 		
 		const createButton = createSpreadContainer.createEl('button', {
-			text: '+ Create Custom Spread',
+			text: '+ create custom spread',
 			cls: 'mod-cta'
 		});
-		createButton.style.width = '100%';
+		createButton.setCssProps({
+			'width': '100%'
+		});
 		createButton.addEventListener('click', () => {
-			new SpreadCreateModal(this.app, this.plugin.settings, async (newSpread) => {
-				// Add to custom spreads
-				this.plugin.settings.customSpreads.push(newSpread);
-				await this.plugin.saveSettings();
-				this.display(); // Refresh UI
+			void new SpreadCreateModal(this.app, this.plugin.settings, (newSpread) => {
+				void (async () => {
+					// Add to custom spreads
+					this.plugin.settings.customSpreads.push(newSpread);
+					await this.plugin.saveSettings();
+					this.display(); // Refresh UI
+				})();
 			}).open();
 		});
 	}
@@ -264,21 +274,23 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.addExtraButton(button => button
 				.setIcon('document')
 				.setTooltip('View template')
-				.onClick(async () => {
-					// Get template content
-					const resolver = new TemplateResolver(this.app, this.plugin.settings);
-					let content: string;
+				.onClick(() => {
+					void (async () => {
+						// Get template content
+						const resolver = new TemplateResolver(this.app, this.plugin.settings);
+						let content: string;
 
-					// Determine template type and get content
-					if (useCustomKey === 'useCustomDailyTemplate') {
-						content = await resolver.getDailyTemplate();
-					} else if (useCustomKey === 'useCustomInlineTemplate') {
-						content = await resolver.getInlineTemplate();
-					} else {
-						content = await resolver.getMultipleTemplate();
-					}
-					
-					new TemplateViewModal(this.app, name, content).open();
+						// Determine template type and get content
+						if (useCustomKey === 'useCustomDailyTemplate') {
+							content = await resolver.getDailyTemplate();
+						} else if (useCustomKey === 'useCustomInlineTemplate') {
+							content = await resolver.getInlineTemplate();
+						} else {
+							content = await resolver.getMultipleTemplate();
+						}
+						
+						new TemplateViewModal(this.app, name, content).open();
+					})();
 				}))
 			.addExtraButton(button => button
 				.setIcon('pencil')
@@ -288,12 +300,14 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						this.app,
 						name,
 						customPath || '',
-						async (newPath) => {
-							// Save the new path
-							this.plugin.settings[useCustomKey] = newPath !== '';
-							this.plugin.settings[pathKey] = newPath;
-							await this.plugin.saveSettings();
-							this.display(); // Refresh UI
+						(newPath) => {
+							void (async () => {
+								// Save the new path
+								this.plugin.settings[useCustomKey] = newPath !== '';
+								this.plugin.settings[pathKey] = newPath;
+								await this.plugin.saveSettings();
+								this.display(); // Refresh UI
+							})();
 						}
 					).open();
 				}))
@@ -301,11 +315,13 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.setIcon('reset')
 				.setTooltip('Reset to built-in')
 				.setDisabled(!isCustom) // Disable if already using built-in
-				.onClick(async () => {
-					this.plugin.settings[useCustomKey] = false;
-					this.plugin.settings[pathKey] = '';
-					await this.plugin.saveSettings();
-					this.display(); // Refresh UI
+				.onClick(() => {
+					void (async () => {
+						this.plugin.settings[useCustomKey] = false;
+						this.plugin.settings[pathKey] = '';
+						await this.plugin.saveSettings();
+						this.display(); // Refresh UI
+					})();
 				}));
 	}
 
@@ -335,33 +351,35 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.setIcon('pencil')
 			.setTooltip('Edit spread settings')
 			.onClick(() => {
-				new SpreadEditModal(this.app, spread, this.plugin.settings, async (updatedSpread, isReset) => {
-					if (spread.isBuiltIn) {
-						if (isReset) {
-							// Remove override to reset to default
-							delete this.plugin.settings.builtInSpreadOverrides[spread.id];
-						} else {
-							// Store full spread override
-							this.plugin.settings.builtInSpreadOverrides[spread.id] = {
-								description: updatedSpread.description,
-								positions: updatedSpread.positions,
-								insertMode: updatedSpread.insertMode,
-								shuffleCount: updatedSpread.shuffleCount,
-								cutDeck: updatedSpread.cutDeck,
-								templatePath: updatedSpread.templatePath
-							};
-						}
-						await this.plugin.saveSettings();
-						this.display(); // Refresh UI
-					} else {
-						// Update custom spread
-						const index = this.plugin.settings.customSpreads.findIndex(s => s.id === spread.id);
-						if (index !== -1) {
-							this.plugin.settings.customSpreads[index] = updatedSpread;
+				new SpreadEditModal(this.app, spread, this.plugin.settings, (updatedSpread, isReset) => {
+					void (async () => {
+						if (spread.isBuiltIn) {
+							if (isReset) {
+								// Remove override to reset to default
+								delete this.plugin.settings.builtInSpreadOverrides[spread.id];
+							} else {
+								// Store full spread override
+								this.plugin.settings.builtInSpreadOverrides[spread.id] = {
+									description: updatedSpread.description,
+									positions: updatedSpread.positions,
+									insertMode: updatedSpread.insertMode,
+									shuffleCount: updatedSpread.shuffleCount,
+									cutDeck: updatedSpread.cutDeck,
+									templatePath: updatedSpread.templatePath
+								};
+							}
 							await this.plugin.saveSettings();
 							this.display(); // Refresh UI
+						} else {
+							// Update custom spread
+							const index = this.plugin.settings.customSpreads.findIndex(s => s.id === spread.id);
+							if (index !== -1) {
+								this.plugin.settings.customSpreads[index] = updatedSpread;
+								await this.plugin.saveSettings();
+								this.display(); // Refresh UI
+							}
 						}
-					}
+					})();
 				}).open();
 			}));
 
@@ -370,11 +388,13 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			setting.addExtraButton(button => button
 				.setIcon('trash')
 				.setTooltip('Delete custom spread')
-				.onClick(async () => {
-					// Remove from custom spreads
-					this.plugin.settings.customSpreads = this.plugin.settings.customSpreads.filter(s => s.id !== spread.id);
-					await this.plugin.saveSettings();
-					this.display(); // Refresh UI
+				.onClick(() => {
+					void (async () => {
+						// Remove from custom spreads
+						this.plugin.settings.customSpreads = this.plugin.settings.customSpreads.filter(s => s.id !== spread.id);
+						await this.plugin.saveSettings();
+						this.display(); // Refresh UI
+					})();
 				}));
 		}
 	}
@@ -386,16 +406,16 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const { containerEl } = this;
 		
 		// Show explanation
-		containerEl.createEl('h2', { text: 'Template System Update' });
+		new Setting(containerEl).setName('Template system update').setHeading();
 		containerEl.createEl('p', {
-			text: 'The Tarot Practice plugin now uses file-based templates. Would you like to migrate your customized templates?'
+			text: 'The tarot practice plugin now uses file-based templates. Would you like to migrate your customized templates?'
 		});
 
 		new Setting(containerEl)
 			.setName('Migrate templates')
 			.setDesc('Convert your inline templates to files in your vault')
 			.addButton(button => button
-				.setButtonText('Migrate Now')
+				.setButtonText('Migrate now')
 				.setCta()
 				.onClick(async () => {
 					const detector = new TemplateFolderDetector(this.app);

@@ -148,7 +148,7 @@ export class TarotDrawModal extends Modal {
 				// Single card draw
 				const cardIndex = deck[0];
 				if (cardIndex === undefined) {
-					new Notice('Error: Could not draw card');
+					new Notice('Could not draw card');
 					return;
 				}
 				

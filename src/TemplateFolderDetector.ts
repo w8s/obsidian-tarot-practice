@@ -41,12 +41,13 @@ export class TemplateFolderDetector {
 	 */
 	private getTemplaterFolder(): string | null {
 		try {
-			// @ts-ignore - accessing plugin settings
-			const templater = this.app.plugins.plugins['templater-obsidian'];
-			if (templater && templater.settings?.templates_folder) {
-				return templater.settings.templates_folder;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const plugins = (this.app as any).plugins.plugins;
+			const templater = plugins['templater-obsidian'];
+			if (templater?.settings?.templates_folder) {
+				return templater.settings.templates_folder as string;
 			}
-		} catch (error) {
+		} catch {
 			// Templater not installed or accessible
 		}
 		return null;
@@ -57,16 +58,16 @@ export class TemplateFolderDetector {
 	 */
 	private getCoreTemplatesFolder(): string | null {
 		try {
-			// @ts-ignore - accessing internal config
-			const config = this.app.internalPlugins.getPluginById('templates');
-			if (config && config.enabled) {
-				// @ts-ignore
-				const folder = config.instance?.options?.folder;
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			const config = (this.app as any).internalPlugins.getPluginById('templates');
+			if (config?.enabled) {
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				const folder = (config as any).instance?.options?.folder;
 				if (folder) {
-					return folder;
+					return folder as string;
 				}
 			}
-		} catch (error) {
+		} catch {
 			// Core Templates not enabled or accessible
 		}
 		return null;

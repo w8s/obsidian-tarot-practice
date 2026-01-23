@@ -27,10 +27,12 @@ export class SpreadViewModal extends Modal {
 
 		// Details section
 		const detailsContainer = contentEl.createDiv({ cls: 'spread-details-container' });
-		detailsContainer.style.padding = '16px';
-		detailsContainer.style.backgroundColor = 'var(--background-secondary)';
-		detailsContainer.style.borderRadius = '4px';
-		detailsContainer.style.marginTop = '16px';
+		detailsContainer.setCssProps({
+			'padding': '16px',
+			'background-color': 'var(--background-secondary)',
+			'border-radius': '4px',
+			'margin-top': '16px'
+		});
 
 		// Basic info
 		const infoSection = detailsContainer.createDiv({ cls: 'spread-info' });
@@ -56,10 +58,13 @@ export class SpreadViewModal extends Modal {
 		});
 
 		// Positions section
-		detailsContainer.createEl('h3', { 
+		const positionsHeading = detailsContainer.createEl('h3', { 
 			text: 'Positions',
 			cls: 'spread-positions-heading'
-		}).style.marginTop = '16px';
+		});
+		positionsHeading.setCssProps({
+			'margin-top': '16px'
+		});
 
 		const positionsList = detailsContainer.createEl('ol', { cls: 'spread-positions-list' });
 		this.spread.positions.forEach((pos, index) => {
@@ -72,9 +77,11 @@ export class SpreadViewModal extends Modal {
 
 		// Close button
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.style.marginTop = '16px';
-		buttonContainer.style.display = 'flex';
-		buttonContainer.style.justifyContent = 'flex-end';
+		buttonContainer.setCssProps({
+			'margin-top': '16px',
+			'display': 'flex',
+			'justify-content': 'flex-end'
+		});
 
 		buttonContainer.createEl('button', { text: 'Close' })
 			.addEventListener('click', () => {
