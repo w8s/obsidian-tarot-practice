@@ -95,7 +95,7 @@ export class TarotDrawModal extends Modal {
 				text.inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
 					if (e.key === 'Enter') {
 						e.preventDefault();
-						this.drawCards();
+						void this.drawCards();
 					}
 				});
 			});
@@ -123,7 +123,7 @@ export class TarotDrawModal extends Modal {
 				.setButtonText(buttonText)
 				.setCta()
 				.onClick(() => {
-					this.drawCards();
+					void this.drawCards();
 				}));
 	}
 

@@ -1,6 +1,5 @@
-import { App, Modal, Setting, TextComponent, Notice } from 'obsidian';
+import { App, Modal, Setting, Notice } from 'obsidian';
 import { Spread, SpreadPositionDefinition } from './spreads';
-import { FileSuggest } from './FileSuggest';
 import { TemplateExporter } from './TemplateExporter';
 import { TarotPracticeSettings } from './settings';
 
@@ -60,9 +59,10 @@ export class SpreadCreateModal extends Modal {
 				}));
 
 		// Positions section
-		const positionsHeading = new Setting(contentEl)
+		new Setting(contentEl)
 			.setName('Positions')
-			.setDesc('Define the positions in your spread');
+			.setDesc('Define the positions in your spread')
+			.setHeading();
 
 		// Positions container
 		const positionsContainer = contentEl.createDiv({ cls: 'spread-positions-container' });
@@ -143,7 +143,7 @@ export class SpreadCreateModal extends Modal {
 			cls: 'mod-cta'
 		});
 		createButton.addEventListener('click', () => {
-			this.create();
+			void this.create();
 		});
 	}
 

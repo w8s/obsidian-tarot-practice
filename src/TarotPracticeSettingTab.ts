@@ -1,7 +1,6 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
 import TarotPracticePlugin from './main';
 import { InsertLocation } from './settings';
-import { FileSuggest } from './FileSuggest';
 import { TemplateMigrator } from './TemplateMigrator';
 import { TemplateFolderDetector } from './TemplateFolderDetector';
 import { TemplateMigrationModal } from './TemplateMigrationModal';

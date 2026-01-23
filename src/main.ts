@@ -9,15 +9,6 @@ import { prepareDeck } from './DeckPreparation';
 import { getCardName } from './CardDatabase';
 import { DEFAULT_DECK } from './Deck';
 
-interface ShuffleMetadata {
-	shuffleCount: number;
-	wasCut: boolean;
-	cutPositionPercent: number | null;
-	cutPositionCards: number | null;
-	cutBasePercent: number | null;
-	cutVariancePercent: number | null;
-}
-
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
 
@@ -194,10 +185,11 @@ export default class TarotPracticePlugin extends Plugin {
 				newContent = this.insertUnderHeading(currentContent, output);
 				break;
 			case 'append':
-			default:
+			default: {
 				const separator = currentContent.endsWith('\n') ? '' : '\n';
 				newContent = currentContent + separator + output;
 				break;
+			}
 		}
 
 		await this.app.vault.modify(targetFile, newContent);
