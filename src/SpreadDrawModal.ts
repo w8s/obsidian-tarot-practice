@@ -36,7 +36,7 @@ export class SpreadDrawModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: 'Draw Tarot Spread' });
+		contentEl.createEl('h2', { text: 'Draw tarot spread' });
 
 		// Spread selection dropdown
 		new Setting(contentEl)
@@ -85,10 +85,7 @@ export class SpreadDrawModal extends Modal {
 
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.style.display = 'flex';
-		buttonContainer.style.justifyContent = 'flex-end';
-		buttonContainer.style.gap = '8px';
-		buttonContainer.style.marginTop = '16px';
+		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
 
 		// Cancel button
 		buttonContainer.createEl('button', { text: 'Cancel' })
@@ -98,7 +95,7 @@ export class SpreadDrawModal extends Modal {
 
 		// Draw button
 		const drawButton = buttonContainer.createEl('button', { 
-			text: 'Draw Cards',
+			text: 'Draw cards',
 			cls: 'mod-cta'
 		});
 		drawButton.addEventListener('click', () => {
@@ -123,29 +120,29 @@ export class SpreadDrawModal extends Modal {
 		
 		// Spread details
 		const detailsEl = descContainer.createDiv({ cls: 'spread-details' });
-		detailsEl.style.padding = '12px';
-		detailsEl.style.backgroundColor = 'var(--background-secondary)';
-		detailsEl.style.borderRadius = '4px';
-		detailsEl.style.marginBottom = '16px';
+		detailsEl.setAttr('style', 'padding: 12px; background-color: var(--background-secondary); border-radius: 4px; margin-bottom: 16px;');
 
 		// Description
-		detailsEl.createEl('p', { 
+		const descP = detailsEl.createEl('p', { 
 			text: this.selectedSpread.description,
 			cls: 'spread-description-text'
-		}).style.marginBottom = '8px';
+		});
+		descP.setAttr('style', 'margin-bottom: 8px;');
 
 		// Card count
-		detailsEl.createEl('p', { 
+		const cardCountP = detailsEl.createEl('p', { 
 			text: `${this.selectedSpread.positions.length} card${this.selectedSpread.positions.length === 1 ? '' : 's'}`,
 			cls: 'spread-card-count'
-		}).style.fontSize = '0.9em';
+		});
+		cardCountP.setAttr('style', 'font-size: 0.9em;');
 		
 		// Deck preparation
 		const deckPrepText = `${this.selectedSpread.shuffleCount} shuffle${this.selectedSpread.shuffleCount === 1 ? '' : 's'}${this.selectedSpread.cutDeck ? ', cut deck' : ''}`;
-		detailsEl.createEl('p', { 
+		const deckPrepP = detailsEl.createEl('p', { 
 			text: deckPrepText,
 			cls: 'spread-deck-prep'
-		}).style.fontSize = '0.9em';
+		});
+		deckPrepP.setAttr('style', 'font-size: 0.9em;');
 	}
 
 	/**
