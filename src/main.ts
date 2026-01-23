@@ -160,7 +160,23 @@ export default class TarotPracticePlugin extends Plugin {
 	 */
 	async insertIntoDailyNote(output: string, spreadName: string): Promise<void> {
 		// Get or create daily note
-		const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
+		// The path pattern should be a literal path where only the filename is formatted with moment
+		// Example: "Periodic/Daily/YYYY-MM-DD.md" becomes "Periodic/Daily/" + moment().format("YYYY-MM-DD.md")
+		const pathPattern = this.settings.dailyNotePathPattern;
+		
+		// Split path into directory and filename
+		const lastSlashIndex = pathPattern.lastIndexOf('/');
+		let dailyNotePath: string;
+		
+		if (lastSlashIndex === -1) {
+			// No directory, just filename
+			dailyNotePath = moment().format(pathPattern);
+		} else {
+			// Has directory path - only format the filename part
+			const directory = pathPattern.substring(0, lastSlashIndex + 1);
+			const filenamePattern = pathPattern.substring(lastSlashIndex + 1);
+			dailyNotePath = `${directory}${moment().format(filenamePattern)}`;
+		}
 		const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
 		
 		let targetFile: TFile;
