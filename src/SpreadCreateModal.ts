@@ -34,14 +34,14 @@ export class SpreadCreateModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: 'Create Custom Spread' });
+		contentEl.createEl('h2', { text: 'Create custom spread' });
 
 		// Name
 		new Setting(contentEl)
 			.setName('Spread name')
 			.setDesc('Name for your custom spread')
 			.addText(text => text
-				.setPlaceholder('e.g., Relationship Spread')
+				.setPlaceholder('Relationship spread')
 				.setValue(this.name)
 				.onChange((value) => {
 					this.name = value;
@@ -52,7 +52,7 @@ export class SpreadCreateModal extends Modal {
 			.setName('Description')
 			.setDesc('What is this spread used for?')
 			.addTextArea(text => text
-				.setPlaceholder('e.g., Explores dynamics in relationships')
+				.setPlaceholder('Explores dynamics in relationships')
 				.setValue(this.description)
 				.onChange((value) => {
 					this.description = value;
@@ -61,8 +61,7 @@ export class SpreadCreateModal extends Modal {
 		// Positions section
 		new Setting(contentEl)
 			.setName('Positions')
-			.setDesc('Define the positions in your spread')
-			.setHeading();
+			.setDesc('Define the positions in your spread');
 
 		// Positions container
 		const positionsContainer = contentEl.createDiv({ cls: 'spread-positions-container' });
@@ -70,9 +69,9 @@ export class SpreadCreateModal extends Modal {
 
 		// Add position button
 		const addButtonContainer = contentEl.createDiv();
-		addButtonContainer.style.marginBottom = '16px';
+		addButtonContainer.setAttr('style', 'margin-bottom: 16px;');
 		
-		addButtonContainer.createEl('button', { text: '+ Add Position' })
+		addButtonContainer.createEl('button', { text: 'Add position' })
 			.addEventListener('click', () => {
 				this.positions.push({ label: '' });
 				this.renderPositions(positionsContainer);
@@ -126,10 +125,7 @@ export class SpreadCreateModal extends Modal {
 
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.style.display = 'flex';
-		buttonContainer.style.justifyContent = 'flex-end';
-		buttonContainer.style.gap = '8px';
-		buttonContainer.style.marginTop = '16px';
+		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
 
 		// Cancel button
 		buttonContainer.createEl('button', { text: 'Cancel' })
@@ -139,7 +135,7 @@ export class SpreadCreateModal extends Modal {
 
 		// Create button
 		const createButton = buttonContainer.createEl('button', { 
-			text: 'Create Spread',
+			text: 'Create spread',
 			cls: 'mod-cta'
 		});
 		createButton.addEventListener('click', () => {
@@ -154,7 +150,7 @@ export class SpreadCreateModal extends Modal {
 			const positionSetting = new Setting(container)
 				.setName(`Position ${index + 1}`)
 				.addText(text => text
-					.setPlaceholder('e.g., Past, Present, Future')
+					.setPlaceholder('Past, present, future')
 					.setValue(position.label || '')
 					.onChange((value) => {
 						const pos = this.positions[index];
