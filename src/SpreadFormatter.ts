@@ -27,12 +27,6 @@ interface TemplateData {
 	positions: TemplatePosition[];
 	date: string;
 	time: string;
-	year: string;
-	month: string;
-	day: string;
-	hour: string;
-	minute: string;
-	second: string;
 	[key: string]: string | number | boolean | TemplatePosition[];
 }
 
@@ -93,14 +87,6 @@ export class SpreadFormatter {
 			date: date.format('L'),
 			time: date.format('LT'),
 			datetime: date.format('L LT'),
-			
-			// Individual date/time components
-			year: date.format('YYYY'),
-			month: date.format('MM'),
-			day: date.format('DD'),
-			hour: date.format('HH'),
-			minute: date.format('mm'),
-			second: date.format('ss'),
 
 			// Deck preparation metadata
 			shuffle_count: result.shuffleCount,
