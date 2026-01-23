@@ -336,14 +336,22 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.setIcon('pencil')
 			.setTooltip('Edit spread settings')
 			.onClick(() => {
-				new SpreadEditModal(this.app, spread, this.plugin.settings, async (updatedSpread) => {
+				new SpreadEditModal(this.app, spread, this.plugin.settings, async (updatedSpread, isReset) => {
 					if (spread.isBuiltIn) {
-						// For built-in spreads, store overrides
-						this.plugin.settings.builtInSpreadOverrides[spread.id] = {
-							shuffleCount: updatedSpread.shuffleCount,
-							cutDeck: updatedSpread.cutDeck,
-							templatePath: updatedSpread.templatePath
-						};
+						if (isReset) {
+							// Remove override to reset to default
+							delete this.plugin.settings.builtInSpreadOverrides[spread.id];
+						} else {
+							// Store full spread override
+							this.plugin.settings.builtInSpreadOverrides[spread.id] = {
+								description: updatedSpread.description,
+								positions: updatedSpread.positions,
+								insertMode: updatedSpread.insertMode,
+								shuffleCount: updatedSpread.shuffleCount,
+								cutDeck: updatedSpread.cutDeck,
+								templatePath: updatedSpread.templatePath
+							};
+						}
 						await this.plugin.saveSettings();
 						this.display(); // Refresh UI
 					} else {

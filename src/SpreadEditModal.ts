@@ -1,37 +1,45 @@
 import { App, Modal, Setting, Notice } from 'obsidian';
-import { Spread } from './spreads';
+import { Spread, SpreadPositionDefinition } from './spreads';
 import { FileSuggest } from './FileSuggest';
 import { TemplateExporter } from './TemplateExporter';
 import { TarotPracticeSettings } from './settings';
 
 /**
- * Modal to edit spread settings (shuffle count, cut, template)
- * Note: Cannot edit positions or core spread properties
+ * Modal to edit spread settings - allows full customization
  */
 export class SpreadEditModal extends Modal {
 	private spread: Spread;
-	private callback: (updatedSpread: Spread) => void;
+	private callback: (updatedSpread: Spread, isReset?: boolean) => void;
 	private settings: TarotPracticeSettings;
 	
 	// Editable fields
+	private name: string;
+	private description: string;
+	private positions: SpreadPositionDefinition[];
 	private shuffleCount: number;
 	private cutDeck: boolean;
+	private insertMode: 'daily-note' | 'new-note' | 'inline';
 	private templatePath: string;
+	private templateExample: string = 'generic';
 
 	constructor(
 		app: App,
 		spread: Spread,
 		settings: TarotPracticeSettings,
-		callback: (updatedSpread: Spread) => void
+		callback: (updatedSpread: Spread, isReset?: boolean) => void
 	) {
 		super(app);
 		this.spread = spread;
 		this.callback = callback;
 		this.settings = settings;
 		
-		// Initialize editable fields
+		// Initialize editable fields from spread
+		this.name = spread.name;
+		this.description = spread.description;
+		this.positions = JSON.parse(JSON.stringify(spread.positions)); // Deep copy
 		this.shuffleCount = spread.shuffleCount;
 		this.cutDeck = spread.cutDeck;
+		this.insertMode = spread.insertMode;
 		this.templatePath = spread.templatePath;
 	}
 
@@ -41,11 +49,89 @@ export class SpreadEditModal extends Modal {
 
 		// Title
 		contentEl.createEl('h2', { text: `Edit: ${this.spread.name}` });
+
+		// Show reset button for built-in spreads
+		if (this.spread.isBuiltIn) {
+			const resetContainer = contentEl.createDiv({ cls: 'setting-item' });
+			resetContainer.style.marginBottom = '16px';
+			resetContainer.style.padding = '8px';
+			resetContainer.style.backgroundColor = 'var(--background-secondary)';
+			resetContainer.style.borderRadius = '4px';
+			
+			const resetDesc = resetContainer.createEl('div', {
+				text: 'This is a built-in spread. You can customize it, and your changes will be saved.',
+				cls: 'setting-item-description'
+			});
+			resetDesc.style.marginBottom = '8px';
+			
+			const resetButton = resetContainer.createEl('button', {
+				text: 'Reset to Default',
+				cls: 'mod-warning'
+			});
+			resetButton.addEventListener('click', () => {
+				if (confirm('Reset this spread to its default settings? Your customizations will be lost.')) {
+					this.callback(this.spread, true); // Pass reset flag
+					this.close();
+				}
+			});
+		}
+
+		// Name (only editable for custom spreads)
+		if (!this.spread.isBuiltIn) {
+			new Setting(contentEl)
+				.setName('Spread name')
+				.setDesc('Name for your spread')
+				.addText(text => text
+					.setPlaceholder('e.g., Relationship Spread')
+					.setValue(this.name)
+					.onChange((value) => {
+						this.name = value;
+					}));
+		}
+
+		// Description
+		new Setting(contentEl)
+			.setName('Description')
+			.setDesc('What is this spread used for?')
+			.addTextArea(text => text
+				.setPlaceholder('e.g., Explores dynamics in relationships')
+				.setValue(this.description)
+				.onChange((value) => {
+					this.description = value;
+				}));
+
+		// Insert mode
+		new Setting(contentEl)
+			.setName('Insert mode')
+			.setDesc('Where should the reading be inserted?')
+			.addDropdown(dropdown => dropdown
+				.addOption('daily-note', 'Daily note')
+				.addOption('inline', 'Inline at cursor')
+				.addOption('new-note', 'New note')
+				.setValue(this.insertMode)
+				.onChange((value: 'daily-note' | 'new-note' | 'inline') => {
+					this.insertMode = value;
+				}));
+
+		// Positions section
+		new Setting(contentEl)
+			.setName('Positions')
+			.setDesc('Define the positions in your spread')
+			.setHeading();
+
+		// Positions container
+		const positionsContainer = contentEl.createDiv({ cls: 'spread-positions-container' });
+		this.renderPositions(positionsContainer);
+
+		// Add position button
+		const addButtonContainer = contentEl.createDiv();
+		addButtonContainer.style.marginBottom = '16px';
 		
-		contentEl.createEl('p', { 
-			text: 'Edit deck preparation and template settings for this spread',
-			cls: 'setting-item-description'
-		});
+		addButtonContainer.createEl('button', { text: '+ Add Position' })
+			.addEventListener('click', () => {
+				this.positions.push({ label: '' });
+				this.renderPositions(positionsContainer);
+			});
 
 		// Shuffle count
 		const shuffleCountSetting = new Setting(contentEl)
@@ -75,47 +161,32 @@ export class SpreadEditModal extends Modal {
 					this.cutDeck = value;
 				}));
 
-		// Template path with "Create from Example" option
-		const templateSetting = new Setting(contentEl)
+		// Template section
+		new Setting(contentEl)
 			.setName('Template')
-			.setDesc('Choose how to configure the template for this spread');
-
-		// Create dropdown for template options
-		templateSetting.addDropdown(dropdown => {
-			const isUsingBuiltIn = !this.templatePath || this.templatePath === '';
-			
-			// Add options
-			dropdown.addOption('builtin', isUsingBuiltIn ? 'Built-in (current)' : 'Built-in');
-			dropdown.addOption('create-builtin', 'Create from Built-in');
-			dropdown.addOption('create-example', 'Create from Example...');
-			dropdown.addOption('custom', this.templatePath ? `Custom: ${this.templatePath}` : 'Choose Custom File...');
-			
-			// Set current value
-			if (isUsingBuiltIn) {
-				dropdown.setValue('builtin');
-			} else {
-				dropdown.setValue('custom');
-			}
-			
-			// Handle changes
-			dropdown.onChange(async (value) => {
-				if (value === 'create-builtin') {
-					await this.createFromBuiltIn();
-					dropdown.setValue('custom');
-				} else if (value === 'create-example') {
-					await this.createFromExample();
-					dropdown.setValue('custom');
-				} else if (value === 'builtin') {
-					this.templatePath = '';
-					this.updateTemplateDescription();
-				} else if (value === 'custom') {
-					// Show file picker
-					this.showFilePicker();
-				}
+			.setDesc('Choose template for this spread')
+			.addDropdown(dropdown => {
+				const isUsingBuiltIn = !this.templatePath || this.templatePath === '';
+				
+				dropdown.addOption('builtin', isUsingBuiltIn ? 'Built-in (current)' : 'Built-in');
+				dropdown.addOption('create-example', 'Create from Example...');
+				dropdown.addOption('custom', this.templatePath ? `Custom: ${this.templatePath}` : 'Choose Custom File...');
+				
+				dropdown.setValue(isUsingBuiltIn ? 'builtin' : 'custom');
+				
+				dropdown.onChange(async (value) => {
+					if (value === 'create-example') {
+						await this.createFromExample();
+						dropdown.setValue('custom');
+					} else if (value === 'builtin') {
+						this.templatePath = '';
+					} else if (value === 'custom') {
+						this.showFilePicker();
+					}
+				});
 			});
-		});
 
-		// Template path display/edit (only if custom)
+		// Template path display
 		const templatePathContainer = contentEl.createDiv({ cls: 'template-path-container' });
 		this.updateTemplateDescription(templatePathContainer);
 
@@ -126,75 +197,129 @@ export class SpreadEditModal extends Modal {
 		buttonContainer.style.gap = '8px';
 		buttonContainer.style.marginTop = '16px';
 
-		// Cancel button
 		buttonContainer.createEl('button', { text: 'Cancel' })
-			.addEventListener('click', () => {
-				this.close();
-			});
+			.addEventListener('click', () => this.close());
 
-		// Save button
 		const saveButton = buttonContainer.createEl('button', { 
 			text: 'Save',
 			cls: 'mod-cta'
 		});
-		saveButton.addEventListener('click', () => {
-			this.save();
+		saveButton.addEventListener('click', () => this.save());
+	}
+
+	private renderPositions(container: HTMLElement) {
+		container.empty();
+		
+		this.positions.forEach((position, index) => {
+			const positionDiv = container.createDiv({ cls: 'spread-position-item' });
+			positionDiv.style.marginBottom = '12px';
+			positionDiv.style.padding = '12px';
+			positionDiv.style.backgroundColor = 'var(--background-secondary)';
+			positionDiv.style.borderRadius = '4px';
+
+			// Position header with number and remove button
+			const headerDiv = positionDiv.createDiv();
+			headerDiv.style.display = 'flex';
+			headerDiv.style.justifyContent = 'space-between';
+			headerDiv.style.alignItems = 'center';
+			headerDiv.style.marginBottom = '8px';
+
+			headerDiv.createEl('strong', { text: `Position ${index + 1}` });
+
+			if (this.positions.length > 1) {
+				const removeBtn = headerDiv.createEl('button', {
+					text: '×',
+					cls: 'clickable-icon'
+				});
+				removeBtn.style.fontSize = '20px';
+				removeBtn.addEventListener('click', () => {
+					this.positions.splice(index, 1);
+					this.renderPositions(container);
+				});
+			}
+
+			// Label input
+			const labelInput = positionDiv.createEl('input', {
+				type: 'text',
+				placeholder: 'Position label (e.g., Past)',
+				value: position.label
+			});
+			labelInput.style.width = '100%';
+			labelInput.style.marginBottom = '8px';
+			labelInput.addEventListener('input', () => {
+				position.label = labelInput.value;
+			});
+
+			// Description input (optional)
+			const descInput = positionDiv.createEl('input', {
+				type: 'text',
+				placeholder: 'Optional description',
+				value: position.description || ''
+			});
+			descInput.style.width = '100%';
+			descInput.addEventListener('input', () => {
+				position.description = descInput.value || undefined;
+			});
 		});
 	}
 
 	private save() {
+		// Validate
+		if (!this.spread.isBuiltIn && !this.name.trim()) {
+			new Notice('Please enter a spread name');
+			return;
+		}
+
+		const validPositions = this.positions.filter(p => p.label.trim());
+		if (validPositions.length === 0) {
+			new Notice('Please add at least one position with a label');
+			return;
+		}
+
 		// Create updated spread object
 		const updatedSpread: Spread = {
 			...this.spread,
+			name: this.spread.isBuiltIn ? this.spread.name : this.name, // Keep original name for built-ins
+			description: this.description,
+			positions: validPositions,
 			shuffleCount: this.shuffleCount,
 			cutDeck: this.cutDeck,
+			insertMode: this.insertMode,
 			templatePath: this.templatePath
 		};
 
-		this.callback(updatedSpread);
+		this.callback(updatedSpread, false);
 		this.close();
 	}
 
-	private async createFromBuiltIn() {
+	private async createFromExample() {
 		try {
 			const exporter = new TemplateExporter(this.app, this.settings);
-			const path = await exporter.createSpreadTemplateFromBuiltIn(this.spread.id);
-			this.templatePath = path;
+			const spreadId = this.spread.id || this.name.toLowerCase().replace(/\s+/g, '-');
+			this.templatePath = await exporter.createSpreadTemplateFromExample(
+				this.templateExample,
+				spreadId
+			);
 			this.updateTemplateDescription();
-			new Notice(`Template created at ${path}`);
+			new Notice(`Template created at ${this.templatePath}`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			new Notice(`Failed to create template: ${errorMessage}`);
 		}
 	}
 
-	private async createFromExample() {
-		// For now, just create from built-in for this spread
-		// In the future, could show a modal to choose which example
-		await this.createFromBuiltIn();
-	}
-
 	private showFilePicker() {
-		// Create a temporary input for file path
 		const pathInput = this.contentEl.createEl('input', {
 			type: 'text',
 			placeholder: 'Templates/Tarot/Spreads/my-spread.md',
 			value: this.templatePath
 		});
-		pathInput.style.display = 'none';
 		
-		// Add FileSuggest
 		new FileSuggest(this.app, pathInput);
 		
-		// Show it and focus
-		pathInput.style.display = 'block';
-		pathInput.focus();
-		
-		// Handle changes
 		pathInput.addEventListener('change', () => {
 			this.templatePath = pathInput.value;
 			this.updateTemplateDescription();
-			pathInput.remove();
 		});
 	}
 
