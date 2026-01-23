@@ -36,7 +36,7 @@ export class SpreadEditModal extends Modal {
 		// Initialize editable fields from spread
 		this.name = spread.name;
 		this.description = spread.description;
-		this.positions = JSON.parse(JSON.stringify(spread.positions)); // Deep copy
+		this.positions = JSON.parse(JSON.stringify(spread.positions)) as SpreadPositionDefinition[]; // Deep copy
 		this.shuffleCount = spread.shuffleCount;
 		this.cutDeck = spread.cutDeck;
 		this.insertMode = spread.insertMode;
@@ -53,22 +53,20 @@ export class SpreadEditModal extends Modal {
 		// Show reset button for built-in spreads
 		if (this.spread.isBuiltIn) {
 			const resetContainer = contentEl.createDiv({ cls: 'setting-item' });
-			resetContainer.style.marginBottom = '16px';
-			resetContainer.style.padding = '8px';
-			resetContainer.style.backgroundColor = 'var(--background-secondary)';
-			resetContainer.style.borderRadius = '4px';
+			resetContainer.setAttr('style', 'margin-bottom: 16px; padding: 8px; background-color: var(--background-secondary); border-radius: 4px;');
 			
 			const resetDesc = resetContainer.createEl('div', {
 				text: 'This is a built-in spread. You can customize it, and your changes will be saved.',
 				cls: 'setting-item-description'
 			});
-			resetDesc.style.marginBottom = '8px';
+			resetDesc.setAttr('style', 'margin-bottom: 8px;');
 			
 			const resetButton = resetContainer.createEl('button', {
-				text: 'Reset to Default',
+				text: 'Reset to default',
 				cls: 'mod-warning'
 			});
 			resetButton.addEventListener('click', () => {
+				// eslint-disable-next-line no-alert
 				if (confirm('Reset this spread to its default settings? Your customizations will be lost.')) {
 					this.callback(this.spread, true); // Pass reset flag
 					this.close();
@@ -82,7 +80,7 @@ export class SpreadEditModal extends Modal {
 				.setName('Spread name')
 				.setDesc('Name for your spread')
 				.addText(text => text
-					.setPlaceholder('e.g., Relationship Spread')
+					.setPlaceholder('Relationship spread')
 					.setValue(this.name)
 					.onChange((value) => {
 						this.name = value;
@@ -94,7 +92,7 @@ export class SpreadEditModal extends Modal {
 			.setName('Description')
 			.setDesc('What is this spread used for?')
 			.addTextArea(text => text
-				.setPlaceholder('e.g., Explores dynamics in relationships')
+				.setPlaceholder('Explores dynamics in relationships')
 				.setValue(this.description)
 				.onChange((value) => {
 					this.description = value;
@@ -125,9 +123,9 @@ export class SpreadEditModal extends Modal {
 
 		// Add position button
 		const addButtonContainer = contentEl.createDiv();
-		addButtonContainer.style.marginBottom = '16px';
+		addButtonContainer.setAttr('style', 'margin-bottom: 16px;');
 		
-		addButtonContainer.createEl('button', { text: '+ Add Position' })
+		addButtonContainer.createEl('button', { text: 'Add position' })
 			.addEventListener('click', () => {
 				this.positions.push({ label: '' });
 				this.renderPositions(positionsContainer);
@@ -169,8 +167,8 @@ export class SpreadEditModal extends Modal {
 				const isUsingBuiltIn = !this.templatePath || this.templatePath === '';
 				
 				dropdown.addOption('builtin', isUsingBuiltIn ? 'Built-in (current)' : 'Built-in');
-				dropdown.addOption('create-example', 'Create from Example...');
-				dropdown.addOption('custom', this.templatePath ? `Custom: ${this.templatePath}` : 'Choose Custom File...');
+				dropdown.addOption('create-example', 'Create from example...');
+				dropdown.addOption('custom', this.templatePath ? `Custom: ${this.templatePath}` : 'Choose custom file...');
 				
 				dropdown.setValue(isUsingBuiltIn ? 'builtin' : 'custom');
 				
@@ -192,10 +190,7 @@ export class SpreadEditModal extends Modal {
 
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.style.display = 'flex';
-		buttonContainer.style.justifyContent = 'flex-end';
-		buttonContainer.style.gap = '8px';
-		buttonContainer.style.marginTop = '16px';
+		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
 
 		buttonContainer.createEl('button', { text: 'Cancel' })
 			.addEventListener('click', () => this.close());
@@ -212,17 +207,11 @@ export class SpreadEditModal extends Modal {
 		
 		this.positions.forEach((position, index) => {
 			const positionDiv = container.createDiv({ cls: 'spread-position-item' });
-			positionDiv.style.marginBottom = '12px';
-			positionDiv.style.padding = '12px';
-			positionDiv.style.backgroundColor = 'var(--background-secondary)';
-			positionDiv.style.borderRadius = '4px';
+			positionDiv.setAttr('style', 'margin-bottom: 12px; padding: 12px; background-color: var(--background-secondary); border-radius: 4px;');
 
 			// Position header with number and remove button
 			const headerDiv = positionDiv.createDiv();
-			headerDiv.style.display = 'flex';
-			headerDiv.style.justifyContent = 'space-between';
-			headerDiv.style.alignItems = 'center';
-			headerDiv.style.marginBottom = '8px';
+			headerDiv.setAttr('style', 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;');
 
 			headerDiv.createEl('strong', { text: `Position ${index + 1}` });
 
@@ -231,7 +220,7 @@ export class SpreadEditModal extends Modal {
 					text: '×',
 					cls: 'clickable-icon'
 				});
-				removeBtn.style.fontSize = '20px';
+				removeBtn.setAttr('style', 'font-size: 20px;');
 				removeBtn.addEventListener('click', () => {
 					this.positions.splice(index, 1);
 					this.renderPositions(container);
@@ -241,11 +230,10 @@ export class SpreadEditModal extends Modal {
 			// Label input
 			const labelInput = positionDiv.createEl('input', {
 				type: 'text',
-				placeholder: 'Position label (e.g., Past)',
+				placeholder: 'Position label (e.g., past)',
 				value: position.label
 			});
-			labelInput.style.width = '100%';
-			labelInput.style.marginBottom = '8px';
+			labelInput.setAttr('style', 'width: 100%; margin-bottom: 8px;');
 			labelInput.addEventListener('input', () => {
 				position.label = labelInput.value;
 			});
@@ -256,7 +244,7 @@ export class SpreadEditModal extends Modal {
 				placeholder: 'Optional description',
 				value: position.description || ''
 			});
-			descInput.style.width = '100%';
+			descInput.setAttr('style', 'width: 100%;');
 			descInput.addEventListener('input', () => {
 				position.description = descInput.value || undefined;
 			});
@@ -330,15 +318,17 @@ export class SpreadEditModal extends Modal {
 		targetContainer.empty();
 		
 		if (this.templatePath) {
-			targetContainer.createEl('div', {
+			const usingDiv = targetContainer.createEl('div', {
 				text: `Using: ${this.templatePath}`,
 				cls: 'setting-item-description'
-			}).style.marginTop = '8px';
+			});
+			usingDiv.setAttr('style', 'margin-top: 8px;');
 		} else {
-			targetContainer.createEl('div', {
+			const builtInDiv = targetContainer.createEl('div', {
 				text: 'Using built-in template',
 				cls: 'setting-item-description'
-			}).style.marginTop = '8px';
+			});
+			builtInDiv.setAttr('style', 'margin-top: 8px;');
 		}
 	}
 
