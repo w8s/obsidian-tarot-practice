@@ -88,66 +88,32 @@ Settings for daily tarot draws that appear in your daily notes.
 
 ## Templates
 
-Settings for customizing draw output formatting. Templates use Handlebars syntax with template variables.
+Settings for customizing how card draws appear in your notes. All spreads use Handlebars templates with access to template variables.
 
-| Setting | Type | Default | Description |
-|---------|------|---------|-------------|
-| **Daily practice template** | File selector | Built-in | Template for daily draws |
-| **Inline practice template** | File selector | Built-in | Template for single inline cards |
-| **Multiple cards template** | File selector | Built-in | Template for multiple inline cards |
-| **Template base folder** | Text | `Templates/Tarot` | Where custom templates are stored |
+### Built-in vs Custom Templates
 
-### Template Actions
+Each spread can use either:
+- **Built-in template** - Default formatting provided by the plugin
+- **Custom template** - Your own Handlebars template file from the vault
 
-Each template has three action buttons:
+### Spread Templates
 
-- **📄 View** - Preview the current template content
-- **✏️ Edit** - Select a custom template file from your vault
-- **🔄 Reset** - Revert to built-in default template
+Every spread (including Daily Draw, Single Card, etc.) has its own template that can be customized:
 
-### Details
+1. Navigate to Settings → Spreads
+2. Find the spread you want to customize
+3. Click "Customize" or "Edit"
+4. Select "Custom template" to choose your own file
+5. Or modify the built-in template directly
 
-**Template types:**
+**Template organization:**
+- Spread templates are managed per-spread in the Spreads section
+- Each spread remembers its template choice
+- Templates automatically reload when files change
 
-1. **Daily practice template**
-   - Used for: Daily tarot draws (sparkles icon or "Draw daily tarot" command)
-   - Card count: Controlled by "Number of cards for daily practice" setting
-   - Default format: Shows intention, card(s), date/time
-
-2. **Inline practice template**
-   - Used for: "Inline draw tarot card" command
-   - Card count: Always 1 card
-   - Default format: Minimal formatting for quick inline draws
-
-3. **Multiple cards template**
-   - Used for: "Inline draw multiple tarot cards" command
-   - Card count: User chooses at draw time (1-78)
-   - Default format: Numbered list of cards with intention
-
-**Template base folder:**
-- Where the plugin looks for custom templates
-- Subfolders are organized automatically:
-  - `Templates/Tarot/Spreads/` - Spread templates
-  - `Templates/Tarot/Daily/` - Daily practice templates
-  - `Templates/Tarot/Inline/` - Inline draw templates
-  - `Templates/Tarot/Multiple/` - Multiple card templates
-- Change this to match your vault's template organization
-
-**Using custom templates:**
-1. Create a `.md` file anywhere in your vault
-2. Add template variables using Handlebars syntax
-3. Click "Edit" button next to template type
-4. Select your custom template file
-5. Template automatically reloads when file changes
-
-**Reverting to defaults:**
-- Click "Reset" button to restore built-in template
-- Your custom template file is not deleted
-- Can switch back to custom template anytime
-
-For template syntax and variables, see:
-- [Template Variables](TEMPLATE-VARIABLES.md)
-- [Template Examples](TEMPLATE-EXAMPLES.md)
+For template syntax and examples, see:
+- [Template Variables](TEMPLATE-VARIABLES.md) - All available variables
+- [Template Examples](TEMPLATE-EXAMPLES.md) - Patterns organized by insert mode
 
 ---
 
@@ -268,26 +234,29 @@ Each spread (built-in or custom) can be customized:
 
 ### Template Variables for Spreads
 
-Spread templates have access to additional variables:
+Spread templates have access to these variables:
 
 - `{{spread_name}}` - Name of the spread
 - `{{cards}}` - Array of card objects for loops
-- `{{cards.[0].name}}` - Access specific card by index
-- `{{cards.[0].position}}` - Position label for card
-- `{{cards.[0].orientation}}` - Card orientation (if reversals enabled)
+- `{{cards.0.name}}` - Access specific card by index
+- `{{cards.0.position.label}}` - Position label for card
+- `{{cards.0.position.number}}` - Position number (1-based)
+- `{{cards.0.orientation}}` - Card orientation (if reversals enabled)
 
 **Example spread template:**
 ```markdown
 ## {{spread_name}} - {{date}}
 
-**Intention:** {{intention}}
+**Intention:** {{{intention}}}
 
 {{#each cards}}
-**{{position}}:** {{name}} {{orientation}}
+**{{position.label}}:** {{name}} {{orientation}}
 {{/each}}
 ```
 
-For spread template examples, see [Spread Templates](spread-templates/README.md).
+For complete template documentation, see:
+- [Template Variables](TEMPLATE-VARIABLES.md) - All available variables
+- [Template Examples](TEMPLATE-EXAMPLES.md) - Copy-paste ready patterns
 
 ---
 

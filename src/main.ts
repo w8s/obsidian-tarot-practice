@@ -45,20 +45,20 @@ export default class TarotPracticePlugin extends Plugin {
 		);
 
 		// Open modal to select spread and enter intention
-		new SpreadDrawModal(this.app, allSpreads, (spread: Spread, intention: string) => {
-			void this.drawSpread(spread, intention);
+		new SpreadDrawModal(this.app, allSpreads, (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => {
+			void this.drawSpread(spread, intention, querent);
 		}).open();
 	}
 
-	async drawSpread(spread: Spread, intention: string) {
+	async drawSpread(spread: Spread, intention: string, querent?: { name: string; notePath?: string }) {
 		// Delegate to unified execution method
-		await this.executeSpread(spread, intention);
+		await this.executeSpread(spread, intention, querent);
 	}
 
 	/**
 	 * Unified spread execution that handles all insert modes
 	 */
-	async executeSpread(spread: Spread, intention: string): Promise<void> {
+	async executeSpread(spread: Spread, intention: string, querent?: { name: string; notePath?: string }): Promise<void> {
 		try {
 			// Prepare the deck using spread's shuffle settings
 			const timestamp = Date.now();
@@ -105,6 +105,7 @@ export default class TarotPracticePlugin extends Plugin {
 					index: i,
 					number: i + 1,
 					label: positionDef.label,
+					description: positionDef.description,
 					card: cardName,
 					cardIndex: cardIndex,
 					orientation: orientation,
@@ -124,7 +125,8 @@ export default class TarotPracticePlugin extends Plugin {
 				cutPosition: preparedDeck.metadata.cutPositionPercent ?? undefined,
 				cutPositionCards: preparedDeck.metadata.cutPositionCards ?? undefined,
 				cutBase: preparedDeck.metadata.cutBasePercent ?? undefined,
-				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined
+				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined,
+				querent: querent
 			};
 
 			// Get template

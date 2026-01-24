@@ -2,7 +2,7 @@
 
 **Intention:** {{intention}}
 
-**Card:** {{positions.0.card}}{{#if positions.0.isReversed}} (reversed){{/if}}
+**Card:** {{cards.0.name}}{{#if cards.0.isReversed}} (reversed){{/if}}
 
 ---
 

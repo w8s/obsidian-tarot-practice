@@ -69,6 +69,12 @@ export interface SpreadDrawResult {
 	cutPositionCards?: number;
 	cutBase?: number;
 	cutVariance?: number;
+	
+	/** Optional querent information (who the reading is for) */
+	querent?: {
+		name: string;
+		notePath?: string;
+	};
 }
 
 /**
@@ -83,6 +89,9 @@ export interface SpreadPositionResult {
 	
 	/** Position label from spread definition */
 	label: string;
+	
+	/** Position description from spread definition */
+	description?: string;
 	
 	/** Card name (e.g., "The Hermit", "Ace of Cups") */
 	card: string;

@@ -1,5 +1,6 @@
 import { App, Modal, Setting, DropdownComponent } from 'obsidian';
 import { Spread } from '../core/spreads';
+import { FileSuggest } from '../ui/FileSuggest';
 
 /**
  * Modal for selecting a spread and entering intention before drawing cards
@@ -8,12 +9,15 @@ export class SpreadDrawModal extends Modal {
 	private spreads: Spread[];
 	private selectedSpread: Spread;
 	private intention: string = '';
-	private callback: (spread: Spread, intention: string) => void;
+	private showQuerentInput: boolean = false;
+	private querentName: string = '';
+	private querentNotePath: string = '';
+	private callback: (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => void;
 
 	constructor(
 		app: App,
 		spreads: Spread[],
-		callback: (spread: Spread, intention: string) => void
+		callback: (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => void
 	) {
 		super(app);
 		this.spreads = spreads;
@@ -83,6 +87,47 @@ export class SpreadDrawModal extends Modal {
 				})
 			);
 
+		// Querent toggle
+		new Setting(contentEl)
+			.setName('Reading for someone else?')
+			.setDesc('Track who this reading is for')
+			.addToggle(toggle => toggle
+				.setValue(this.showQuerentInput)
+				.onChange(async (value) => {
+					this.showQuerentInput = value;
+					this.updateQuerentFields();
+				})
+			);
+
+		// Querent fields container (initially hidden)
+		const querentContainer = contentEl.createDiv({ cls: 'querent-fields' });
+		querentContainer.setAttr('style', 'display: none;');
+		
+		new Setting(querentContainer)
+			.setName('Querent name')
+			.setDesc('Name of the person this reading is for')
+			.addText(text => text
+				.setPlaceholder('Name')
+				.setValue(this.querentName)
+				.onChange(async (value) => {
+					this.querentName = value;
+				})
+			);
+
+		new Setting(querentContainer)
+			.setName('Note path')
+			.setDesc('Link to a note about this person')
+			.addText(text => {
+				text
+					.setPlaceholder('Path to note')
+					.setValue(this.querentNotePath)
+					.onChange(async (value) => {
+						this.querentNotePath = value;
+					});
+				// Attach file suggester
+				new FileSuggest(this.app, text.inputEl);
+			});
+
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
 		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
@@ -146,6 +191,16 @@ export class SpreadDrawModal extends Modal {
 	}
 
 	/**
+	 * Show/hide querent input fields
+	 */
+	private updateQuerentFields() {
+		const querentContainer = this.contentEl.querySelector('.querent-fields') as HTMLElement;
+		if (!querentContainer) return;
+
+		querentContainer.style.display = this.showQuerentInput ? 'block' : 'none';
+	}
+
+	/**
 	 * Submit the form (draw cards)
 	 */
 	private submit() {
@@ -154,7 +209,16 @@ export class SpreadDrawModal extends Modal {
 			// Some users might want to draw without a specific question
 		}
 
-		this.callback(this.selectedSpread, this.intention);
+		// Build querent object if provided
+		let querent: { name: string; notePath?: string } | undefined;
+		if (this.showQuerentInput && this.querentName.trim()) {
+			querent = {
+				name: this.querentName.trim(),
+				notePath: this.querentNotePath.trim() || undefined
+			};
+		}
+
+		this.callback(this.selectedSpread, this.intention, querent);
 		this.close();
 	}
 

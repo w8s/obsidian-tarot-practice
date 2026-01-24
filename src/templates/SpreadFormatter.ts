@@ -1,16 +1,18 @@
 import Handlebars from 'handlebars';
 import { moment } from 'obsidian';
 import { SpreadDrawResult } from '../core/spreads';
-import { DrawResult, MultipleDrawResult } from '../modals/TarotDrawModal';
 import { TarotPracticeSettings } from '../settings';
 
 /**
  * Template data structure for Handlebars rendering
  */
-interface TemplatePosition {
+interface TemplateCard {
 	index: number;
-	number: number;
-	label: string;
+	position: {
+		number: number;
+		label: string;
+		description?: string;
+	};
 	name: string;
 	orientation: string;
 	isReversed: boolean;
@@ -24,16 +26,20 @@ interface TemplateData {
 	deck_name: string;
 	deck_type: string;
 	timestamp: number;
-	positions: TemplatePosition[];
+	cards: TemplateCard[];
 	date: string;
 	time: string;
-	[key: string]: string | number | boolean | TemplatePosition[];
+	querent?: {
+		name: string;
+		notePath: string;
+		hasPath: boolean;
+	} | null;
+	[key: string]: string | number | boolean | TemplateCard[] | object | null | undefined;
 }
 
 /**
  * Formats draw results using Handlebars templates
  * Handles all template variable substitution including loops and conditionals
- * Used for spreads, single draws, and multiple draws
  */
 export class SpreadFormatter {
 	constructor(private settings: TarotPracticeSettings) {}
@@ -73,11 +79,23 @@ export class SpreadFormatter {
 			// Raw timestamp for Handlebars helpers
 			timestamp: timestampNum,
 
-			// Positions array for loops
-			positions: result.positions.map(pos => ({
+			// Querent information (optional)
+			querent: result.querent
+				? {
+					name: result.querent.name,
+					notePath: result.querent.notePath ?? '',
+					hasPath: !!result.querent.notePath
+				}
+				: null,
+
+			// Cards array for loops
+			cards: result.positions.map(pos => ({
 				index: pos.cardIndex,
-				number: pos.number,
-				label: pos.label,
+				position: {
+					number: pos.number,
+					label: pos.label,
+					description: pos.description
+				},
 				name: pos.card,
 				orientation: pos.orientation,
 				isReversed: pos.isReversed
@@ -99,26 +117,6 @@ export class SpreadFormatter {
 	}
 
 	/**
-	 * Format a single card draw using a Handlebars template
-	 */
-	formatSingle(result: DrawResult, template: string): string {
-		const processedTemplate = this.preprocessTemplate(template);
-		const compiledTemplate = Handlebars.compile(processedTemplate);
-		const data = this.prepareSingleDrawData(result);
-		return compiledTemplate(data);
-	}
-
-	/**
-	 * Format a multiple card draw using a Handlebars template
-	 */
-	formatMultiple(result: MultipleDrawResult, template: string): string {
-		const processedTemplate = this.preprocessTemplate(template);
-		const compiledTemplate = Handlebars.compile(processedTemplate);
-		const data = this.prepareMultipleDrawData(result);
-		return compiledTemplate(data);
-	}
-
-	/**
 	 * Preprocess template to convert {{date:FORMAT}} syntax to Handlebars helper calls
 	 * This maintains backward compatibility with existing templates
 	 */
@@ -133,97 +131,6 @@ export class SpreadFormatter {
 		template = template.replace(/\{\{datetime:([^}]+)\}\}/g, '{{formatDateTime timestamp "$1"}}');
 		
 		return template;
-	}
-
-	/**
-	 * Prepare data for single card draw
-	 */
-	private prepareSingleDrawData(result: DrawResult): Record<string, string | number> {
-		const date = moment(result.timestamp);
-		
-		// Calculate orientation from settings
-		const orientation = result.isReversed 
-			? this.settings.reversedIndicator 
-			: this.settings.uprightIndicator;
-
-		return {
-			// Card information
-			name: result.cardName,
-			index: result.cardIndex,
-			intention: result.intention,
-			orientation: orientation,
-
-			// Deck information
-			deck_name: result.deck.name,
-			deck_type: result.deck.type,
-
-			// Timestamp for helpers
-			timestamp: result.timestamp,
-
-			// Date/time variables (default formats)
-			date: date.format('L'),
-			time: date.format('LT'),
-			datetime: date.format('L LT'),
-
-			// Deck preparation metadata
-			shuffle_count: result.shuffleCount,
-			was_cut: result.wasCut ? 'yes' : 'no',
-			cut_position: result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A',
-			cut_position_cards: result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A',
-			cut_base: result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A',
-			cut_variance: result.cutVariancePercent !== null 
-				? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` 
-				: 'N/A'
-		};
-	}
-
-	/**
-	 * Prepare data for multiple card draw
-	 */
-	private prepareMultipleDrawData(result: MultipleDrawResult): Record<string, string | number | Array<{number: number; name: string; index: number; orientation: string; isReversed: boolean}>> {
-		const date = moment(result.timestamp);
-
-		// Provide cards as array for loops
-		const cards = result.cards.map((card, index) => ({
-			number: index + 1,
-			name: card.cardName,
-			index: card.cardIndex,
-			orientation: card.isReversed 
-				? this.settings.reversedIndicator 
-				: this.settings.uprightIndicator,
-			isReversed: card.isReversed
-		}));
-
-		return {
-			// Draw information
-			intention: result.intention,
-			card_count: result.cards.length,
-
-			// Deck information
-			deck_name: result.deck.name,
-			deck_type: result.deck.type,
-
-			// Timestamp for helpers
-			timestamp: result.timestamp,
-
-			// Cards as array for loops
-			cards: cards,
-
-			// Date/time variables (default formats)
-			date: date.format('L'),
-			time: date.format('LT'),
-			datetime: date.format('L LT'),
-
-			// Deck preparation metadata
-			shuffle_count: result.shuffleCount,
-			was_cut: result.wasCut ? 'yes' : 'no',
-			cut_position: result.cutPositionPercent !== null ? `${result.cutPositionPercent}%` : 'N/A',
-			cut_position_cards: result.cutPositionCards !== null ? result.cutPositionCards.toString() : 'N/A',
-			cut_base: result.cutBasePercent !== null ? `${result.cutBasePercent}%` : 'N/A',
-			cut_variance: result.cutVariancePercent !== null 
-				? `${result.cutVariancePercent >= 0 ? '+' : ''}${result.cutVariancePercent}%` 
-				: 'N/A'
-		};
 	}
 }
 

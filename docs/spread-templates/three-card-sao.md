@@ -6,8 +6,8 @@
 
 ---
 
-{{#each positions}}
-### {{label}}
+{{#each cards}}
+### {{position.label}}
 **{{name}}**{{#if isReversed}} (reversed){{/if}}
 
 {{/each}}

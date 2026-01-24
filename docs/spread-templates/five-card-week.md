@@ -6,9 +6,9 @@
 
 ---
 
-{{#each positions}}
-### {{label}}
-{{card}}{{#if isReversed}} (reversed){{/if}}
+{{#each cards}}
+### {{position.label}}
+{{name}}{{#if isReversed}} (reversed){{/if}}
 
 {{/each}}
 
@@ -16,7 +16,7 @@
 
 **Summary**
 
-This week's energy flows from {{positions.0.card}} to {{positions.4.card}}.
+This week's energy flows from {{cards.0.name}} to {{cards.4.name}}.
 
 ---
 

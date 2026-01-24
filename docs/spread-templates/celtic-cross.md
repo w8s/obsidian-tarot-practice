@@ -8,53 +8,53 @@
 
 ### The Cross
 
-**1. {{positions.0.label}}** (Heart of the Matter)  
-{{positions.0.card}}{{#if positions.0.isReversed}} (reversed){{/if}}
+**1. {{cards.0.position.label}}** (Heart of the Matter)  
+{{cards.0.name}}{{#if cards.0.isReversed}} (reversed){{/if}}
 
-**2. {{positions.1.label}}** (Crossing)  
-{{positions.1.card}}{{#if positions.1.isReversed}} (reversed){{/if}}
+**2. {{cards.1.position.label}}** (Crossing)  
+{{cards.1.name}}{{#if cards.1.isReversed}} (reversed){{/if}}
 
 ---
 
 ### The Foundation
 
-**3. {{positions.2.label}}**  
-{{positions.2.card}}{{#if positions.2.isReversed}} (reversed){{/if}}
+**3. {{cards.2.position.label}}**  
+{{cards.2.name}}{{#if cards.2.isReversed}} (reversed){{/if}}
 
-**4. {{positions.3.label}}**  
-{{positions.3.card}}{{#if positions.3.isReversed}} (reversed){{/if}}
+**4. {{cards.3.position.label}}**  
+{{cards.3.name}}{{#if cards.3.isReversed}} (reversed){{/if}}
 
 ---
 
 ### The Crown
 
-**5. {{positions.4.label}}**  
-{{positions.4.card}}{{#if positions.4.isReversed}} (reversed){{/if}}
+**5. {{cards.4.position.label}}**  
+{{cards.4.name}}{{#if cards.4.isReversed}} (reversed){{/if}}
 
-**6. {{positions.5.label}}**  
-{{positions.5.card}}{{#if positions.5.isReversed}} (reversed){{/if}}
+**6. {{cards.5.position.label}}**  
+{{cards.5.name}}{{#if cards.5.isReversed}} (reversed){{/if}}
 
 ---
 
 ### The Staff
 
-**7. {{positions.6.label}}**  
-{{positions.6.card}}{{#if positions.6.isReversed}} (reversed){{/if}}
+**7. {{cards.6.position.label}}**  
+{{cards.6.name}}{{#if cards.6.isReversed}} (reversed){{/if}}
 
-**8. {{positions.7.label}}**  
-{{positions.7.card}}{{#if positions.7.isReversed}} (reversed){{/if}}
+**8. {{cards.7.position.label}}**  
+{{cards.7.name}}{{#if cards.7.isReversed}} (reversed){{/if}}
 
-**9. {{positions.8.label}}**  
-{{positions.8.card}}{{#if positions.8.isReversed}} (reversed){{/if}}
+**9. {{cards.8.position.label}}**  
+{{cards.8.name}}{{#if cards.8.isReversed}} (reversed){{/if}}
 
-**10. {{positions.9.label}}**  
-{{positions.9.card}}{{#if positions.9.isReversed}} (reversed){{/if}}
+**10. {{cards.9.position.label}}**  
+{{cards.9.name}}{{#if cards.9.isReversed}} (reversed){{/if}}
 
 ---
 
 **Synthesis**
 
-The journey moves from {{positions.0.card}} through {{positions.1.card}}, ultimately reaching {{positions.9.card}}.
+The journey moves from {{cards.0.name}} through {{cards.1.name}}, ultimately reaching {{cards.9.name}}.
 
 ---
 

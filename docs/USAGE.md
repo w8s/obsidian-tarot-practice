@@ -8,7 +8,6 @@ Detailed instructions for using Tarot Practice plugin in Obsidian.
 
 - [Getting Started](#getting-started)
 - [Daily Practice](#daily-practice)
-- [Inline Draws](#inline-draws)
 - [Spread Draws](#spread-draws)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Common Workflows](#common-workflows)
@@ -48,27 +47,23 @@ See [Settings Reference](SETTINGS.md) for complete options.
 
 ## Daily Practice
 
-Daily practice is designed for regular tarot readings that automatically integrate with your daily notes.
+The **Daily Draw** spread is designed for regular tarot practice that automatically integrates with your daily notes.
 
-### Basic Daily Draw
+### Using Daily Draw
 
-**Three ways to trigger:**
+**To draw your daily card:**
 
-1. **Ribbon icon** - Click sparkles ✨ in left sidebar
-2. **Command palette** - "Draw daily tarot"
-3. **Hotkey** - Assign in Settings → Hotkeys (recommended!)
+1. **Click** the sparkles ✨ icon in the left sidebar, or
+2. **Run** "Draw tarot spread" from command palette
+3. **Select** "Daily Draw" from the spread list
+4. **Enter** your intention
+5. Card appears in your daily note
 
-**Process:**
-1. Plugin checks if you have a note open
-2. If yes → Inserts into current note
-3. If no → Creates/opens daily note automatically
-4. Shows modal for intention input
-5. Draws cards and inserts formatted result
-6. Shows notification with card(s) drawn
+**Quick tip:** Assign a hotkey in Settings → Hotkeys for one-click access!
 
 ### Where It Appears
 
-Controlled by Settings → Daily Practice → Insert location:
+The Daily Draw spread automatically inserts into your daily note. Location is controlled by Settings → Daily Practice → Insert location:
 
 **Option 1: Append to end** (default)
 - Adds draw at bottom of note
@@ -135,18 +130,16 @@ When enabled (Settings → Daily Practice → Use daily note):
 - Shows error if no file is open
 - Must manually create notes
 
-### Multiple Cards for Daily Practice
+### Customizing Card Count
 
-Change card count in Settings → Daily Practice → Number of cards:
+The Daily Draw spread can pull multiple cards. Change this in Settings → Daily Practice → Number of cards:
 
 **Single card (default: 1)**
-- Uses "Daily practice template"
-- Shows single card with intention
+- One card for daily guidance
 
 **Multiple cards (2-78)**
-- Uses "Multiple cards template"  
-- Shows numbered list of cards
-- All cards from same draw/intention
+- Multiple cards for deeper daily reflection
+- All cards share the same intention
 
 **Example 3-card daily draw:**
 ```markdown
@@ -160,84 +153,6 @@ Change card count in Settings → Daily Practice → Number of cards:
 3. The Tower
 
 ---
-```
-
----
-
-## Inline Draws
-
-Inline draws let you insert cards anywhere in any note, anytime.
-
-### Single Inline Card
-
-**When to use:**
-- Quick card draws while journaling
-- Adding cards to existing notes
-- Drawing cards for specific questions mid-note
-
-**How:**
-1. **Position cursor** where you want the card
-2. **Command palette** → "Inline draw tarot card"
-3. **Enter intention**
-4. Card appears at cursor position
-
-**Uses:** "Inline practice template" (separate from daily template)
-
-**Example use case:**
-
-Writing in journal:
-```markdown
-## Meeting Notes
-Discussed project timeline with team.
-Feeling uncertain about approach.
-
-[cursor here - run inline draw command]
-
-Decision: Will proceed with phased rollout.
-```
-
-After draw:
-```markdown
-## Meeting Notes
-Discussed project timeline with team.
-Feeling uncertain about approach.
-
-**Card:** The Hermit reversed - "Should I trust my instincts?"
-
-Decision: Will proceed with phased rollout.
-```
-
-### Multiple Inline Cards
-
-**When to use:**
-- Drawing several cards for deeper exploration
-- Creating mini-spreads in notes
-- Journaling with multiple perspectives
-
-**How:**
-1. **Position cursor** where you want cards
-2. **Command palette** → "Inline draw multiple tarot cards"
-3. **Choose number** of cards (1-78)
-4. **Enter intention**
-5. Cards appear at cursor position
-
-**Uses:** "Multiple cards template"
-
-**Example:**
-
-```markdown
-## Relationship Reflection
-
-Reflecting on recent tensions.
-
-[run inline multiple draw, choose 3 cards]
-
-Three aspects to consider:
-1. The Tower - Current situation
-2. The Star - Hope/guidance  
-3. The Sun - Potential outcome
-
-Will focus on open communication.
 ```
 
 ---
@@ -268,6 +183,51 @@ Structured multi-card layouts with predefined position meanings.
 - Always in current note at cursor position
 - If no note open, shows error
 - Uses spread-specific template
+
+### Reading for Someone Else (Querent)
+
+When doing a reading for another person, you can track who the reading is for:
+
+**Process:**
+1. **Command palette** → "Draw tarot spread"
+2. **Select spread** from dropdown
+3. **Enter intention**
+4. **Check** "Reading for someone else?"
+5. **Enter querent name** (required) - e.g., "Sarah Chen"
+6. **Enter note path** (optional) - e.g., "People/Sarah Chen"
+7. Spread includes querent information
+
+**How it appears in your note:**
+
+With note path (creates wikilink):
+```markdown
+# Three Card - Past/Present/Future
+
+**Querent:** [[People/Sarah Chen|Sarah Chen]]
+**Intention:** What career path should I consider?
+**Date:** 1/24/2026
+```
+
+Without note path:
+```markdown
+# Single Card
+
+**Querent:** Alex Martinez
+**Intention:** Daily guidance
+**Date:** 1/24/2026
+```
+
+**Tips:**
+- **Note path** creates a backlink from your reading to the person's note
+- Useful for tracking readings for specific people over time
+- Leave querent unchecked for your own readings
+- Querent only appears in output if you check the box
+
+**Use cases:**
+- Professional tarot readers tracking client readings
+- Reading for friends and family
+- Practice readings with study partners
+- Linking readings to People notes in your vault
 
 ### Creating Custom Spreads
 
@@ -331,23 +291,18 @@ Each spread can override global deck preparation:
 
 ### Spread Templates
 
-Spreads use Handlebars templates with access to:
-- `{{spread_name}}` - Name of spread
-- `{{cards}}` - Array of card objects
-- Each card has: `name`, `position`, `orientation`, `index`
+Spreads use Handlebars templates for flexible formatting. Each spread can use a custom template or the built-in default.
 
-**Basic spread template:**
-```markdown
-## {{spread_name}} - {{date}}
+**To customize a spread template:**
+1. Settings → Spreads
+2. Find spread in list
+3. Click "Edit"
+4. Modify template
+5. Save
 
-**Intention:** {{intention}}
-
-{{#each cards}}
-**{{position}}:** {{name}} {{orientation}}
-{{/each}}
-```
-
-See [Spread Templates](spread-templates/README.md) for more examples.
+For complete template documentation, see:
+- [Template Variables](TEMPLATE-VARIABLES.md) - All available variables
+- [Template Examples](TEMPLATE-EXAMPLES.md) - Copy-paste ready templates organized by insert mode
 
 ---
 
@@ -367,14 +322,11 @@ Assign hotkeys for faster access to common commands.
 
 | Command | Suggested Hotkey | Use Case |
 |---------|-----------------|----------|
-| Draw daily tarot | `⌘⇧T` or `Ctrl+Shift+T` | Daily practice |
-| Inline draw tarot card | `⌘⇧C` or `Ctrl+Shift+C` | Quick inline card |
-| Draw tarot spread | `⌘⇧S` or `Ctrl+Shift+S` | Spread readings |
+| Draw tarot spread | `⌘⇧T` or `Ctrl+Shift+T` | All spreads including Daily Draw |
 
 **Tips:**
-- Use same modifier (⌘ or Ctrl) for consistency
-- Add Shift for less common commands
-- Avoid conflicts with other plugins
+- Assign this to quickly access any spread
+- Daily Draw appears at top of spread list for easy selection
 
 ---
 
@@ -386,10 +338,12 @@ Assign hotkeys for faster access to common commands.
 
 **Workflow:**
 1. Open today's daily note (or let plugin create it)
-2. Press hotkey for daily draw (e.g., `⌘⇧T`)
+2. Run "Draw tarot spread" → Select "Daily Draw"
 3. Enter intention: "What do I need to know today?"
 4. Card appears in note
 5. Continue with morning journaling
+
+**Quick tip:** Assign a hotkey to "Draw tarot spread" for faster access!
 
 **Optimization:**
 - Settings → Daily Practice → Insert location → "Under heading"
@@ -451,7 +405,7 @@ Create custom template with days:
 **Workflow:**
 1. While journaling, pause for reflection
 2. Position cursor mid-entry
-3. Inline draw single card
+3. Run "Draw tarot spread" → Select "Single Card"
 4. Use card as prompt for deeper exploration
 5. Continue writing
 
@@ -459,7 +413,7 @@ Create custom template with days:
 ```markdown
 Feeling stuck with creative project...
 
-[Inline card: The Tower - "What's blocking me?"]
+[Single Card draw: The Tower - "What's blocking me?"]
 
 Realized I'm clinging to old ideas. The Tower suggests
 necessary destruction of previous approach. Time to 
@@ -472,30 +426,20 @@ start fresh rather than patching old work.
 
 ### Template Customization
 
-**Keep it simple:**
-- Start with built-in templates
-- Modify gradually
-- Test with different card combinations
+Templates control how card draws appear in your notes.
 
-**Minimal template for quick logging:**
-```markdown
-- {{time}}: [[{{name}}]] {{orientation}} - {{{intention}}}
-```
+**Getting started:**
+1. Start with built-in templates
+2. View template: Settings → Templates → "View" button
+3. Modify gradually based on your needs
+4. Test with different spreads and card counts
 
-**Detailed template for analysis:**
-```markdown
-## Tarot Draw
-**Date:** {{datetime:YYYY-MM-DD HH:mm}}
-**Intention:** {{{intention}}}
-**Card:** {{name}} {{orientation}} (Index: {{index}})
+**Template types by insert mode:**
+- **Daily Note templates:** Optimized for appending to daily notes
+- **Inline templates:** Compact for cursor-position insertion
+- **New Note templates:** Full document formatting
 
-**Draw Details:**
-- Shuffles: {{shuffle_count}}
-- Cut: {{was_cut}} at {{cut_position}}
-
-**Interpretation:**
-[Write notes here]
-```
+For complete template patterns and examples, see [Template Examples](TEMPLATE-EXAMPLES.md).
 
 ### Organization Strategies
 
@@ -531,32 +475,6 @@ start fresh rather than patching old work.
 - Settings sync across devices
 - Custom spreads available everywhere
 
-### Metadata for Analytics
-
-**Capture draw details:**
-Use metadata variables in templates:
-```markdown
-draw:: {{datetime:YYYY-MM-DD HH:mm}}
-card:: {{name}}
-orientation:: {{orientation}}
-shuffle_count:: {{shuffle_count}}
-cut_position:: {{cut_position}}
-```
-
-**Later analysis:**
-- Use Dataview plugin to query
-- Track card frequencies
-- Analyze patterns over time
-
-**Example Dataview query:**
-```dataview
-TABLE card, orientation, draw
-FROM "Daily"
-WHERE contains(file.content, "card::")
-SORT draw DESC
-LIMIT 10
-```
-
 ---
 
 ## Troubleshooting
@@ -579,8 +497,7 @@ LIMIT 10
 **Solutions:**
 1. Check which command you used:
    - "Draw daily tarot" → Daily template
-   - "Inline draw tarot card" → Inline template
-   - "Inline draw multiple" → Multiple template
+   - "Draw tarot spread" → Spread-specific template
 2. Settings → Templates → Verify template assignments
 3. Click "View" to preview current template
 4. Click "Reset" to restore default if customized

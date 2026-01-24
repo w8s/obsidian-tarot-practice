@@ -31,11 +31,15 @@ export class FileSuggest extends AbstractInputSuggest<TFile> {
 	}
 
 	renderSuggestion(file: TFile, el: HTMLElement): void {
-		el.setText(file.path);
+		// Display path without .md extension
+		const pathWithoutExt = file.path.replace(/\.md$/, '');
+		el.setText(pathWithoutExt);
 	}
 
 	selectSuggestion(file: TFile): void {
-		this.inputEl.value = file.path;
+		// Set value without .md extension
+		const pathWithoutExt = file.path.replace(/\.md$/, '');
+		this.inputEl.value = pathWithoutExt;
 		this.inputEl.trigger('input');
 		this.close();
 	}

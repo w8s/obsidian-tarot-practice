@@ -8,58 +8,67 @@ Templates use **Handlebars** syntax for advanced formatting including loops, con
 
 ## Table of Contents
 
+- [Spread-Level Variables](#spread-level-variables)
+- [Cards Array](#cards-array)
 - [Card Variables](#card-variables)
-- [Multiple Card Variables](#multiple-card-variables)
-- [Spread Variables](#spread-variables)
 - [Date & Time Variables](#date--time-variables)
 - [Draw Metadata Variables](#draw-metadata-variables)
 - [Handlebars Syntax](#handlebars-syntax)
-- [Examples](#examples)
 
 ---
 
-## Card Variables
+## Spread-Level Variables
 
-Variables for individual card information. Available in all draw types.
+Variables about the spread itself. Available at the top level of all templates.
 
-| Variable | Type | Description | Example Output |
-|----------|------|-------------|----------------|
-| `{{name}}` | String | Card name | `"The Hermit"` |
-| `{{index}}` | Number | Card index (0-77) | `9` |
-| `{{orientation}}` | String | Upright/reversed indicator | `"reversed"` or `""` |
-| `{{intention}}` | String | Your intention text | `"What do I need to know today?"` |
+| Variable | Type | Description | Example |
+|----------|------|-------------|---------|
+| `{{spread_name}}` | String | Name of the spread | `"Celtic Cross"` |
+| `{{spread_description}}` | String | Purpose/explanation | `"A comprehensive 10-card reading"` |
+| `{{intention}}` | String | Your intention text | `"What do I need to know?"` |
+| `{{card_count}}` | Number | Number of cards drawn | `3` |
 | `{{deck_name}}` | String | Deck name | `"Rider-Waite-Smith"` |
 | `{{deck_type}}` | String | Deck type | `"tarot"` |
 
+### Querent (Optional)
+
+When a reading is for someone else, querent information is available:
+
+| Variable | Type | Description | Example |
+|----------|------|-------------|---------|
+| `{{querent.name}}` | String | Name of person | `"Sarah Chen"` |
+| `{{querent.notePath}}` | String | Note path if provided | `"People/Sarah Chen"` |
+| `{{querent.hasPath}}` | Boolean | Whether notePath exists | `true` or `false` |
+
+**Usage example:**
+```handlebars
+{{#if querent}}
+**Querent:** {{#if querent.hasPath}}[[{{querent.notePath}}|{{querent.name}}]]{{else}}{{querent.name}}{{/if}}
+{{/if}}
+```
+
+This creates a wikilink to the person's note if provided, otherwise just shows their name.
+
 ### Details
 
-**`{{name}}`**
-- Full card name from the deck
-- Major Arcana: "The Fool", "The Magician", etc.
-- Minor Arcana: "Ace of Wands", "Two of Cups", "King of Swords", etc.
-- Always capitalized
+**`{{spread_name}}`**
+- Display name of the spread used
+- Examples: "Single Card", "Three Card - Past/Present/Future", "Celtic Cross"
 
-**`{{index}}`**
-- Zero-based index (0-77)
-- Major Arcana: 0-21
-- Wands: 22-35
-- Cups: 36-49
-- Swords: 50-63
-- Pentacles: 64-77
-- Useful for analytics or sorting
-
-**`{{orientation}}`**
-- Contains the indicator text from settings
-- If reversals disabled: Always empty string `""`
-- If upright: Contains "Upright indicator" setting (default: `""`)
-- If reversed: Contains "Reversed indicator" setting (default: `"reversed"`)
-- Use in templates: `{{name}} {{orientation}}`
+**`{{spread_description}}`**
+- Optional explanation of the spread's purpose
+- May be empty for simple spreads
 
 **`{{{intention}}}`** (note: triple braces recommended)
 - Exactly as you typed it
 - Preserves capitalization, punctuation, line breaks
 - Can be multi-line if entered that way
 - **Use triple braces `{{{intention}}}` to prevent HTML escaping of quotes/apostrophes**
+
+**`{{card_count}}`**
+- Total number of cards in this draw
+- Range: 1-78
+- Useful for conditional formatting
 
 **`{{deck_name}}`**
 - Current deck name
@@ -73,88 +82,15 @@ Variables for individual card information. Available in all draw types.
 
 ---
 
-## Multiple Card Variables
+## Cards Array
 
-Additional variables available when drawing multiple cards (inline multiple or daily with count > 1).
+The `{{cards}}` array contains all drawn cards. Use with loops or direct access.
 
-| Variable | Type | Description | Example Output |
-|----------|------|-------------|----------------|
-| `{{card_count}}` | Number | Number of cards drawn | `3` |
-| `{{cards}}` | Array | Array of card objects for loops | See below |
-
-### Details
-
-**`{{card_count}}`**
-- Total number of cards in this draw
-- Useful for conditional formatting
-- Range: 1-78
-
-**`{{cards}}`** - Array for Handlebars loops
-- Each card object contains: `number`, `name`, `index`, `orientation`, `isReversed`
-- Use with `{{#each cards}}` loops
-- Example:
-  ```handlebars
-  {{#each cards}}
-  {{number}}. {{name}} {{orientation}}
-  {{/each}}
-  ```
-- Output:
-  ```
-  1. The Fool
-  2. The Hermit reversed
-  3. The Tower
-  ```
-
-**Card object structure:**
-```javascript
-{
-  number: 1,              // 1-based position
-  name: "The Hermit",     // Card name
-  index: 9,               // Card index (0-77)
-  orientation: "reversed", // Orientation indicator
-  isReversed: true        // Boolean for conditionals
-}
-```
-
----
-
-## Spread Variables
-
-Variables available in spread templates (Handlebars templates only).
-
-| Variable | Type | Description | Example |
-|----------|------|-------------|---------|
-| `{{spread_name}}` | String | Name of the spread | `"Celtic Cross"` |
-| `{{spread_description}}` | String | Purpose/explanation | `"A comprehensive 10-card reading"` |
-| `{{positions}}` | Array | Array of position objects | See below |
-| `{{positions.[0]}}` | Object | First position object | See below |
-| `{{positions.[0].name}}` | String | Card name | `"The Fool"` |
-| `{{positions.[0].label}}` | String | Position label | `"Past"` |
-| `{{positions.[0].orientation}}` | String | Orientation indicator | `"reversed"` |
-| `{{positions.[0].index}}` | Number | Card index | `0` |
-
-### Position Object Structure
-
-Each position in the `{{positions}}` array contains:
-
-```javascript
-{
-  number: 1,               // 1-based position number
-  label: "Present",        // Position label
-  name: "The Hermit",      // Card name
-  index: 9,                // Card index (0-77)
-  orientation: "reversed", // Orientation indicator (or "")
-  isReversed: true         // Boolean for conditionals
-}
-```
-
-### Using Loops
-
-Iterate through all positions in a spread:
+### Looping Through Cards
 
 ```handlebars
-{{#each positions}}
-**{{number}}. {{label}}:** {{name}} {{orientation}}
+{{#each cards}}
+**{{position.number}}. {{position.label}}:** {{name}} {{orientation}}
 {{/each}}
 ```
 
@@ -165,12 +101,137 @@ Output:
 **3. Future:** The Tower
 ```
 
-### Accessing Specific Positions
+### Direct Access
+
+Access specific cards by index:
 
 ```handlebars
-First position: {{positions.[0].name}}
-Second position: {{positions.[1].name}}
-Last position: {{positions.[2].name}}
+First card: {{cards.0.name}}
+Second card: {{cards.1.name}}
+Third card: {{cards.2.name}}
+```
+
+Output:
+```
+First card: The Fool
+Second card: The Hermit
+Third card: The Tower
+```
+
+### Array Structure
+
+Each item in `{{cards}}` is an object with these properties (see [Card Variables](#card-variables) for details):
+
+```javascript
+{
+  index: 9,                          // Card index in deck (0-77)
+  position: {
+    number: 2,                       // Position number (1-based)
+    label: "Present",                // Position name
+    description: "Your current state" // Optional explanation
+  },
+  name: "The Hermit",                // Card name
+  orientation: "reversed",           // Orientation indicator
+  isReversed: true                   // Boolean for conditionals
+}
+```
+
+---
+
+## Card Variables
+
+Variables available for each card. Use inside `{{#each cards}}` loops or via direct access like `{{cards.0.name}}`.
+
+| Variable | Type | Description | Example |
+|----------|------|-------------|---------|
+| `{{index}}` | Number | Card index in deck (0-77) | `9` |
+| `{{position.number}}` | Number | Position number (1-based) | `2` |
+| `{{position.label}}` | String | Position name | `"Present"` |
+| `{{position.description}}` | String | Position explanation (optional) | `"Your current state"` |
+| `{{name}}` | String | Card name | `"The Hermit"` |
+| `{{orientation}}` | String | Orientation indicator | `"reversed"` or `""` |
+| `{{isReversed}}` | Boolean | Reversal flag for conditionals | `true` or `false` |
+
+### Details
+
+**`{{index}}`**
+- Zero-based card index in the deck (0-77)
+- Major Arcana: 0-21
+- Wands: 22-35
+- Cups: 36-49
+- Swords: 50-63
+- Pentacles: 64-77
+- Useful for analytics, sorting, or lookups
+
+**`{{position.number}}`**
+- One-based position number in the spread
+- First card = 1, second card = 2, etc.
+- Use for numbering: `**{{position.number}}.** {{name}}`
+
+**`{{position.label}}`**
+- Short name for this position in the spread
+- Examples: "Past", "Present", "Challenge", "Guidance"
+- Always present
+
+**`{{position.description}}`**
+- Optional longer explanation of what this position represents
+- May be undefined for simple spreads
+- Use with conditional: `{{#if position.description}}...{{/if}}`
+
+**`{{name}}`**
+- Full card name from the deck
+- Major Arcana: "The Fool", "The Magician", etc.
+- Minor Arcana: "Ace of Wands", "Two of Cups", "King of Swords", etc.
+- Always capitalized
+
+**`{{orientation}}`**
+- Orientation indicator text from settings
+- If reversals disabled: Always empty string `""`
+- If upright: Contains "Upright indicator" setting (default: `""`)
+- If reversed: Contains "Reversed indicator" setting (default: `"reversed"`)
+- Use in templates: `{{name}} {{orientation}}`
+
+**`{{isReversed}}`**
+- Boolean flag for conditional logic
+- `true` if card is reversed
+- `false` if card is upright
+- Use with `{{#if isReversed}}...{{/if}}`
+
+### Usage Examples
+
+**Loop with position labels:**
+```handlebars
+{{#each cards}}
+**{{position.label}}:** {{name}}{{#if isReversed}} (reversed){{/if}}
+{{/each}}
+```
+
+**Loop with position descriptions:**
+```handlebars
+{{#each cards}}
+**{{position.number}}. {{position.label}}:** {{name}} {{orientation}}
+{{#if position.description}}
+*{{position.description}}*
+{{/if}}
+{{/each}}
+```
+
+**Direct access to specific cards:**
+```handlebars
+### The Cross
+**{{cards.0.position.label}}:** {{cards.0.name}}
+**{{cards.1.position.label}}:** {{cards.1.name}}
+```
+
+**Conditional formatting:**
+```handlebars
+{{#each cards}}
+{{#if isReversed}}
+⚠️ {{name}} (reversed)
+{{else}}
+✓ {{name}}
+{{/if}}
+{{/each}}
 ```
 
 ---
@@ -327,8 +388,8 @@ Templates support full Handlebars functionality for advanced formatting.
 ### Conditionals
 
 ```handlebars
-{{#if orientation}}
-This card is {{orientation}}!
+{{#if isReversed}}
+This card is reversed!
 {{else}}
 This card is upright.
 {{/if}}
@@ -338,7 +399,30 @@ This card is upright.
 
 ```handlebars
 {{#each cards}}
-{{@index}}. {{name}} - {{position}}
+{{number}}. {{name}} - {{position.label}}
+{{/each}}
+```
+
+### Loop Context Variables
+
+Inside `{{#each}}` loops, special variables are available:
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `@index` | Current loop index (0-based) | `0`, `1`, `2` |
+| `@first` | True if first item | `true` or `false` |
+| `@last` | True if last item | `true` or `false` |
+
+Example:
+```handlebars
+{{#each cards}}
+{{#if @first}}
+=== First Card ===
+{{/if}}
+{{position.number}}. {{name}}
+{{#if @last}}
+=== Last Card ===
+{{/if}}
 {{/each}}
 ```
 
@@ -348,118 +432,90 @@ This card is upright.
 {{!-- This is a comment, won't appear in output --}}
 ```
 
-### Helpers
+### Built-in Helpers
 
-Built-in Handlebars helpers:
 - `{{#if}}` - Conditional block
 - `{{#unless}}` - Inverted conditional
 - `{{#each}}` - Loop over array
 - `{{#with}}` - Change context
-- `@index` - Current loop index (0-based)
-- `@first` - True if first item in loop
-- `@last` - True if last item in loop
 
 Full reference: [Handlebars Guide](https://handlebarsjs.com/guide/)
 
 ---
 
-## Examples
+## Appendix: Complete Data Structure
 
-### Minimal Daily Draw
+Full JSON representation of a draw result showing all available template variables.
 
-```markdown
-- {{time}}: [[{{name}}]] {{orientation}} - {{{intention}}}
+```json
+{
+  "spread_name": "Three Card - Past/Present/Future",
+  "spread_description": "Explore the progression from past through present to future",
+  "intention": "What's happening with my career transition?",
+  "card_count": 3,
+  "deck_name": "Rider-Waite-Smith",
+  "deck_type": "tarot",
+  "timestamp": 1737751200000,
+  "date": "1/24/2026",
+  "time": "3:45 PM",
+  "datetime": "1/24/2026 3:45 PM",
+  
+  "cards": [
+    {
+      "index": 0,
+      "position": {
+        "number": 1,
+        "label": "Past",
+        "description": "Events and influences that led to this moment"
+      },
+      "name": "The Fool",
+      "orientation": "",
+      "isReversed": false
+    },
+    {
+      "index": 9,
+      "position": {
+        "number": 2,
+        "label": "Present",
+        "description": "Your current situation and state of being"
+      },
+      "name": "The Hermit",
+      "orientation": "reversed",
+      "isReversed": true
+    },
+    {
+      "index": 16,
+      "position": {
+        "number": 3,
+        "label": "Future",
+        "description": "What's emerging or where this is heading"
+      },
+      "name": "The Tower",
+      "orientation": "",
+      "isReversed": false
+    }
+  ],
+  
+  "shuffle_count": 3,
+  "was_cut": "yes",
+  "cut_position": "54.3%",
+  "cut_position_cards": 42,
+  "cut_base": "47%",
+  "cut_variance": "+7.3%"
+}
 ```
 
-Output:
-```markdown
-- 3:45 PM: [[The Hermit]] reversed - What do I need to know today?
-```
-
-### Journal Style
-
-```markdown
-### Daily Tarot
-
-> {{{intention}}}
-
-**Card:** {{name}} {{orientation}}  
-**Date:** {{date:MMMM D, YYYY}}
-**Time:** {{time}}
-
----
-```
-
-### With Full Metadata
-
-```markdown
-## Tarot Draw - {{datetime:YYYY-MM-DD HH:mm}}
-
-**Intention:** {{{intention}}}  
-**Card:** {{name}} {{orientation}}  
-**Index:** {{index}}
-
-**Draw Details:**
-- Shuffles: {{shuffle_count}}
-- Cut: {{was_cut}} at {{cut_position}} (card {{cut_position_cards}})
-- RNG: {{cut_base}} + variance {{cut_variance}}
-
----
-```
-
-### Multiple Cards with Deck Info
-
-```markdown
-## {{card_count}}-Card Draw - {{date}}
-**Deck:** {{deck_name}} ({{deck_type}})
-
-**Intention:** {{{intention}}}
-
-{{#each cards}}
-{{number}}. {{name}} {{orientation}}
-{{/each}}
-
-*Drawn at {{time}}*
-```
-
-### Three-Card Spread
-
-```markdown
-## {{spread_name}} - {{datetime}}
-
-**Intention:** {{{intention}}}
-
-{{#each positions}}
-### {{label}}
-{{name}} {{orientation}}
-
-{{/each}}
-
----
-*Shuffled {{shuffle_count}}x, cut at {{cut_position}}*
-```
-
-### Conditional Orientation
-
-```markdown
-**Card:** {{name}}{{#if orientation}} ({{orientation}}){{/if}}
-```
-
-Output when upright (empty indicator):
-```markdown
-**Card:** The Fool
-```
-
-Output when reversed:
-```markdown
-**Card:** The Fool (reversed)
-```
+**Notes:**
+- `timestamp` is milliseconds since epoch (used by Handlebars date helpers)
+- `date`, `time`, `datetime` are pre-formatted with default formats
+- `position.description` may be `undefined` for simple spreads
+- `orientation` is empty string `""` for upright cards
+- All string values use double quotes in JSON but render without them in templates
 
 ---
 
 ## Related Documentation
 
-- [Template Examples](TEMPLATE-EXAMPLES.md) - More copy-paste ready templates
-- [Spread Templates](spread-templates/README.md) - Spread-specific examples
+- [Template Examples](TEMPLATE-EXAMPLES.md) - Copy-paste ready templates with patterns
 - [Settings Reference](SETTINGS.md) - Configure template behavior
 - [Handlebars Documentation](https://handlebarsjs.com/) - Official Handlebars guide

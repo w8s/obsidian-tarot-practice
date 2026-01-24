@@ -1,6 +1,7 @@
 # Tarot Practice
 
-![Over-Engineered](https://img.shields.io/badge/Shuffle_Variance-excessively_engineered-purple?style=for-the-badge&logo=sparkles)
+![](https://img.shields.io/badge/Obidian_Plugin_Submission-Pending-orange) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
+
 
 *Bringing necessary imprecision to digital mystical arts since 2025*
 
@@ -42,7 +43,7 @@ That's it! Customize settings later in Settings → Tarot Practice.
 
 ## Installation
 
-> **Status:** Currently pending review for Obsidian Community Plugins directory. Use manual installation for now.
+> **Status:** Currently pending review for Obsidian Community Plugins directory ([PR-9473](https://github.com/obsidianmd/obsidian-releases/pull/9473/)). Use manual installation for now.
 
 ### Manual Installation
 
@@ -74,16 +75,11 @@ Run **"Draw daily tarot"** (click sparkles icon ✨ or use command palette)
 
 **Quick settings:** Number of cards (default: 1), daily note path, insert location
 
-### Inline Draws
-
-**Single card:** Position cursor → **"Inline draw tarot card"** → Enter intention  
-**Multiple cards:** Position cursor → **"Inline draw multiple tarot cards"** → Choose count → Enter intention
-
-**Pro tip:** Assign hotkeys in Settings → Hotkeys for instant access!
-
 ### Spread Draws
 
 Run **"Draw tarot spread"** → Select spread → Enter intention
+
+**Pro tip:** Assign a hotkey in Settings → Hotkeys for instant access!
 
 **Built-in spreads:**
 - Single Card
@@ -165,7 +161,7 @@ See complete documentation:
 
 ## Roadmap
 
-**Current (v1.4.0):**
+**Current (v1.5.0):**
 - ✅ 5 built-in spreads with Handlebars templates
 - ✅ Custom spread creation with position definitions
 - ✅ Per-spread deck preparation settings
