@@ -41,10 +41,14 @@ export class TemplateFolderDetector {
 	 */
 	private getTemplaterFolder(): string | null {
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			// Accessing private Obsidian API - disable type safety checks
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 			const plugins = (this.app as any).plugins.plugins;
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
 			const templater = plugins['templater-obsidian'];
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			if (templater?.settings?.templates_folder) {
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				return templater.settings.templates_folder as string;
 			}
 		} catch {
@@ -58,10 +62,12 @@ export class TemplateFolderDetector {
 	 */
 	private getCoreTemplatesFolder(): string | null {
 		try {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			// Accessing private Obsidian API - disable type safety checks
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
 			const config = (this.app as any).internalPlugins.getPluginById('templates');
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			if (config?.enabled) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any
+				// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
 				const folder = (config as any).instance?.options?.folder;
 				if (folder) {
 					return folder as string;
