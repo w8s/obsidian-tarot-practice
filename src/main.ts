@@ -169,13 +169,19 @@ export default class TarotPracticePlugin extends Plugin {
 		let dailyNotePath: string;
 		
 		if (lastSlashIndex === -1) {
-			// No directory, just filename
-			dailyNotePath = moment().format(pathPattern);
+			// No directory, just filename - split filename from extension
+			const lastDot = pathPattern.lastIndexOf('.');
+			const namePattern = lastDot !== -1 ? pathPattern.substring(0, lastDot) : pathPattern;
+			const extension = lastDot !== -1 ? pathPattern.substring(lastDot) : '';
+			dailyNotePath = `${moment().format(namePattern)}${extension}`;
 		} else {
-			// Has directory path - only format the filename part
+			// Has directory path - only format the filename part (excluding extension)
 			const directory = pathPattern.substring(0, lastSlashIndex + 1);
 			const filenamePattern = pathPattern.substring(lastSlashIndex + 1);
-			dailyNotePath = `${directory}${moment().format(filenamePattern)}`;
+			const lastDot = filenamePattern.lastIndexOf('.');
+			const namePattern = lastDot !== -1 ? filenamePattern.substring(0, lastDot) : filenamePattern;
+			const extension = lastDot !== -1 ? filenamePattern.substring(lastDot) : '';
+			dailyNotePath = `${directory}${moment().format(namePattern)}${extension}`;
 		}
 		const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
 		
@@ -183,6 +189,14 @@ export default class TarotPracticePlugin extends Plugin {
 		if (abstractFile instanceof TFile) {
 			targetFile = abstractFile;
 		} else {
+			// Ensure parent folder exists before creating file
+			if (lastSlashIndex !== -1) {
+				const folderPath = dailyNotePath.substring(0, dailyNotePath.lastIndexOf('/'));
+				const folder = this.app.vault.getAbstractFileByPath(folderPath);
+				if (!folder) {
+					await this.app.vault.createFolder(folderPath);
+				}
+			}
 			targetFile = await this.app.vault.create(dailyNotePath, '');
 		}
 		
