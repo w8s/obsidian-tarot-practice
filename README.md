@@ -157,18 +157,26 @@ See complete documentation:
 
 ## Roadmap
 
-**Current (v1.5.0):**
+**Current (v1.6.1):**
 - ✅ 5 built-in spreads with Handlebars templates
 - ✅ Custom spread creation with position definitions
 - ✅ Per-spread deck preparation settings
 - ✅ File-based template system with "Create from Example"
+- ✅ Card metadata infrastructure (category, suit, rank, value)
+- ✅ Querent tracking for readings done for others
+- ✅ Deck definition infrastructure
 
-**Coming Soon:**
+**v1.7.0 - Multi-Deck Support:**
+- 🔄 Custom deck loading from JSON files
+- 🔄 Deck selector UI in settings
+- 🔄 Per-spread deck selection
+- 🔄 Oracle, Lenormand, and playing card deck support
+
+**Future:**
 - Spread import/export for sharing
 - Card interpretation database
 - Reading history and analytics
 - Different shuffle styles (overhand, riffle, Hindu)
-- Oracle deck support and custom card databases
 
 For detailed feature plans, see [GitHub Issues](https://github.com/w8s/obsidian-tarot-practice/issues) and [Discussions](https://github.com/w8s/obsidian-tarot-practice/discussions).
 
