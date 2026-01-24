@@ -7,38 +7,70 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-## [1.5.0] - 2025-01-22
+## [1.5.0] - 2025-01-24
 
 ### Added
-- **Deck Metadata System**: Foundation for custom deck support
-  - `Deck` interface with id, name, type, cardCount, supportsReversals, isBuiltIn
-  - `DeckType` type: 'tarot' | 'oracle' | 'lenormand' | 'playing-cards' | 'other'
-  - `DEFAULT_DECK` constant for Rider-Waite-Smith
-  - All draw results now include deck information
-- **New Template Variables**:
-  - `{{deck_name}}` - Current deck name (e.g., "Rider-Waite-Smith")
-  - `{{deck_type}}` - Deck type (e.g., "tarot")
-  - Available in all draw types (daily, inline, multiple, spreads)
-
-### Changed
-- **BREAKING**: Template variable `{{card}}` renamed to `{{name}}` for consistency across all draw types
-- All built-in templates now use triple braces `{{{intention}}}` to prevent HTML escaping
-- DrawResult, MultipleDrawResult, and SpreadDrawResult interfaces include `deck: Deck` field
-- Updated all documentation to reflect unified Handlebars template system
+- **Deck Metadata System** - Foundation for custom deck support
+  - New `Deck` interface with `id`, `name`, `type`, `cardCount`, `supportsReversals`, `isBuiltIn`
+  - New `DeckType` type: `'tarot' | 'oracle' | 'lenormand' | 'playing-cards' | 'other'`
+  - Default `DEFAULT_DECK` for Rider-Waite-Smith tarot
+  - Template variables: `{{deck_name}}` and `{{deck_type}}`
+- **Hybrid Template Folder Detection**
+  - User setting for template folder (highest priority)
+  - Auto-detection from Templater and Core Templates plugins
+  - Sensible default fallback (Templates/Tarot)
+  - Settings UI shows auto-detected folder when using defaults
+- **ConfirmModal Component** - Reusable confirmation dialog for destructive actions
 
 ### Fixed
-- **HTML Escaping**: User input (intentions) with apostrophes and quotes now render correctly
+- **HTML Escaping in Templates** - Intention field now uses triple braces `{{{intention}}}` to prevent apostrophes and quotes from being escaped as HTML entities
   - Before: "peppa's back" → "peppa&#x27;s back"
   - After: "peppa's back" → "peppa's back"
-  - Solution: Triple braces `{{{intention}}}` for unescaped output
+- **Daily Note Path Bug** - Fixed moment.js interpreting `.md` extension as format codes
+  - Properly separates filename pattern from extension before formatting
+  - Creates parent directories before file creation
+- **ESLint Cleanup** - Reduced from 57 errors to 0
+  - Replaced type-unsafe private API access with type-safe interfaces
+  - Eliminated 89% of eslint-disable comments (57 → 6)
+  - All remaining suppressions are justified (external library limitations and technical syntax)
+
+### Changed
+- **Code Organization** - Reorganized flat src/ directory into logical subdirectories
+  - `core/` - Domain logic (Deck, cards, preparation, spreads)
+  - `modals/` - UI dialogs (9 files)
+  - `templates/` - Template system (8 files)
+  - `spreads/` - Spread management (2 files)
+  - `ui/` - Settings & components (2 files)
+  - `types/` - Type definitions (1 file)
+- All draw operations now record which deck was used
+- DrawResult, MultipleDrawResult, and SpreadDrawResult interfaces include `deck: Deck` field
 
 ### Documentation
-- Added HTML escaping section to TEMPLATE-VARIABLES.md explaining double vs triple braces
-- Updated all template examples to use `{{name}}` and `{{{intention}}}`
-- Fixed spread template documentation to use `{{positions}}` array correctly
-- Updated AGENTS.md with current template workflow
-- Corrected README tagline to "necessary imprecision"
-- Added CHANGELOG-v1.5.0.md with detailed migration notes
+- Updated `TEMPLATE-VARIABLES.md` with deck metadata variables and HTML escaping guidance
+- Added `ESLINT-ANALYSIS.md` documenting code quality improvements
+- Added `CODE-ORGANIZATION.md` documenting new folder structure
+- Corrected variable names (`{{name}}` instead of deprecated `{{card}}`)
+- Updated all examples to use triple braces for `{{{intention}}}`
+
+### Technical
+- Zero ESLint errors with justified suppressions only
+- Type-safe interfaces for Obsidian private API access
+- Improved maintainability and scalability
+- Better code navigation and onboarding
+
+### Future Expansion
+This release provides the foundation for:
+- Custom deck loading from JSON files
+- Deck selector UI in settings
+- Multiple deck management
+- Support for Oracle decks, Lenormand, playing cards, etc.
+
+### Migration Notes
+No migration needed - all existing templates continue to work. The new `deck_name` and `deck_type` variables are purely additive.
+
+Users with custom templates containing user input should consider updating to use triple braces for better handling of special characters:
+- Change `{{intention}}` to `{{{intention}}}`
+- Keep `{{name}}`, `{{orientation}}`, etc. as double braces
 
 ## [1.4.0] - 2025-01-21
 

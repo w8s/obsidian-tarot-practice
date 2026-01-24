@@ -1,5 +1,5 @@
 import { App, TFile, Notice } from 'obsidian';
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings } from '../settings';
 import { BUILTIN_DAILY_TEMPLATE, BUILTIN_INLINE_TEMPLATE, BUILTIN_MULTIPLE_TEMPLATE } from './BuiltInTemplates';
 
 /**

@@ -22,12 +22,14 @@ export class TemplateViewModal extends Modal {
 		const codeBlock = contentEl.createEl('pre');
 		codeBlock.createEl('code', { text: this.content });
 
-		// Style the code block
-		codeBlock.style.backgroundColor = 'var(--background-primary-alt)';
-		codeBlock.style.padding = '1em';
-		codeBlock.style.borderRadius = '4px';
-		codeBlock.style.overflow = 'auto';
-		codeBlock.style.maxHeight = '60vh';
+		// Style the code block using setCssProps
+		codeBlock.setCssProps({
+			'background-color': 'var(--background-primary-alt)',
+			'padding': '1em',
+			'border-radius': '4px',
+			'overflow': 'auto',
+			'max-height': '60vh'
+		});
 	}
 
 	onClose(): void {

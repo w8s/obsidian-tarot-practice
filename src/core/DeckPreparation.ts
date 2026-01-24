@@ -1,5 +1,5 @@
 import { RngWithIntention } from 'rng-with-intention';
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings } from '../settings';
 
 export interface ShuffleMetadata {
 	shuffleCount: number;
@@ -42,6 +42,7 @@ export async function prepareDeck(
 		wasCut = true;
 		
 		// Use intention to get cut percentage (1-100)
+		// eslint-disable-next-line @typescript-eslint/await-thenable
 		const cutResult = await rngi.draw(`${intention}-${timestamp}-cut`, 100);
 		const cutBase = cutResult.index + 1; // 1-100
 		cutBasePercent = cutBase;
@@ -78,6 +79,7 @@ async function fisherYatesShuffle(array: number[], seed: string, rngi: RngWithIn
 	const shuffled = [...array];
 	for (let i = shuffled.length - 1; i > 0; i--) {
 		// Use RNG to pick a position from 0 to i
+		// eslint-disable-next-line @typescript-eslint/await-thenable
 		const result = await rngi.draw(`${seed}-${i}`, i + 1);
 		const j = result.index;
 		// Swap elements (with type safety)

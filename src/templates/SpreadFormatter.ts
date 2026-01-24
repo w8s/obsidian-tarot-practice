@@ -1,8 +1,34 @@
 import Handlebars from 'handlebars';
 import { moment } from 'obsidian';
-import { SpreadDrawResult } from './spreads';
-import { DrawResult, MultipleDrawResult } from './TarotDrawModal';
-import { TarotPracticeSettings } from './settings';
+import { SpreadDrawResult } from '../core/spreads';
+import { DrawResult, MultipleDrawResult } from '../modals/TarotDrawModal';
+import { TarotPracticeSettings } from '../settings';
+
+/**
+ * Template data structure for Handlebars rendering
+ */
+interface TemplatePosition {
+	index: number;
+	number: number;
+	label: string;
+	name: string;
+	orientation: string;
+	isReversed: boolean;
+}
+
+interface TemplateData {
+	spread_name: string;
+	spread_description: string;
+	intention: string;
+	card_count: number;
+	deck_name: string;
+	deck_type: string;
+	timestamp: number;
+	positions: TemplatePosition[];
+	date: string;
+	time: string;
+	[key: string]: string | number | boolean | TemplatePosition[];
+}
 
 /**
  * Formats draw results using Handlebars templates
@@ -25,11 +51,11 @@ export class SpreadFormatter {
 	/**
 	 * Prepare the data object for Handlebars template rendering
 	 */
-	private prepareTemplateData(result: SpreadDrawResult): Record<string, any> {
+	private prepareTemplateData(result: SpreadDrawResult): TemplateData {
 		// Ensure timestamp is a number
 		const timestampNum = typeof result.timestamp === 'number' 
 			? result.timestamp 
-			: parseInt(result.timestamp as any, 10);
+			: parseInt(result.timestamp as string, 10);
 		
 		const date = moment(timestampNum);
 
@@ -112,7 +138,7 @@ export class SpreadFormatter {
 	/**
 	 * Prepare data for single card draw
 	 */
-	private prepareSingleDrawData(result: DrawResult): Record<string, any> {
+	private prepareSingleDrawData(result: DrawResult): Record<string, string | number> {
 		const date = moment(result.timestamp);
 		
 		// Calculate orientation from settings
@@ -154,7 +180,7 @@ export class SpreadFormatter {
 	/**
 	 * Prepare data for multiple card draw
 	 */
-	private prepareMultipleDrawData(result: MultipleDrawResult): Record<string, any> {
+	private prepareMultipleDrawData(result: MultipleDrawResult): Record<string, string | number | Array<{number: number; name: string; index: number; orientation: string; isReversed: boolean}>> {
 		const date = moment(result.timestamp);
 
 		// Provide cards as array for loops

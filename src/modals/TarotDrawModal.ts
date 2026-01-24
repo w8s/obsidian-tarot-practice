@@ -1,8 +1,8 @@
 import { App, Modal, Notice, Setting } from 'obsidian';
-import { getCardName } from './CardDatabase';
-import { TarotPracticeSettings } from './settings';
-import { prepareDeck } from './DeckPreparation';
-import { Deck, DEFAULT_DECK } from './Deck';
+import { getCardName } from '../core/CardDatabase';
+import { TarotPracticeSettings } from '../settings';
+import { prepareDeck } from '../core/DeckPreparation';
+import { Deck, DEFAULT_DECK } from '../core/Deck';
 
 // Single card draw result
 export interface DrawResult {
@@ -95,7 +95,7 @@ export class TarotDrawModal extends Modal {
 				text.inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
 					if (e.key === 'Enter') {
 						e.preventDefault();
-						this.drawCards();
+						void this.drawCards();
 					}
 				});
 			});
@@ -123,7 +123,7 @@ export class TarotDrawModal extends Modal {
 				.setButtonText(buttonText)
 				.setCta()
 				.onClick(() => {
-					this.drawCards();
+					void this.drawCards();
 				}));
 	}
 
@@ -148,7 +148,7 @@ export class TarotDrawModal extends Modal {
 				// Single card draw
 				const cardIndex = deck[0];
 				if (cardIndex === undefined) {
-					new Notice('Error: Could not draw card');
+					new Notice('Could not draw card');
 					return;
 				}
 				

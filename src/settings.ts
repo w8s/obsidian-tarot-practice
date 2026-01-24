@@ -1,6 +1,6 @@
 export type InsertLocation = 'append' | 'prepend' | 'heading';
 
-import { Spread } from './spreads';
+import { Spread } from 'core/spreads';
 
 export interface TarotPracticeSettings {
 	useDailyNote: boolean;

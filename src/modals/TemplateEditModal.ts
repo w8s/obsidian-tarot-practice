@@ -1,5 +1,5 @@
 import { App, Modal, Setting } from 'obsidian';
-import { FileSuggest } from './FileSuggest';
+import { FileSuggest } from '../ui/FileSuggest';
 
 /**
  * Modal to select a custom template file
@@ -31,7 +31,7 @@ export class TemplateEditModal extends Modal {
 
 		new Setting(contentEl)
 			.setName('Template file')
-			.setDesc('Select a markdown file from your vault')
+			.setDesc('Select a Markdown file from your vault')
 			.addText(text => {
 				new FileSuggest(this.app, text.inputEl);
 				text.setPlaceholder('Example: Templates/Tarot/Daily.md')

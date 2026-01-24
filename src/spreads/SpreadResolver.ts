@@ -1,6 +1,6 @@
 import { App, TFile, Notice } from 'obsidian';
-import { Spread } from './spreads';
-import { getBuiltInSpreadTemplate } from './BuiltInSpreadTemplates';
+import { Spread } from '../core/spreads';
+import { getBuiltInSpreadTemplate } from '../templates/BuiltInSpreadTemplates';
 import { BUILTIN_SPREADS } from './BuiltInSpreads';
 
 /**

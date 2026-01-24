@@ -1,6 +1,5 @@
 import { App, Notice, TFolder } from 'obsidian';
-import { TarotPracticeSettings, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
-import { BUILTIN_DAILY_TEMPLATE, BUILTIN_INLINE_TEMPLATE, BUILTIN_MULTIPLE_TEMPLATE } from './BuiltInTemplates';
+import { TarotPracticeSettings, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from '../settings';
 
 /**
  * Handles migration from inline templates to file-based templates.

@@ -28,11 +28,11 @@ export class TemplateMigrationModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: 'Migrate to File-Based Templates' });
+		contentEl.createEl('h2', { text: 'Migrate to file-based templates' });
 
 		// Explanation
 		contentEl.createEl('p', {
-			text: 'The Tarot Practice plugin now uses file-based templates instead of inline editors. Your customized templates will be migrated to files in your vault.'
+			text: 'The tarot practice plugin now uses file-based templates instead of inline editors. Your customized templates will be migrated to files in your vault.'
 		});
 
 		// Folder selection
@@ -58,12 +58,12 @@ export class TemplateMigrationModal extends Modal {
 		} else {
 			contentEl.createEl('p', {
 				cls: 'setting-item-description',
-				text: 'No template folder detected. Using default "Templates" folder.'
+				text: 'No template folder detected. Using default "templates" folder.'
 			});
 		}
 
 		// Preview section
-		contentEl.createEl('h3', { text: 'Files to be created:' });
+		contentEl.createEl('h3', { text: 'Files to be created' });
 		this.previewEl = contentEl.createEl('div', { cls: 'tarot-migration-preview' });
 		this.updatePreview();
 
@@ -77,7 +77,7 @@ export class TemplateMigrationModal extends Modal {
 			});
 
 		new ButtonComponent(buttonDiv)
-			.setButtonText('Migrate Templates')
+			.setButtonText('Migrate templates')
 			.setCta()
 			.onClick(async () => {
 				await this.onConfirm(this.folderPath);

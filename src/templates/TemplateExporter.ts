@@ -1,6 +1,6 @@
-import { App, Notice, TFile } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { TemplatePaths } from './TemplatePaths';
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings } from '../settings';
 import { getBuiltInSpreadTemplate } from './BuiltInSpreadTemplates';
 
 /**

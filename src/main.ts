@@ -1,24 +1,13 @@
 import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
-import { TarotDrawModal, DrawResult, MultipleDrawResult } from './TarotDrawModal';
-import { TarotPracticeSettings, DEFAULT_SETTINGS, DEFAULT_TEMPLATE, DEFAULT_MULTIPLE_TEMPLATE } from './settings';
-import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
-import { TemplateResolver } from './TemplateResolver';
-import { SpreadDrawModal } from './SpreadDrawModal';
-import { SpreadResolver } from './SpreadResolver';
-import { SpreadFormatter, registerHandlebarsHelpers } from './SpreadFormatter';
-import { Spread, SpreadDrawResult, SpreadPositionResult } from './spreads';
-import { prepareDeck } from './DeckPreparation';
-import { getCardName } from './CardDatabase';
-import { DEFAULT_DECK } from './Deck';
-
-interface ShuffleMetadata {
-	shuffleCount: number;
-	wasCut: boolean;
-	cutPositionPercent: number | null;
-	cutPositionCards: number | null;
-	cutBasePercent: number | null;
-	cutVariancePercent: number | null;
-}
+import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
+import { TarotPracticeSettingTab } from 'ui/TarotPracticeSettingTab';
+import { SpreadDrawModal } from 'modals/SpreadDrawModal';
+import { SpreadResolver } from 'spreads/SpreadResolver';
+import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
+import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
+import { prepareDeck } from 'core/DeckPreparation';
+import { getCardName } from 'core/CardDatabase';
+import { DEFAULT_DECK } from 'core/Deck';
 
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
@@ -29,36 +18,9 @@ export default class TarotPracticePlugin extends Plugin {
 		// Register Handlebars helpers for spread templates
 		registerHandlebarsHelpers();
 
-		// Add ribbon icon for quick draw
-		this.addRibbonIcon('sparkles', 'Draw daily tarot', () => {
-			this.openDailyDrawModal();
-		});
-
-		// Add command for daily tarot draw (uses dailyCardCount setting)
-		this.addCommand({
-			id: 'draw-daily-tarot',
-			name: 'Draw daily tarot',
-			callback: () => {
-				this.openDailyDrawModal();
-			}
-		});
-
-		// Add command for inline single card
-		this.addCommand({
-			id: 'draw-tarot-card-inline',
-			name: 'Inline draw tarot card',
-			callback: () => {
-				this.openInlineSingleDrawModal();
-			}
-		});
-
-		// Add command for inline multiple cards
-		this.addCommand({
-			id: 'draw-multiple-tarot-cards-inline',
-			name: 'Inline draw multiple tarot cards',
-			callback: () => {
-				this.openInlineMultipleDrawModal();
-			}
+		// Add ribbon icon for spread selection
+		this.addRibbonIcon('sparkles', 'Draw tarot spread', () => {
+			this.openSpreadDrawModal();
 		});
 
 		// Add command for spread draw
@@ -74,36 +36,6 @@ export default class TarotPracticePlugin extends Plugin {
 		this.addSettingTab(new TarotPracticeSettingTab(this.app, this));
 	}
 
-	openDailyDrawModal() {
-		// Always use the same modal, just with different card counts
-		// Card count comes from dailyCardCount setting
-		// showCardCountSetting = false (fixed count for daily)
-		if (this.settings.dailyCardCount === 1) {
-			new TarotDrawModal(this.app, this.settings, async (result: DrawResult) => {
-				await this.insertDrawIntoNote(result);
-			}, 1, false, 'Daily tarot draw').open();
-		} else {
-			new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
-				await this.insertMultipleDrawIntoNote(result);
-			}, this.settings.dailyCardCount, false, 'Daily tarot draw').open();
-		}
-	}
-
-	openInlineSingleDrawModal() {
-		// Single card inline draw
-		new TarotDrawModal(this.app, this.settings, async (result: DrawResult) => {
-			await this.insertDrawInline(result);
-		}, 1, false, 'Inline tarot draw').open();
-	}
-
-	openInlineMultipleDrawModal() {
-		// Multiple card inline draw with user-editable count
-		// showCardCountSetting = true (user can change count)
-		new TarotDrawModal(this.app, this.settings, async (result: MultipleDrawResult) => {
-			await this.insertMultipleDrawInline(result);
-		}, 3, true, 'Inline draw multiple cards').open();
-	}
-
 	openSpreadDrawModal() {
 		// Get all available spreads
 		const spreadResolver = new SpreadResolver(this.app);
@@ -113,18 +45,23 @@ export default class TarotPracticePlugin extends Plugin {
 		);
 
 		// Open modal to select spread and enter intention
-		new SpreadDrawModal(this.app, allSpreads, async (spread: Spread, intention: string) => {
-			await this.drawSpread(spread, intention);
+		new SpreadDrawModal(this.app, allSpreads, (spread: Spread, intention: string) => {
+			void this.drawSpread(spread, intention);
 		}).open();
 	}
 
 	async drawSpread(spread: Spread, intention: string) {
+		// Delegate to unified execution method
+		await this.executeSpread(spread, intention);
+	}
+
+	/**
+	 * Unified spread execution that handles all insert modes
+	 */
+	async executeSpread(spread: Spread, intention: string): Promise<void> {
 		try {
 			// Prepare the deck using spread's shuffle settings
 			const timestamp = Date.now();
-			const seed = `${intention}:${timestamp}`;
-			
-			// Create a settings object for deck preparation
 			const deckSettings = {
 				...this.settings,
 				shuffleCount: spread.shuffleCount,
@@ -151,7 +88,6 @@ export default class TarotPracticePlugin extends Plugin {
 				// Determine reversal
 				let isReversed = false;
 				if (this.settings.enableReversals) {
-					// Use a simple hash of the card index + position to determine reversal
 					const reversalSeed = cardIndex + i + timestamp;
 					isReversed = (reversalSeed % 100) < this.settings.reversalChance;
 				}
@@ -191,224 +127,95 @@ export default class TarotPracticePlugin extends Plugin {
 				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined
 			};
 
-			// Insert into note
-			await this.insertSpreadIntoNote(drawResult);
+			// Get template
+			const spreadResolver = new SpreadResolver(this.app);
+			const template = await spreadResolver.getSpreadTemplate(spread);
+
+			// Format using Handlebars
+			const formatter = new SpreadFormatter(this.settings);
+			const output = formatter.format(drawResult, template);
+
+			// Insert based on spread's insertMode
+			switch (spread.insertMode) {
+				case 'daily-note':
+					await this.insertIntoDailyNote(output, spread.name);
+					break;
+				case 'inline':
+					await this.insertInline(output, spread.name);
+					break;
+				case 'new-note':
+					await this.insertIntoNewNote(output, spread.name, intention);
+					break;
+			}
 
 		} catch (error) {
-			console.error('Error drawing spread:', error);
+			console.error('Error executing spread:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-			new Notice('Failed to draw spread: ' + errorMessage);
+			new Notice('Failed to execute spread: ' + errorMessage);
 		}
 	}
 
-	async insertSpreadIntoNote(result: SpreadDrawResult) {
-		// Get spread template
-		const spreadResolver = new SpreadResolver(this.app);
-		const template = await spreadResolver.getSpreadTemplate(result.spread);
-
-		// Format using Handlebars
-		const formatter = new SpreadFormatter(this.settings);
-		const output = formatter.format(result, template);
-
-		// Get target file (active file or daily note)
-		let targetFile = this.app.workspace.getActiveFile();
+	/**
+	 * Insert content into daily note
+	 */
+	async insertIntoDailyNote(output: string, spreadName: string): Promise<void> {
+		// Get or create daily note
+		// The path pattern should be a literal path where only the filename is formatted with moment
+		// Example: "Periodic/Daily/YYYY-MM-DD.md" becomes "Periodic/Daily/" + moment().format("YYYY-MM-DD.md")
+		const pathPattern = this.settings.dailyNotePathPattern;
 		
-		if (!targetFile) {
-			if (!this.settings.useDailyNote) {
-				new Notice('Please open a note to insert the spread');
-				return;
+		// Split path into directory and filename
+		const lastSlashIndex = pathPattern.lastIndexOf('/');
+		let dailyNotePath: string;
+		
+		if (lastSlashIndex === -1) {
+			// No directory, just filename - split filename from extension
+			const lastDot = pathPattern.lastIndexOf('.');
+			const namePattern = lastDot !== -1 ? pathPattern.substring(0, lastDot) : pathPattern;
+			const extension = lastDot !== -1 ? pathPattern.substring(lastDot) : '';
+			dailyNotePath = `${moment().format(namePattern)}${extension}`;
+		} else {
+			// Has directory path - only format the filename part (excluding extension)
+			const directory = pathPattern.substring(0, lastSlashIndex + 1);
+			const filenamePattern = pathPattern.substring(lastSlashIndex + 1);
+			const lastDot = filenamePattern.lastIndexOf('.');
+			const namePattern = lastDot !== -1 ? filenamePattern.substring(0, lastDot) : filenamePattern;
+			const extension = lastDot !== -1 ? filenamePattern.substring(lastDot) : '';
+			dailyNotePath = `${directory}${moment().format(namePattern)}${extension}`;
+		}
+		const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
+		
+		let targetFile: TFile;
+		if (abstractFile instanceof TFile) {
+			targetFile = abstractFile;
+		} else {
+			// Ensure parent folder exists before creating file
+			if (lastSlashIndex !== -1) {
+				const folderPath = dailyNotePath.substring(0, dailyNotePath.lastIndexOf('/'));
+				const folder = this.app.vault.getAbstractFileByPath(folderPath);
+				if (!folder) {
+					await this.app.vault.createFolder(folderPath);
+				}
 			}
-			
-			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
-			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
-			
-			if (abstractFile instanceof TFile) {
-				targetFile = abstractFile;
-			} else {
-				targetFile = await this.app.vault.create(dailyNotePath, '');
-			}
-			
-			await this.app.workspace.openLinkText(dailyNotePath, '', false);
-		}
-
-		const fileContent = await this.app.vault.read(targetFile);
-		let newContent: string;
-
-		switch (this.settings.insertLocation) {
-			case 'append':
-				newContent = fileContent + '\n' + output;
-				break;
-			case 'prepend':
-				newContent = output + '\n' + fileContent;
-				break;
-			case 'heading':
-				newContent = this.insertUnderHeading(fileContent, output);
-				break;
-			default:
-				newContent = fileContent + '\n' + output;
-		}
-
-		await this.app.vault.modify(targetFile, newContent);
-		new Notice(`${result.spread.name} drawn`);
-	}
-
-	async insertDrawInline(result: DrawResult) {
-		// Get the active markdown editor
-		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-		
-		if (!activeView) {
-			new Notice('No active note found');
-			return;
+			targetFile = await this.app.vault.create(dailyNotePath, '');
 		}
 		
-		// Get template using resolver - always use inline template
-		const resolver = new TemplateResolver(this.app, this.settings);
-		const template = await resolver.getInlineTemplate();
-		
-		// Format the output using SpreadFormatter
-		const formatter = new SpreadFormatter(this.settings);
-		const output = formatter.formatSingle(result, template);
-		
-		// Insert at current cursor position ONLY
-		const editor = activeView.editor;
-		editor.replaceSelection(output);
-		
-		new Notice('Card drawn: ' + result.cardName);
-	}
-
-	formatTemplate(result: DrawResult, template: string): string {
-		const formatter = new SpreadFormatter(this.settings);
-		return formatter.formatSingle(result, template);
-	}
-
-	formatMultipleTemplate(result: MultipleDrawResult, template: string): string {
-		const formatter = new SpreadFormatter(this.settings);
-		return formatter.formatMultiple(result, template);
-	}
-
-	async insertMultipleDrawInline(result: MultipleDrawResult) {
-		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
-		
-		if (!activeView) {
-			new Notice('No active note found');
-			return;
-		}
-		
-		// Get template using resolver
-		const resolver = new TemplateResolver(this.app, this.settings);
-		const template = await resolver.getMultipleTemplate();
-		
-		// Format the output using SpreadFormatter
-		const formatter = new SpreadFormatter(this.settings);
-		const output = formatter.formatMultiple(result, template);
-		
-		const editor = activeView.editor;
-		editor.replaceSelection(output);
-		
-		new Notice(`${result.cards.length} cards drawn`);
-	}
-
-	async insertMultipleDrawIntoNote(result: MultipleDrawResult) {
-		// Get template using resolver
-		// This is called from daily draw, so use daily template
-		const resolver = new TemplateResolver(this.app, this.settings);
-		const template = await resolver.getDailyTemplate();
-		
-		// Format the output using SpreadFormatter
-		const formatter = new SpreadFormatter(this.settings);
-		const output = formatter.formatMultiple(result, template);
-
-		// Get target file (active file or daily note)
-		let targetFile = this.app.workspace.getActiveFile();
-		
-		if (!targetFile) {
-			if (!this.settings.useDailyNote) {
-				new Notice('Please open a note to insert the tarot draw');
-				return;
-			}
-			
-			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
-			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
-			
-			if (abstractFile instanceof TFile) {
-				targetFile = abstractFile;
-			} else {
-				targetFile = await this.app.vault.create(dailyNotePath, '');
-			}
-			
-			await this.app.workspace.openLinkText(dailyNotePath, '', false);
-		}
-
-		const fileContent = await this.app.vault.read(targetFile);
-		let newContent: string;
-
-		switch (this.settings.insertLocation) {
-			case 'append':
-				newContent = fileContent + '\n' + output;
-				break;
-			case 'prepend':
-				newContent = output + '\n' + fileContent;
-				break;
-			case 'heading':
-				newContent = this.insertUnderHeading(fileContent, output);
-				break;
-			default:
-				newContent = fileContent + '\n' + output;
-		}
-
-		await this.app.vault.modify(targetFile, newContent);
-		new Notice(`${result.cards.length} cards drawn`);
-	}
-
-	async insertDrawIntoNote(result: DrawResult) {
-		// Get template using resolver
-		const resolver = new TemplateResolver(this.app, this.settings);
-		const template = await resolver.getDailyTemplate();
-		
-		// Format the output using SpreadFormatter
-		const formatter = new SpreadFormatter(this.settings);
-		const output = formatter.formatSingle(result, template);
-
-		// Get target file (active file or daily note)
-		let targetFile = this.app.workspace.getActiveFile();
-		
-		if (!targetFile) {
-			// No active file - check if daily note is enabled
-			if (!this.settings.useDailyNote) {
-				new Notice('Please open a note to insert the tarot draw');
-				return;
-			}
-			
-			// Try to get/create today's daily note
-			const dailyNotePath = moment().format(this.settings.dailyNotePathPattern);
-			const abstractFile = this.app.vault.getAbstractFileByPath(dailyNotePath);
-			
-			if (abstractFile instanceof TFile) {
-				targetFile = abstractFile;
-			} else {
-				targetFile = await this.app.vault.create(dailyNotePath, '');
-			}
-			
-			// Open the daily note
-			await this.app.workspace.openLinkText(dailyNotePath, '', false);
-		}
+		// Open the daily note
+		await this.app.workspace.openLinkText(dailyNotePath, '', false);
 		
 		// Insert based on settings
 		const currentContent = await this.app.vault.read(targetFile);
 		let newContent: string;
 
 		switch (this.settings.insertLocation) {
-			case 'prepend': {
-				newContent = output + currentContent;
+			case 'prepend':
+				newContent = output + '\n' + currentContent;
 				break;
-			}
-			case 'heading': {
+			case 'heading':
 				newContent = this.insertUnderHeading(currentContent, output);
 				break;
-			}
 			case 'append':
 			default: {
-				// Only add newline if file doesn't end with one
 				const separator = currentContent.endsWith('\n') ? '' : '\n';
 				newContent = currentContent + separator + output;
 				break;
@@ -416,7 +223,42 @@ export default class TarotPracticePlugin extends Plugin {
 		}
 
 		await this.app.vault.modify(targetFile, newContent);
-		new Notice('Card drawn: ' + result.cardName);
+		new Notice(`${spreadName} drawn`);
+	}
+
+	/**
+	 * Insert content inline at cursor position
+	 */
+	async insertInline(output: string, spreadName: string): Promise<void> {
+		const activeView = this.app.workspace.getActiveViewOfType(MarkdownView);
+		
+		if (!activeView) {
+			new Notice('No active note found');
+			return;
+		}
+		
+		const editor = activeView.editor;
+		editor.replaceSelection(output);
+		
+		new Notice(`${spreadName} drawn`);
+	}
+
+	/**
+	 * Insert content into a new note
+	 */
+	async insertIntoNewNote(output: string, spreadName: string, intention: string): Promise<void> {
+		// Create filename: SpreadName - Intention - Timestamp
+		const timestamp = moment().format('YYYY-MM-DD-HHmmss');
+		const sanitizedIntention = intention.replace(/[\\/:*?"<>|]/g, '-').substring(0, 50);
+		const filename = `${spreadName} - ${sanitizedIntention} - ${timestamp}.md`;
+		
+		// Create the new file
+		const newFile = await this.app.vault.create(filename, output);
+		
+		// Open the new file
+		await this.app.workspace.getLeaf(false).openFile(newFile);
+		
+		new Notice(`${spreadName} created`);
 	}
 
 	insertUnderHeading(content: string, textToInsert: string): string {
