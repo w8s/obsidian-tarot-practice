@@ -199,16 +199,30 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			el.setText('Configure where template files are stored in your vault');
 		});
 
+		// Show auto-detected folder if user hasn't set one
+		const detector = new TemplateFolderDetector(this.app, this.plugin.settings);
+		const autoDetected = detector.autoDetect();
+		const isUsingDefault = !this.plugin.settings.templateBaseFolder;
+		
 		new Setting(containerEl)
 			.setName('Template base folder')
-			.setDesc('Base folder for all template files (e.g., Templates/tarot)')
+			.setDesc('Base folder for all template files (leave empty to use auto-detection)')
 			.addText(text => text
-				.setPlaceholder('Templates/tarot')
+				.setPlaceholder(autoDetected || 'Templates/Tarot')
 				.setValue(this.plugin.settings.templateBaseFolder)
 				.onChange(async (value) => {
 					this.plugin.settings.templateBaseFolder = value;
 					await this.plugin.saveSettings();
+					this.display(); // Refresh to update auto-detected folder display
 				}));
+
+		// Show what folder is actually being used
+		if (isUsingDefault && autoDetected) {
+			containerEl.createDiv('setting-item-description', el => {
+				el.setText(`🔍 Auto-detected: ${autoDetected}`);
+				el.setAttr('style', 'margin-top: -8px; margin-bottom: 16px; color: var(--text-muted);');
+			});
+		}
 
 		// ===== SPREADS SECTION =====
 		new Setting(containerEl).setName('Spreads').setHeading();
@@ -418,7 +432,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.setButtonText('Migrate now')
 				.setCta()
 				.onClick(async () => {
-					const detector = new TemplateFolderDetector(this.app);
+					const detector = new TemplateFolderDetector(this.app, this.plugin.settings);
 					const detectedFolder = detector.detectTemplateFolder();
 					const templates = migrator.getExistingTemplates();
 

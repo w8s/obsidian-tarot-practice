@@ -1,4 +1,5 @@
 import { App } from 'obsidian';
+import { TarotPracticeSettings } from './settings';
 
 /**
  * Type definitions for accessing private Obsidian APIs
@@ -51,16 +52,45 @@ interface AppWithInternalPlugins extends App {
 
 /**
  * Detects the best folder location for storing template files.
- * Checks Templater, Core Templates, and common conventions.
+ * Checks user settings first, then falls back to auto-detection from
+ * Templater, Core Templates, and common conventions.
  */
 export class TemplateFolderDetector {
-	constructor(private app: App) {}
+	constructor(
+		private app: App,
+		private settings: TarotPracticeSettings
+	) {}
 
 	/**
-	 * Detect the best template folder location
-	 * @returns Folder path, or null if no suitable folder found (use vault root)
+	 * Detect the best template folder location using a hybrid approach:
+	 * 1. User setting (highest priority - explicit user choice)
+	 * 2. Auto-detection (convenience - check other plugins)
+	 * 3. Default fallback (always have a valid path)
+	 * 
+	 * @returns Folder path (never null - always returns a valid path)
 	 */
-	detectTemplateFolder(): string | null {
+	detectTemplateFolder(): string {
+		// 1. User has explicitly set a template folder - respect their choice
+		if (this.settings.templateBaseFolder) {
+			return this.settings.templateBaseFolder;
+		}
+
+		// 2. Try auto-detection from other plugins and conventions
+		const autoDetected = this.autoDetect();
+		if (autoDetected) {
+			return autoDetected;
+		}
+
+		// 3. Fallback to sensible default
+		return 'Templates/Tarot';
+	}
+
+	/**
+	 * Auto-detect template folder from other plugins and conventions
+	 * Public for display in settings UI
+	 * @returns Detected folder path, or null if nothing found
+	 */
+	public autoDetect(): string | null {
 		// 1. Check Templater plugin settings
 		const templaterFolder = this.getTemplaterFolder();
 		if (templaterFolder) {
@@ -81,7 +111,7 @@ export class TemplateFolderDetector {
 			return 'templates';
 		}
 
-		// 4. No template folder found - will ask user or use vault root
+		// 4. No template folder found
 		return null;
 	}
 
