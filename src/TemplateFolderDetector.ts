@@ -1,6 +1,55 @@
 import { App } from 'obsidian';
 
 /**
+ * Type definitions for accessing private Obsidian APIs
+ * These interfaces match the internal structure of Obsidian's plugin system
+ */
+
+/**
+ * Settings structure for the Templater plugin
+ */
+interface TemplaterSettings {
+	templates_folder?: string;
+}
+
+/**
+ * Templater plugin structure
+ */
+interface TemplaterPlugin {
+	settings?: TemplaterSettings;
+}
+
+/**
+ * Extended App interface with access to community plugins
+ */
+interface AppWithPlugins extends App {
+	plugins: {
+		plugins: Record<string, TemplaterPlugin>;
+	};
+}
+
+/**
+ * Core Templates plugin configuration
+ */
+interface CoreTemplatesConfig {
+	enabled: boolean;
+	instance?: {
+		options?: {
+			folder?: string;
+		};
+	};
+}
+
+/**
+ * Extended App interface with access to internal plugins
+ */
+interface AppWithInternalPlugins extends App {
+	internalPlugins: {
+		getPluginById(id: string): CoreTemplatesConfig | undefined;
+	};
+}
+
+/**
  * Detects the best folder location for storing template files.
  * Checks Templater, Core Templates, and common conventions.
  */
@@ -41,15 +90,12 @@ export class TemplateFolderDetector {
 	 */
 	private getTemplaterFolder(): string | null {
 		try {
-			// Accessing private Obsidian API - disable type safety checks
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-			const plugins = (this.app as any).plugins.plugins;
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-			const templater = plugins['templater-obsidian'];
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+			// Access community plugins through typed interface
+			const appWithPlugins = this.app as AppWithPlugins;
+			const templater = appWithPlugins.plugins.plugins['templater-obsidian'];
+			
 			if (templater?.settings?.templates_folder) {
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				return templater.settings.templates_folder as string;
+				return templater.settings.templates_folder;
 			}
 		} catch {
 			// Templater not installed or accessible
@@ -62,16 +108,12 @@ export class TemplateFolderDetector {
 	 */
 	private getCoreTemplatesFolder(): string | null {
 		try {
-			// Accessing private Obsidian API - disable type safety checks
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-call, @typescript-eslint/no-unsafe-member-access
-			const config = (this.app as any).internalPlugins.getPluginById('templates');
-			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-			if (config?.enabled) {
-				// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access, @typescript-eslint/no-unnecessary-type-assertion
-				const folder = (config as any).instance?.options?.folder;
-				if (folder) {
-					return folder as string;
-				}
+			// Access internal plugins through typed interface
+			const appWithInternalPlugins = this.app as AppWithInternalPlugins;
+			const config = appWithInternalPlugins.internalPlugins.getPluginById('templates');
+			
+			if (config?.enabled && config.instance?.options?.folder) {
+				return config.instance.options.folder;
 			}
 		} catch {
 			// Core Templates not enabled or accessible
