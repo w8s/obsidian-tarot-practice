@@ -128,19 +128,11 @@ Templates use **Handlebars** syntax with 15+ variables for customizing draw outp
 
 ### Quick Reference
 
-**Card variables:** `{{card}}`, `{{index}}`, `{{orientation}}`, `{{intention}}`  
-**Multiple cards:** `{{card_count}}`, `{{cards}}`  
+**Spread info:** `{{spread_name}}`, `{{spread_description}}`, `{{intention}}`  
+**Cards:** `{{card_count}}`, `{{cards}}` (array for loops)  
 **Date/time:** `{{date}}`, `{{time}}`, `{{datetime}}` (supports Moment.js formats)  
-**Metadata:** `{{shuffle_count}}`, `{{was_cut}}`, `{{cut_position}}`, `{{cut_variance}}`
-
-### Basic Example
-
-```markdown
-## Tarot - {{datetime}}
-
-**Intention:** {{intention}}  
-**Card:** {{card}} {{orientation}}
-```
+**Metadata:** `{{shuffle_count}}`, `{{was_cut}}`, `{{cut_position}}`, `{{cut_variance}}`  
+**Optional:** `{{querent.name}}`, `{{querent.notePath}}` (when reading for someone else)
 
 ### Spread Example (with loop)
 
@@ -148,10 +140,14 @@ Templates use **Handlebars** syntax with 15+ variables for customizing draw outp
 ## {{spread_name}} - {{date}}
 
 **Intention:** {{intention}}
+{{#if querent}}**Querent:** {{querent.name}}{{/if}}
 
 {{#each cards}}
-**{{position}}:** {{name}} {{orientation}}
+**{{this.position.label}}:** {{this.name}} {{this.orientation}}
+{{#if this.position.description}}_{{this.position.description}}_{{/if}}
 {{/each}}
+
+*Deck: {{shuffle_count}} shuffles{{#if was_cut}}, cut at {{cut_position}}{{/if}}*
 ```
 
 See complete documentation:
