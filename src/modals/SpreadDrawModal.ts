@@ -1,5 +1,5 @@
 import { App, Modal, Setting, DropdownComponent } from 'obsidian';
-import { Spread } from './spreads';
+import { Spread } from '../core/spreads';
 
 /**
  * Modal for selecting a spread and entering intention before drawing cards

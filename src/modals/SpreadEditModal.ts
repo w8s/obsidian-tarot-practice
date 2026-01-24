@@ -1,8 +1,8 @@
 import { App, Modal, Setting, Notice } from 'obsidian';
-import { Spread, SpreadPositionDefinition } from './spreads';
-import { FileSuggest } from './FileSuggest';
-import { TemplateExporter } from './TemplateExporter';
-import { TarotPracticeSettings } from './settings';
+import { Spread, SpreadPositionDefinition } from '../core/spreads';
+import { FileSuggest } from '../ui/FileSuggest';
+import { TemplateExporter } from '../templates/TemplateExporter';
+import { TarotPracticeSettings } from '../settings';
 import { ConfirmModal } from './ConfirmModal';
 
 /**

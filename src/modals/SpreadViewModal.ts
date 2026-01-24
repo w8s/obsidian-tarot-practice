@@ -1,5 +1,5 @@
 import { App, Modal } from 'obsidian';
-import { Spread } from './spreads';
+import { Spread } from '../core/spreads';
 
 /**
  * Modal to view spread details

@@ -1,5 +1,5 @@
 import { App, Modal, Setting } from 'obsidian';
-import { FileSuggest } from './FileSuggest';
+import { FileSuggest } from '../ui/FileSuggest';
 
 /**
  * Modal to select a custom template file

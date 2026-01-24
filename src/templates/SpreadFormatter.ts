@@ -1,8 +1,8 @@
 import Handlebars from 'handlebars';
 import { moment } from 'obsidian';
-import { SpreadDrawResult } from './spreads';
-import { DrawResult, MultipleDrawResult } from './TarotDrawModal';
-import { TarotPracticeSettings } from './settings';
+import { SpreadDrawResult } from '../core/spreads';
+import { DrawResult, MultipleDrawResult } from '../modals/TarotDrawModal';
+import { TarotPracticeSettings } from '../settings';
 
 /**
  * Template data structure for Handlebars rendering

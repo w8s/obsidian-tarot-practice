@@ -1,4 +1,4 @@
-import { Spread } from './spreads';
+import { Spread } from '../core/spreads';
 
 /**
  * Built-in spread definitions

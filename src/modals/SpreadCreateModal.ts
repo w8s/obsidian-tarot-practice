@@ -1,7 +1,7 @@
 import { App, Modal, Setting, Notice } from 'obsidian';
-import { Spread, SpreadPositionDefinition } from './spreads';
-import { TemplateExporter } from './TemplateExporter';
-import { TarotPracticeSettings } from './settings';
+import { Spread, SpreadPositionDefinition } from '../core/spreads';
+import { TemplateExporter } from '../templates/TemplateExporter';
+import { TarotPracticeSettings } from '../settings';
 
 /**
  * Modal to create a new custom spread

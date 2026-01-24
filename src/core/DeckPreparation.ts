@@ -1,5 +1,5 @@
 import { RngWithIntention } from 'rng-with-intention';
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings } from '../settings';
 
 export interface ShuffleMetadata {
 	shuffleCount: number;

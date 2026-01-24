@@ -1,17 +1,17 @@
 import { App, PluginSettingTab, Setting } from 'obsidian';
-import TarotPracticePlugin from './main';
-import { InsertLocation } from './settings';
-import { TemplateMigrator } from './TemplateMigrator';
-import { TemplateFolderDetector } from './TemplateFolderDetector';
-import { TemplateMigrationModal } from './TemplateMigrationModal';
-import { TemplateViewModal } from './TemplateViewModal';
-import { TemplateEditModal } from './TemplateEditModal';
-import { TemplateResolver } from './TemplateResolver';
-import { SpreadResolver } from './SpreadResolver';
-import { SpreadViewModal } from './SpreadViewModal';
-import { SpreadEditModal } from './SpreadEditModal';
-import { SpreadCreateModal } from './SpreadCreateModal';
-import { Spread } from './spreads';
+import TarotPracticePlugin from '../main';
+import { InsertLocation } from '../settings';
+import { TemplateMigrator } from '../templates/TemplateMigrator';
+import { TemplateFolderDetector } from '../templates/TemplateFolderDetector';
+import { TemplateMigrationModal } from '../modals/TemplateMigrationModal';
+import { TemplateViewModal } from '../modals/TemplateViewModal';
+import { TemplateEditModal } from '../modals/TemplateEditModal';
+import { TemplateResolver } from '../templates/TemplateResolver';
+import { SpreadResolver } from '../spreads/SpreadResolver';
+import { SpreadViewModal } from '../modals/SpreadViewModal';
+import { SpreadEditModal } from '../modals/SpreadEditModal';
+import { SpreadCreateModal } from '../modals/SpreadCreateModal';
+import { Spread } from '../core/spreads';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;

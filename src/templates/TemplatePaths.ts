@@ -1,4 +1,4 @@
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings } from '../settings';
 
 /**
  * Utility for managing standardized template paths

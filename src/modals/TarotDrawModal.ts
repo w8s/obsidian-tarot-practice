@@ -1,8 +1,8 @@
 import { App, Modal, Notice, Setting } from 'obsidian';
-import { getCardName } from './CardDatabase';
-import { TarotPracticeSettings } from './settings';
-import { prepareDeck } from './DeckPreparation';
-import { Deck, DEFAULT_DECK } from './Deck';
+import { getCardName } from '../core/CardDatabase';
+import { TarotPracticeSettings } from '../settings';
+import { prepareDeck } from '../core/DeckPreparation';
+import { Deck, DEFAULT_DECK } from '../core/Deck';
 
 // Single card draw result
 export interface DrawResult {

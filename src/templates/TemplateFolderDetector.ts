@@ -1,5 +1,5 @@
 import { App } from 'obsidian';
-import { TarotPracticeSettings } from './settings';
+import { TarotPracticeSettings } from '../settings';
 
 /**
  * Type definitions for accessing private Obsidian APIs

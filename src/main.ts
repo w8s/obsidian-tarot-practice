@@ -1,13 +1,13 @@
 import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
-import { TarotPracticeSettingTab } from './TarotPracticeSettingTab';
-import { SpreadDrawModal } from './SpreadDrawModal';
-import { SpreadResolver } from './SpreadResolver';
-import { SpreadFormatter, registerHandlebarsHelpers } from './SpreadFormatter';
-import { Spread, SpreadDrawResult, SpreadPositionResult } from './spreads';
-import { prepareDeck } from './DeckPreparation';
-import { getCardName } from './CardDatabase';
-import { DEFAULT_DECK } from './Deck';
+import { TarotPracticeSettingTab } from 'ui/TarotPracticeSettingTab';
+import { SpreadDrawModal } from 'modals/SpreadDrawModal';
+import { SpreadResolver } from 'spreads/SpreadResolver';
+import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
+import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
+import { prepareDeck } from 'core/DeckPreparation';
+import { getCardName } from 'core/CardDatabase';
+import { DEFAULT_DECK } from 'core/Deck';
 
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
