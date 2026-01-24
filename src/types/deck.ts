@@ -46,6 +46,14 @@ export interface CardDefinition {
 	 * - Oracle: null
 	 */
 	value?: number | null;
+
+	/**
+	 * Optional card image path (v1.7.0)
+	 * - Relative to deck directory: "cards/00-the-fool.png"
+	 * - Or vault path: "Assets/Tarot/RWS/fool.png"
+	 * - External URLs NOT supported per Obsidian security guidelines
+	 */
+	imageUrl?: string;
 }
 
 /**
@@ -75,6 +83,14 @@ export interface DeckDefinition {
 
 	/** Whether this is a built-in deck */
 	isBuiltIn: boolean;
+
+	/**
+	 * Optional deck back image path (v1.7.0)
+	 * - Relative to deck directory: "back.png"
+	 * - Or vault path: "Assets/Tarot/deck-back.png"
+	 * - External URLs NOT supported per Obsidian security guidelines
+	 */
+	backImageUrl?: string;
 
 	/** Optional metadata about the deck */
 	metadata?: {
