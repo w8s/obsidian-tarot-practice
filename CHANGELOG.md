@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.1] - 2025-01-24
+
+### Added
+- **DeckDefinition Interface** - Infrastructure for future multi-deck support
+  - New `DeckDefinition` type in `src/types/deck.ts`
+  - Includes deck metadata: id, name, description, card count, reversal support
+  - Deck metadata fields: author, year, publisher, tradition
+- **RWS_DECK Constant** - Complete Rider-Waite-Smith deck definition
+  - All 78 cards now use structured `CardDefinition` objects
+  - Full metadata for every card: index, name, category, suit, rank, value
+  - Helper functions: `createMajorCard()`, `createMinorCard()`, `createSuit()`
+- **New Utility Functions**
+  - `getCard(index)` - Returns full CardDefinition with metadata
+  - `getDeck()` - Returns complete DeckDefinition
+
+### Changed
+- **CardDatabase.ts** - Converted from string array to structured deck
+  - Major Arcana: All 22 cards with category="Major", value=0-21
+  - Minor Arcana: All 56 cards with category="Minor", suit, rank, value
+  - Programmatic suit generation for consistency
+
+### Technical
+- 100% backward compatible - `RWS_CARDS` still exported (points to `RWS_DECK.cards`)
+- `getCardName()` function unchanged - existing code works without modification
+- Zero breaking changes - purely additive infrastructure
+- Zero ESLint errors
+- Sets foundation for v1.7.0 deck switching feature
+
+### Notes
+- This is internal infrastructure only - no user-facing changes
+- Prepares for future multi-deck support (v1.7.0+)
+- All existing templates and functionality work unchanged
+
 ## [1.6.0] - 2025-01-24
 
 ### Added
