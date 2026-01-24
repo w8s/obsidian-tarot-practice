@@ -7,6 +7,39 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.6.0] - 2025-01-24
+
+### Added
+- **Querent Tracking** - Optional feature to track who a reading is for
+  - Toggle checkbox in draw modal: "Reading for someone else?"
+  - Name field (required when enabled)
+  - Note path field (optional) with file autocomplete suggester
+  - Template variables: `{{querent.name}}`, `{{querent.notePath}}`, `{{querent.hasPath}}`
+  - Automatic wikilink formatting in templates when note path is provided
+  - Querent info added to `SpreadDrawResult` interface
+  - Example: `{{#if querent}}**Querent:** [[{{querent.notePath}}|{{querent.name}}]]{{/if}}`
+
+### Changed
+- **FileSuggest Component** - Now displays file paths without `.md` extension for cleaner UI
+- **README Templates Section** - Updated with correct Handlebars loop syntax and querent examples
+  - Removed outdated Basic Example
+  - Updated Spread Example to show proper `{{#each cards}}` structure
+  - Added querent variables to Quick Reference
+
+### Removed
+- **Dead Code Cleanup** - Removed 200+ lines of unused legacy code
+  - Deleted unused `DrawResult` interface (legacy single-card draw)
+  - Deleted unused `MultipleDrawResult` interface (legacy multi-card draw)
+  - Deleted unused `TarotDrawModal` class (never instantiated)
+  - Removed `formatSingle()` and `formatMultiple()` methods from SpreadFormatter
+  - Removed `prepareSingleDrawData()` and `prepareMultipleDrawData()` helper methods
+  - Consolidated to single `SpreadDrawResult` interface for all draws
+
+### Technical
+- All draws now use unified `SpreadDrawResult` interface
+- SpreadFormatter simplified to single `format()` method
+- ESLint: Zero errors across entire codebase
+
 ## [1.5.0] - 2025-01-24
 
 ### Added
