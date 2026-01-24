@@ -3,6 +3,7 @@ import { Spread, SpreadPositionDefinition } from './spreads';
 import { FileSuggest } from './FileSuggest';
 import { TemplateExporter } from './TemplateExporter';
 import { TarotPracticeSettings } from './settings';
+import { ConfirmModal } from './ConfirmModal';
 
 /**
  * Modal to edit spread settings - allows full customization
@@ -66,11 +67,14 @@ export class SpreadEditModal extends Modal {
 				cls: 'mod-warning'
 			});
 			resetButton.addEventListener('click', () => {
-				// eslint-disable-next-line no-alert
-				if (confirm('Reset this spread to its default settings? Your customizations will be lost.')) {
-					this.callback(this.spread, true); // Pass reset flag
-					this.close();
-				}
+				new ConfirmModal(
+					this.app,
+					'Reset this spread to its default settings? Your customizations will be lost.',
+					() => {
+						this.callback(this.spread, true); // Pass reset flag
+						this.close();
+					}
+				).open();
 			});
 		}
 
