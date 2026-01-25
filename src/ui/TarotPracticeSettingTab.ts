@@ -612,6 +612,6 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		
 		URL.revokeObjectURL(url);
 		
-		new Notice('Example deck exported! Edit and install via "Add deck"');
+		new Notice('Example deck exported! Edit and install via "add deck".');
 	}
 }
