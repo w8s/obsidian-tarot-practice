@@ -1,6 +1,7 @@
 import { Notice, Plugin } from 'obsidian';
 import type { DeckDefinition } from '../types/deck';
 import { DeckValidator } from './DeckValidator';
+import type JSZip from 'jszip';
 
 /**
  * Handles loading and installing deck definitions from files
@@ -98,14 +99,19 @@ export class DeckLoader {
 	}
 
 	/**
-	 * Install deck from JSON file
+	 * Shared helper to install a deck from validated JSON content
+	 * 
+	 * @param jsonContent - The deck.json content as a string
+	 * @param extractAssets - Optional callback to extract additional assets (images, etc.)
 	 */
-	async installFromJSON(file: File): Promise<DeckDefinition> {
-		const content = await file.text();
-		const data: unknown = JSON.parse(content);
-
-		// Validate first
+	private async installDeck(
+		jsonContent: string,
+		extractAssets?: (deckPath: string) => Promise<void>
+	): Promise<DeckDefinition> {
+		// Parse and validate
+		const data: unknown = JSON.parse(jsonContent);
 		const result = DeckValidator.validate(data);
+		
 		if (!result.isValid) {
 			throw new Error(`Invalid deck: ${result.errors.join(', ')}`);
 		}
@@ -122,20 +128,89 @@ export class DeckLoader {
 		const deckPath = `${this.getDecksPath()}/${deck.id}`;
 		await this.plugin.app.vault.adapter.mkdir(deckPath);
 
-		// Write deck.json
-		const jsonPath = `${deckPath}/deck.json`;
-		await this.plugin.app.vault.adapter.write(jsonPath, content);
+		try {
+			// Write deck.json
+			const jsonPath = `${deckPath}/deck.json`;
+			await this.plugin.app.vault.adapter.write(jsonPath, jsonContent);
 
-		new Notice(`Deck "${deck.name}" installed successfully`);
-		return deck;
+			// Extract additional assets if provided
+			if (extractAssets) {
+				await extractAssets(deckPath);
+			}
+
+			new Notice(`Deck "${deck.name}" installed successfully`);
+			return deck;
+		} catch (error) {
+			// Cleanup on failure
+			try {
+				await this.plugin.app.vault.adapter.rmdir(deckPath, true);
+			} catch {
+				// Ignore cleanup errors
+			}
+			throw error;
+		}
 	}
 
 	/**
-	 * Install deck from ZIP file (placeholder for v1.7.x)
+	 * Install deck from JSON file
+	 */
+	async installFromJSON(file: File): Promise<DeckDefinition> {
+		const content = await file.text();
+		return await this.installDeck(content);
+	}
+
+	/**
+	 * Install deck from ZIP file
+	 * 
+	 * Expected ZIP structure:
+	 *   deck.json          (required)
+	 *   cards/             (optional)
+	 *     card1.png
+	 *     card2.jpg
+	 *     ...
 	 */
 	async installFromZIP(file: File): Promise<DeckDefinition> {
-		throw new Error('ZIP installation not yet implemented');
-		// TODO: Implement with jszip library
+		// Dynamically import JSZip
+		const JSZip = (await import('jszip')).default;
+		
+		// Load ZIP file
+		const zip = await JSZip.loadAsync(file);
+		
+		// Find deck.json
+		const deckJsonFile = zip.file('deck.json');
+		if (!deckJsonFile) {
+			throw new Error('ZIP must contain deck.json in root');
+		}
+		
+		// Read deck.json content
+		const jsonContent = await deckJsonFile.async('text');
+		
+		// Install deck with image extraction callback
+		return await this.installDeck(jsonContent, async (deckPath) => {
+			// Extract images from cards/ folder if present
+			const cardsFolder = zip.folder('cards');
+			if (!cardsFolder) {
+				return; // No images to extract
+			}
+			
+			const cardsDirPath = `${deckPath}/cards`;
+			await this.plugin.app.vault.adapter.mkdir(cardsDirPath);
+			
+			// Get all files in cards/ folder
+			const imageFiles: Array<{ name: string; file: JSZip.JSZipObject }> = [];
+			zip.folder('cards')?.forEach((relativePath, file) => {
+				if (!file.dir) {
+					imageFiles.push({ name: relativePath, file });
+				}
+			});
+			
+			// Extract each image
+			for (const { name, file } of imageFiles) {
+				const imageData = await file.async('uint8array');
+				const imagePath = `${cardsDirPath}/${name}`;
+				await this.plugin.app.vault.adapter.writeBinary(imagePath, imageData);
+			}
+		});
 	}
 
 	/**
