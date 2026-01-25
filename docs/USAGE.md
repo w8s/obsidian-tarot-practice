@@ -10,6 +10,7 @@ Detailed instructions for using Tarot Practice plugin in Obsidian.
 - [Installing Custom Decks](#installing-custom-decks)
 - [Daily Practice](#daily-practice)
 - [Spread Draws](#spread-draws)
+- [Sharing Spreads](#sharing-spreads)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
 - [Common Workflows](#common-workflows)
 - [Tips & Tricks](#tips--tricks)
@@ -423,6 +424,193 @@ Spreads use Handlebars templates for flexible formatting. Each spread can use a 
 For complete template documentation, see:
 - [Template Variables](TEMPLATE-VARIABLES.md) - All available variables
 - [Template Examples](TEMPLATE-EXAMPLES.md) - Copy-paste ready templates organized by insert mode
+
+---
+
+## Sharing Spreads
+
+Custom spreads can be exported and shared with the community as JSON or ZIP files.
+
+### Exporting Your Spreads
+
+**Export a custom spread:**
+
+1. **Open settings** → Tarot Practice → Spreads
+2. **Find** your custom spread in the list
+3. **Click** the download icon (Export button)
+4. **Choose format:**
+   - **JSON only** - Spread definition without template
+   - **ZIP with template** - Includes spread.json + template.md
+5. **File downloads** to your computer
+6. **Share** via GitHub, Discord, forums, etc.
+
+**When to use each format:**
+
+**JSON only** - Best for:
+- Simple spreads using default template formatting
+- Lightweight sharing (smaller file size)
+- Spreads where users will customize templates anyway
+
+**ZIP with template** - Best for:
+- Spreads with specialized template formatting
+- Complete "ready to use" packages
+- When template is integral to the spread design
+
+**Example export:**
+
+After clicking Export on "Relationship Spread":
+```
+Choose format:
+○ JSON only (spread definition)
+● ZIP with template (includes custom template)
+
+Downloads: relationship-spread.zip
+Contains:
+├── spread.json      (spread definition)
+└── template.md      (custom template)
+```
+
+### Importing Spreads
+
+**Import a spread from the community:**
+
+1. **Download** spread file (JSON or ZIP) to your computer
+2. **Open settings** → Tarot Practice → Spreads
+3. **Click** "Import spread" button
+4. **Select** the downloaded file
+5. **Plugin validates** spread structure
+6. **Success!** Spread appears in your list
+7. **Use immediately** via "Draw tarot spread" command
+
+**What happens during import:**
+
+**For JSON files:**
+- Validates spread structure (required fields, position format)
+- Adds to your custom spreads list
+- Uses built-in template or you can customize later
+
+**For ZIP files:**
+- Validates spread.json
+- Extracts template to: `{templateBaseFolder}/Spreads/{spread-id}/template.md`
+- Updates spread's templatePath to point to extracted template
+- Both spread and template ready to use
+
+**Validation checks:**
+- Required fields: id, name, positions
+- Each position has a label
+- ID format (lowercase, hyphens only)
+- No duplicate IDs with existing spreads
+
+**If validation fails:**
+- Clear error message explains the issue
+- Examples: "Missing required field: name", "Invalid ID format"
+- Spread is not imported (nothing changes)
+
+### Getting Example Spreads
+
+**Export the example spread to learn the format:**
+
+1. **Settings** → Spreads → "Export example spread"
+2. **Downloads** `example-three-card.json`
+3. **Open in text editor** to see structure
+4. **Modify** for your own spread design
+5. **Import** your modified version
+
+**Example spread structure:**
+```json
+{
+  "id": "example-three-card",
+  "name": "Example Three Card Spread",
+  "description": "A simple three card spread",
+  "isBuiltIn": false,
+  "positions": [
+    {
+      "label": "Past",
+      "description": "Influences from the past"
+    },
+    {
+      "label": "Present",
+      "description": "Current situation"
+    },
+    {
+      "label": "Future",
+      "description": "Potential outcome"
+    }
+  ],
+  "shuffleCount": 3,
+  "cutDeck": true,
+  "templatePath": "",
+  "insertMode": "inline"
+}
+```
+
+### Spread Repositories
+
+**Community spread collections** (coming soon):
+- Shared repositories of popular spreads
+- Download complete spread packs
+- Contribute your own designs
+- Rate and review spreads
+
+**For now:**
+- Share spreads via GitHub Gists
+- Post in Obsidian Discord #plugins channel
+- Share in tarot practice forums
+- Create your own collection repository
+
+### Tips for Creating Shareable Spreads
+
+**Good spread design:**
+- **Clear position labels** - "Challenge" not "Card 4"
+- **Helpful descriptions** - Explain each position's meaning
+- **Appropriate card count** - Match spread complexity to purpose
+- **Meaningful name** - "Career Crossroads" not "My Spread"
+- **Include description** - What questions does this spread answer?
+
+**Template best practices:**
+- Keep templates simple and readable
+- Use position descriptions in output
+- Include spread name and date
+- Add intention field for context
+
+**Metadata recommendations:**
+- Add author name for attribution
+- Include tradition (tarot, oracle, etc.)
+- Note source if adapting traditional spread
+- Add year created
+
+**Example well-documented spread:**
+```json
+{
+  "id": "shadow-work",
+  "name": "Shadow Work Spread",
+  "description": "Exploring unconscious patterns and hidden aspects",
+  "positions": [
+    {
+      "label": "Surface",
+      "description": "What I show the world"
+    },
+    {
+      "label": "Shadow",
+      "description": "What I hide or deny"
+    },
+    {
+      "label": "Root",
+      "description": "Origin of this pattern"
+    },
+    {
+      "label": "Integration",
+      "description": "Path to wholeness"
+    }
+  ],
+  "metadata": {
+    "author": "Your Name",
+    "tradition": "modern",
+    "year": 2026,
+    "source": "Original design"
+  }
+}
+```
 
 ---
 
