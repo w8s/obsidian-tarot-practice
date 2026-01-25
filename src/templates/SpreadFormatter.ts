@@ -16,6 +16,8 @@ interface TemplateCard {
 	name: string;
 	orientation: string;
 	isReversed: boolean;
+	imageUrl?: string;
+	image?: string;
 }
 
 interface TemplateData {
@@ -28,6 +30,8 @@ interface TemplateData {
 	deck_id: string;
 	deck_card_count: number;
 	deck_supports_reversals: boolean;
+	deck_back_image_url?: string;
+	deck_back_image?: string;
 	timestamp: number;
 	cards: TemplateCard[];
 	date: string;
@@ -68,6 +72,12 @@ export class SpreadFormatter {
 		
 		const date = moment(timestampNum);
 
+		// Helper to format image path as Obsidian wikilink
+		const formatImage = (imageUrl: string | undefined): string => {
+			if (!imageUrl) return '';
+			return `![[${imageUrl}]]`;
+		};
+
 		return {
 			// Spread information
 			spread_name: result.spread.name,
@@ -81,6 +91,8 @@ export class SpreadFormatter {
 			deck_id: result.deck.id,
 			deck_card_count: result.deck.cardCount,
 			deck_supports_reversals: result.deck.supportsReversals,
+			deck_back_image_url: result.deck.definition?.backImageUrl,
+			deck_back_image: formatImage(result.deck.definition?.backImageUrl),
 
 			// Raw timestamp for Handlebars helpers
 			timestamp: timestampNum,
@@ -95,17 +107,24 @@ export class SpreadFormatter {
 				: null,
 
 			// Cards array for loops
-			cards: result.positions.map(pos => ({
-				index: pos.cardIndex,
-				position: {
-					number: pos.number,
-					label: pos.label,
-					description: pos.description
-				},
-				name: pos.card,
-				orientation: pos.orientation,
-				isReversed: pos.isReversed
-			})),
+			cards: result.positions.map(pos => {
+				// Get the full card definition to access imageUrl
+				const cardDef = result.deck.definition?.cards[pos.cardIndex];
+				
+				return {
+					index: pos.cardIndex,
+					position: {
+						number: pos.number,
+						label: pos.label,
+						description: pos.description
+					},
+					name: pos.card,
+					orientation: pos.orientation,
+					isReversed: pos.isReversed,
+					imageUrl: cardDef?.imageUrl,
+					image: formatImage(cardDef?.imageUrl)
+				};
+			}),
 
 			// Date/time variables (default formats)
 			date: date.format('L'),

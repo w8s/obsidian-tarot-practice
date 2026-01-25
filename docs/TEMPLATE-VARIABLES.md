@@ -29,6 +29,11 @@ Variables about the spread itself. Available at the top level of all templates.
 | `{{card_count}}` | Number | Number of cards drawn | `3` |
 | `{{deck_name}}` | String | Deck name | `"Rider-Waite-Smith"` |
 | `{{deck_type}}` | String | Deck type | `"tarot"` |
+| `{{deck_id}}` | String | Deck identifier | `"rider-waite-smith"` |
+| `{{deck_card_count}}` | Number | Total cards in deck | `78` |
+| `{{deck_supports_reversals}}` | Boolean | Whether deck supports reversals | `true` |
+| `{{deck_back_image_url}}` | String | Deck back image path (optional) | `"back.png"` |
+| `{{deck_back_image}}` | String | Deck back as Obsidian wikilink (optional) | `"![[back.png]]"` |
 
 ### Querent (Optional)
 
@@ -77,8 +82,36 @@ This creates a wikilink to the person's note if provided, otherwise just shows t
 
 **`{{deck_type}}`**
 - Type of divination deck
-- Values: `"tarot"`, `"oracle"`, `"lenormand"`, `"playing-cards"`, `"other"`
+- Values: `"tarot"`, `"oracle"`, `"lenormand"`, `"playing-cards"`, `"runes"`, `"other"`
 - Default: `"tarot"`
+
+**`{{deck_id}}`**
+- Unique identifier for the deck
+- Examples: `"rider-waite-smith"`, `"elder-futhark"`, `"lenormand"`
+- Used internally for deck selection
+
+**`{{deck_card_count}}`**
+- Total number of cards/symbols in the deck
+- Examples: 78 (tarot), 24 (runes), 36 (Lenormand), 52 (playing cards)
+
+**`{{deck_supports_reversals}}`**
+- Whether the deck definition supports reversed meanings
+- `true` or `false`
+- Useful for conditional formatting based on deck type
+
+**`{{deck_back_image_url}}`**
+- File path to the deck back image (if defined)
+- Relative to deck directory: `"back.png"`
+- Or vault path: `"Assets/Decks/my-deck-back.png"`
+- Empty string if not defined
+- Use for custom deck back display
+
+**`{{deck_back_image}}`**
+- Deck back image formatted as Obsidian wikilink
+- Automatically formatted as `![[path]]`
+- Empty string if no image defined
+- Displays immediately in reading view
+- Example: `![[Assets/Decks/celtic-back.png]]`
 
 ---
 
@@ -151,6 +184,8 @@ Variables available for each card. Use inside `{{#each cards}}` loops or via dir
 | `{{name}}` | String | Card name | `"The Hermit"` |
 | `{{orientation}}` | String | Orientation indicator | `"reversed"` or `""` |
 | `{{isReversed}}` | Boolean | Reversal flag for conditionals | `true` or `false` |
+| `{{imageUrl}}` | String | Card image path (optional) | `"cards/09-hermit.png"` |
+| `{{image}}` | String | Card image as Obsidian wikilink (optional) | `"![[cards/09-hermit.png]]"` |
 
 ### Details
 
@@ -196,6 +231,21 @@ Variables available for each card. Use inside `{{#each cards}}` loops or via dir
 - `true` if card is reversed
 - `false` if card is upright
 - Use with `{{#if isReversed}}...{{/if}}`
+
+**`{{imageUrl}}`**
+- File path to the card image (if defined in deck)
+- Relative to deck directory: `"cards/09-hermit.png"`
+- Or vault path: `"Assets/Tarot/RWS/hermit.png"`
+- Empty string if not defined
+- Use for custom image embedding or linking
+
+**`{{image}}`**
+- Card image formatted as Obsidian wikilink
+- Automatically formatted as `![[path]]`
+- Empty string if no image defined
+- Displays immediately in reading view
+- Example: `![[cards/09-hermit.png]]`
+- Useful for visual spreads with card images
 
 ### Usage Examples
 
