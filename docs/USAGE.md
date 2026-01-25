@@ -7,6 +7,7 @@ Detailed instructions for using Tarot Practice plugin in Obsidian.
 ## Table of Contents
 
 - [Getting Started](#getting-started)
+- [Installing Custom Decks](#installing-custom-decks)
 - [Daily Practice](#daily-practice)
 - [Spread Draws](#spread-draws)
 - [Keyboard Shortcuts](#keyboard-shortcuts)
@@ -42,6 +43,125 @@ Access settings via Settings → Tarot Practice to configure:
 - Reversal settings
 
 See [Settings Reference](SETTINGS.md) for complete options.
+
+---
+
+## Installing Custom Decks
+
+The plugin supports custom decks from ZIP packages or JSON files. ZIP packages are recommended as they include card images that display in your readings.
+
+### Downloading Decks
+
+**Free public domain decks available from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks):**
+
+1. **Elder Futhark Runes** (24 runes) - Norse divination
+2. **Petit Lenormand** (36 cards) - French cartomancy
+3. **Playing Cards** (52 cards) - Standard deck divination
+4. **I Ching** (64 hexagrams) - Ancient Chinese oracle
+
+**To download:**
+1. Visit the [releases page](https://github.com/w8s/obsidian-tarot-decks/releases)
+2. Find the deck you want
+3. Download the ZIP file to your computer
+4. Remember where you saved it
+
+### Installing a Deck
+
+**Process:**
+
+1. **Open Settings** → Tarot Practice → Deck Management
+2. **Click** "Add deck" button
+3. **Select** the downloaded ZIP file (or JSON file)
+4. **Wait** for validation and extraction
+5. **Success!** Deck appears in available decks list
+
+**What happens during installation:**
+
+For ZIP packages:
+- Plugin validates deck structure
+- Extracts `deck.json` to plugin directory
+- Extracts card images to vault: `Templates/Tarot/Decks/{deck-id}/cards/`
+- Images work with Obsidian wikilinks: `![[path/to/card.jpg]]`
+
+For JSON files:
+- Plugin validates deck structure
+- Saves deck definition only (no images)
+
+**Validation checks:**
+- Required fields present (id, name, cards)
+- Card indices are sequential (0, 1, 2...)
+- No duplicate card indices
+- Card count matches array length
+- If validation fails, you'll see specific error messages
+
+### Using Your New Deck
+
+Once installed, select your deck for readings:
+
+**Method 1: Set as default**
+1. Settings → Deck Management
+2. Default deck → Select your new deck
+3. All future readings use this deck
+
+**Method 2: Choose per spread**
+1. Run "Draw tarot spread"
+2. Dropdown shows all available decks
+3. Select deck for this reading
+4. Plugin remembers choice for this spread (if "Remember last deck" is enabled)
+
+**Example with Elder Futhark Runes:**
+```markdown
+## Rune Draw - 1/25/2026
+
+**Deck:** Elder Futhark Runes
+**Intention:** What energy do I need today?
+
+**Rune:** ![[Templates/Tarot/Decks/elder-futhark/cards/ansuz.png]]
+**Ansuz** - Communication, divine inspiration
+
+The rune of Odin, suggesting messages and wisdom...
+```
+
+### Viewing Deck Details
+
+**To see what's in a deck:**
+
+1. Settings → Deck Management
+2. Find deck in list
+3. Click document icon (View details)
+4. See:
+   - Card count and reversal support
+   - Complete card list with indices
+   - Metadata (author, year, publisher, tradition)
+   - "Restore images" button (if deck has sourceUrl)
+
+### Restoring Deck Images
+
+If you accidentally delete deck images or want to re-download them:
+
+**Process:**
+
+1. Settings → Deck Management
+2. Find deck in list
+3. Click document icon (View details)
+4. Click "Restore images" button (if available)
+5. Plugin downloads ZIP from sourceUrl
+6. Images re-extract to vault
+7. No need to re-import entire deck
+
+**Note:** Only works for decks that include a `sourceUrl` field (typically GitHub releases)
+
+### Removing Decks
+
+**To uninstall a custom deck:**
+
+1. Settings → Deck Management
+2. Find deck in list
+3. Click trash icon
+4. Confirm deletion
+5. Both deck definition and images are removed
+
+**Note:** Built-in decks (like Rider-Waite-Smith) cannot be removed
 
 ---
 
