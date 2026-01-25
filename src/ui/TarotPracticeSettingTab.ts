@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import TarotPracticePlugin from '../main';
 import { InsertLocation } from '../settings';
 import { TemplateMigrator } from '../templates/TemplateMigrator';
@@ -11,6 +11,9 @@ import { SpreadResolver } from '../spreads/SpreadResolver';
 import { SpreadViewModal } from '../modals/SpreadViewModal';
 import { SpreadEditModal } from '../modals/SpreadEditModal';
 import { SpreadCreateModal } from '../modals/SpreadCreateModal';
+import { DeckInstallModal } from '../modals/DeckInstallModal';
+import { DeckDetailsModal } from '../modals/DeckDetailsModal';
+import { DeckRemoveConfirmModal } from '../modals/DeckRemoveConfirmModal';
 import { Spread } from '../core/spreads';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
@@ -32,6 +35,9 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			this.showMigrationPrompt(migrator);
 			return; // Don't show settings until migration is handled
 		}
+
+		// ===== DECK MANAGEMENT SECTION =====
+		this.displayDeckManagement(containerEl);
 
 		// ===== DECK PREPARATION SECTION =====
 		new Setting(containerEl).setName('Deck preparation').setHeading();
@@ -458,5 +464,154 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 					this.display(); // Refresh settings
 				}));
+	}
+
+	private displayDeckManagement(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName('Deck management').setHeading();
+		
+		// Default deck dropdown
+		const deckRegistry = this.plugin.deckRegistry;
+		const allDecks = deckRegistry.getAllDecks();
+		
+		const deckOptions: Record<string, string> = {};
+		for (const deck of allDecks) {
+			deckOptions[deck.id] = deck.name;
+		}
+
+		new Setting(containerEl)
+			.setName('Default deck')
+			.setDesc('Deck to use when no spread-specific deck is set')
+			.addDropdown(dropdown => dropdown
+				.addOptions(deckOptions)
+				.setValue(this.plugin.settings.defaultDeckId)
+				.onChange(async (value) => {
+					this.plugin.settings.defaultDeckId = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// Remember deck per spread toggle
+		new Setting(containerEl)
+			.setName('Remember last deck per spread')
+			.setDesc('Each spread remembers the last deck used. When disabled, always use default deck.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.rememberDeckPerSpread)
+				.onChange(async (value) => {
+					this.plugin.settings.rememberDeckPerSpread = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// Deck list
+		new Setting(containerEl).setName('Available decks').setHeading();
+
+		for (const deck of allDecks) {
+			const deckItem = containerEl.createDiv('deck-list-item');
+			
+			// Deck name and info
+			const deckInfo = deckItem.createDiv('deck-info');
+			const deckName = deckInfo.createEl('strong', { text: deck.name });
+			if (deck.isBuiltIn) {
+				deckName.appendText(' (Built-in)');
+			}
+			deckInfo.createEl('div', { 
+				text: `${deck.cardCount} cards${deck.supportsReversals ? ', supports reversals' : ', no reversals'}`,
+				cls: 'deck-details-text'
+			});
+
+			// Buttons
+			const deckButtons = deckItem.createDiv('deck-buttons');
+			
+			// View Details button
+			deckButtons.createEl('button', { text: 'View details' })
+				.addEventListener('click', () => {
+					new DeckDetailsModal(this.app, deck).open();
+				});
+
+			// Remove button (only for custom decks)
+			if (!deck.isBuiltIn) {
+				deckButtons.createEl('button', { text: 'Remove', cls: 'mod-warning' })
+					.addEventListener('click', () => {
+						new DeckRemoveConfirmModal(
+							this.app,
+							this.plugin,
+							deck,
+							() => this.display() // Refresh settings after removal
+						).open();
+					});
+			}
+		}
+
+		// Add Deck button
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Add deck')
+				.setCta()
+				.onClick(() => {
+					new DeckInstallModal(
+						this.app,
+						this.plugin,
+						() => this.display() // Refresh settings after installation
+					).open();
+				}))
+			.addButton(button => button
+				.setButtonText('Export example deck')
+				.onClick(() => {
+					void this.exportExampleDeck();
+				}));
+	}
+
+	private async exportExampleDeck(): Promise<void> {
+		const exampleDeck = {
+			id: "example-oracle",
+			name: "Example Oracle Deck",
+			description: "A simple example deck to demonstrate the JSON format",
+			cards: [
+				{
+					index: 0,
+					name: "New Beginnings",
+					category: "Oracle",
+					suit: null,
+					rank: null,
+					value: null
+				},
+				{
+					index: 1,
+					name: "Inner Wisdom",
+					category: "Oracle",
+					suit: null,
+					rank: null,
+					value: null
+				},
+				{
+					index: 2,
+					name: "Transformation",
+					category: "Oracle",
+					suit: null,
+					rank: null,
+					value: null
+				}
+			],
+			cardCount: 3,
+			supportsReversals: false,
+			isBuiltIn: false,
+			metadata: {
+				author: "Your Name",
+				year: 2025,
+				publisher: "Self Published",
+				tradition: "oracle"
+			}
+		};
+
+		const json = JSON.stringify(exampleDeck, null, 2);
+		const blob = new Blob([json], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'example-deck.json';
+		a.click();
+		
+		URL.revokeObjectURL(url);
+		
+		new Notice('Example deck exported! Edit and install via "add deck".');
 	}
 }

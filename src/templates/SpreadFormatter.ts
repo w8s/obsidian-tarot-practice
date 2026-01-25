@@ -25,6 +25,9 @@ interface TemplateData {
 	card_count: number;
 	deck_name: string;
 	deck_type: string;
+	deck_id: string;
+	deck_card_count: number;
+	deck_supports_reversals: boolean;
 	timestamp: number;
 	cards: TemplateCard[];
 	date: string;
@@ -75,6 +78,9 @@ export class SpreadFormatter {
 			// Deck information
 			deck_name: result.deck.name,
 			deck_type: result.deck.type,
+			deck_id: result.deck.id,
+			deck_card_count: result.deck.cardCount,
+			deck_supports_reversals: result.deck.supportsReversals,
 
 			// Raw timestamp for Handlebars helpers
 			timestamp: timestampNum,

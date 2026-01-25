@@ -6,14 +6,27 @@ import { SpreadResolver } from 'spreads/SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
 import { prepareDeck } from 'core/DeckPreparation';
-import { getCardName } from 'core/CardDatabase';
-import { DEFAULT_DECK } from 'core/Deck';
+import { DeckType } from 'core/Deck';
+import { DeckRegistry } from 'core/DeckRegistry';
+import { DeckLoader } from 'core/DeckLoader';
 
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
+	deckRegistry: DeckRegistry;
+	deckLoader: DeckLoader;
 
 	async onload() {
 		await this.loadSettings();
+
+		// Initialize deck system (v1.7.0)
+		this.deckRegistry = new DeckRegistry();
+		this.deckLoader = new DeckLoader(this);
+		
+		// Load custom decks
+		const customDecks = await this.deckLoader.loadAllDecks();
+		for (const deck of customDecks) {
+			this.deckRegistry.registerDeck(deck);
+		}
 
 		// Register Handlebars helpers for spread templates
 		registerHandlebarsHelpers();
@@ -45,21 +58,27 @@ export default class TarotPracticePlugin extends Plugin {
 		);
 
 		// Open modal to select spread and enter intention
-		new SpreadDrawModal(this.app, allSpreads, (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => {
-			void this.drawSpread(spread, intention, querent);
+		new SpreadDrawModal(this.app, this, allSpreads, (spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) => {
+			void this.drawSpread(spread, intention, deckId, querent);
 		}).open();
 	}
 
-	async drawSpread(spread: Spread, intention: string, querent?: { name: string; notePath?: string }) {
+	async drawSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) {
 		// Delegate to unified execution method
-		await this.executeSpread(spread, intention, querent);
+		await this.executeSpread(spread, intention, deckId, querent);
 	}
 
 	/**
 	 * Unified spread execution that handles all insert modes
 	 */
-	async executeSpread(spread: Spread, intention: string, querent?: { name: string; notePath?: string }): Promise<void> {
+	async executeSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }): Promise<void> {
 		try {
+			// Get the selected deck
+			const deck = this.deckRegistry.getDeck(deckId);
+			if (!deck) {
+				throw new Error(`Deck "${deckId}" not found`);
+			}
+
 			// Prepare the deck using spread's shuffle settings
 			const timestamp = Date.now();
 			const deckSettings = {
@@ -71,7 +90,8 @@ export default class TarotPracticePlugin extends Plugin {
 			const preparedDeck = await prepareDeck(
 				intention,
 				timestamp.toString(),
-				deckSettings
+				deckSettings,
+				deck.cardCount
 			);
 
 			// Draw cards for each position
@@ -83,7 +103,12 @@ export default class TarotPracticePlugin extends Plugin {
 					throw new Error(`Failed to draw card at position ${i}`);
 				}
 				
-				const cardName = getCardName(cardIndex);
+				// Get card name from the selected deck
+				const card = deck.cards[cardIndex];
+				if (!card) {
+					throw new Error(`Card at index ${cardIndex} not found in deck "${deck.name}"`);
+				}
+				const cardName = card.name;
 				
 				// Determine reversal
 				let isReversed = false;
@@ -119,7 +144,14 @@ export default class TarotPracticePlugin extends Plugin {
 				intention: intention,
 				timestamp: timestamp,
 				positions: positions,
-				deck: DEFAULT_DECK,
+				deck: {
+					id: deck.id,
+					name: deck.name,
+					type: deck.metadata?.tradition as DeckType || 'other',
+					cardCount: deck.cardCount,
+					supportsReversals: deck.supportsReversals,
+					isBuiltIn: deck.isBuiltIn
+				},
 				shuffleCount: preparedDeck.metadata.shuffleCount,
 				wasCut: preparedDeck.metadata.wasCut,
 				cutPosition: preparedDeck.metadata.cutPositionPercent ?? undefined,
