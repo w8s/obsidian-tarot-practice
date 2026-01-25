@@ -34,11 +34,12 @@ That's it! Customize settings later in Settings → Tarot Practice.
 
 - 🎴 **Multi-deck support** - Use any divination system! Runes, Lenormand, I Ching, playing cards, or custom decks
 - 🎨 **Five included decks** - Elder Futhark Runes, Lenormand, Playing Cards, I Ching, plus RWS Tarot
+- 🖼️ **Image support** - Display card and deck back images in your readings
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts (Single, Three Card variants, Five Card Week, Celtic Cross)
 - ✨ **Custom spreads** - Create your own position layouts with custom meanings
 - 🎲 **Deck preparation** - Traditional shuffle (1-7x) and intention-influenced cut with ±10% variance
-- 📝 **Handlebars templates** - Fully customizable output with 20+ variables and advanced formatting
+- 📝 **Handlebars templates** - Fully customizable output with 30+ variables and advanced formatting
 - 🔄 **Reversal support** - Optional reversed cards with configurable probability
 - 📱 **Cross-platform** - Works on desktop, iOS, and Android
 - 🔍 **Full transparency** - Complete metadata for every draw (shuffle count, cut position, variance)
@@ -156,9 +157,10 @@ Located in `/example-decks/`:
 
 1. Export example deck (Settings → Deck Management → "Export example deck")
 2. Edit JSON with your cards
-3. Install via Settings → Deck Management → "Add deck"
+3. Optionally add image paths (`imageUrl` for cards, `backImageUrl` for deck)
+4. Install via Settings → Deck Management → "Add deck"
 
-See `/example-decks/README.md` for complete JSON structure and examples.
+See `/example-decks/README.md` for complete JSON structure, image support, and examples.
 
 ## Templates
 
@@ -167,6 +169,7 @@ Templates use **Handlebars** syntax with 20+ variables for customizing draw outp
 ### Quick Reference
 
 **Deck info:** `{{deck_name}}`, `{{deck_id}}`, `{{deck_type}}`, `{{deck_card_count}}`, `{{deck_supports_reversals}}`  
+**Images:** `{{card.image}}`, `{{card.imageUrl}}`, `{{deck_back_image}}`, `{{deck_back_image_url}}`  
 **Spread info:** `{{spread_name}}`, `{{spread_description}}`, `{{intention}}`  
 **Cards:** `{{card_count}}`, `{{cards}}` (array for loops)  
 **Date/time:** `{{date}}`, `{{time}}`, `{{datetime}}` (supports Moment.js formats)  
@@ -196,22 +199,24 @@ See complete documentation:
 
 ## Roadmap
 
-**Current (v1.6.1):**
+**v1.7.0 - Multi-Deck Support (Released!):**
+- ✅ Custom deck loading from JSON files
+- ✅ Deck management UI in settings
+- ✅ Per-spread deck selection
+- ✅ Five public domain example decks (Runes, Lenormand, Playing Cards, I Ching, Oracle)
+- ✅ Image path support for cards and deck backs
+- ✅ 10 new template variables for deck metadata
+
+**v1.6.1 (Released):**
 - ✅ 5 built-in spreads with Handlebars templates
 - ✅ Custom spread creation with position definitions
 - ✅ Per-spread deck preparation settings
 - ✅ File-based template system with "Create from Example"
 - ✅ Card metadata infrastructure (category, suit, rank, value)
 - ✅ Querent tracking for readings done for others
-- ✅ Deck definition infrastructure
 
-**v1.7.0 - Multi-Deck Support:**
-- 🔄 Custom deck loading from JSON files
-- 🔄 Deck selector UI in settings
-- 🔄 Per-spread deck selection
-- 🔄 Oracle, Lenormand, and playing card deck support
-
-**Future:**
+**Future (v1.8.0+):**
+- ZIP deck installation (import complete decks with images)
 - Spread import/export for sharing
 - Card interpretation database
 - Reading history and analytics
