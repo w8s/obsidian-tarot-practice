@@ -72,6 +72,16 @@ export class SpreadFormatter {
 		
 		const date = moment(timestampNum);
 
+		// Helper to resolve image path from deck storage to vault location
+		const resolveImagePath = (imageUrl: string | undefined, deckId: string): string | undefined => {
+			if (!imageUrl) return undefined;
+			
+			// Image paths in deck.json are relative (e.g., "cards/m00.jpg")
+			// We need to resolve to vault location: {templateBaseFolder}/Decks/{deckId}/{imageUrl}
+			const templateBaseFolder = this.settings.templateBaseFolder || 'Templates/Tarot';
+			return `${templateBaseFolder}/Decks/${deckId}/${imageUrl}`;
+		};
+
 		// Helper to format image path as Obsidian wikilink
 		const formatImage = (imageUrl: string | undefined): string => {
 			if (!imageUrl) return '';
@@ -91,8 +101,8 @@ export class SpreadFormatter {
 			deck_id: result.deck.id,
 			deck_card_count: result.deck.cardCount,
 			deck_supports_reversals: result.deck.supportsReversals,
-			deck_back_image_url: result.deck.definition?.backImageUrl,
-			deck_back_image: formatImage(result.deck.definition?.backImageUrl),
+			deck_back_image_url: resolveImagePath(result.deck.definition?.backImageUrl, result.deck.id),
+			deck_back_image: formatImage(resolveImagePath(result.deck.definition?.backImageUrl, result.deck.id)),
 
 			// Raw timestamp for Handlebars helpers
 			timestamp: timestampNum,
@@ -110,6 +120,7 @@ export class SpreadFormatter {
 			cards: result.positions.map(pos => {
 				// Get the full card definition to access imageUrl
 				const cardDef = result.deck.definition?.cards[pos.cardIndex];
+				const resolvedImageUrl = resolveImagePath(cardDef?.imageUrl, result.deck.id);
 				
 				return {
 					index: pos.cardIndex,
@@ -121,8 +132,8 @@ export class SpreadFormatter {
 					name: pos.card,
 					orientation: pos.orientation,
 					isReversed: pos.isReversed,
-					imageUrl: cardDef?.imageUrl,
-					image: formatImage(cardDef?.imageUrl)
+					imageUrl: resolvedImageUrl,
+					image: formatImage(resolvedImageUrl)
 				};
 			}),
 

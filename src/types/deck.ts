@@ -92,6 +92,14 @@ export interface DeckDefinition {
 	 */
 	backImageUrl?: string;
 
+	/**
+	 * Optional source URL for re-downloading deck images (v1.8.0)
+	 * - GitHub release URL: "https://github.com/w8s/obsidian-tarot-decks/releases/download/v1.0.0/elder-futhark.zip"
+	 * - Direct download link to ZIP file
+	 * - Used for restoring deleted images or updating deck
+	 */
+	sourceUrl?: string;
+
 	/** Optional metadata about the deck */
 	metadata?: {
 		/** Deck author/creator */

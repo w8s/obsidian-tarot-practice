@@ -168,6 +168,9 @@ export class DeckLoader {
 	 *     card1.png
 	 *     card2.jpg
 	 *     ...
+	 * 
+	 * Images are extracted to: {templateBaseFolder}/Decks/{deck-id}/cards/
+	 * deck.json is stored in: .obsidian/plugins/tarot-practice/decks/{deck-id}/
 	 */
 	async installFromZIP(file: File): Promise<DeckDefinition> {
 		// Dynamically import JSZip
@@ -182,8 +185,9 @@ export class DeckLoader {
 			throw new Error('ZIP must contain deck.json in root');
 		}
 		
-		// Read deck.json content
+		// Read and parse deck.json to get deck ID
 		const jsonContent = await deckJsonFile.async('text');
+		const deckData = JSON.parse(jsonContent) as { id: string };
 		
 		// Install deck with image extraction callback
 		return await this.installDeck(jsonContent, async (deckPath) => {
@@ -193,8 +197,13 @@ export class DeckLoader {
 				return; // No images to extract
 			}
 			
-			const cardsDirPath = `${deckPath}/cards`;
-			await this.plugin.app.vault.adapter.mkdir(cardsDirPath);
+			// Get template base folder from settings
+			const settings = (this.plugin as any).settings;
+			const templateBaseFolder = settings?.templateBaseFolder || 'Templates/Tarot';
+			
+			// Extract images to vault: {templateBaseFolder}/Decks/{deck-id}/cards/
+			const vaultImagePath = `${templateBaseFolder}/Decks/${deckData.id}/cards`;
+			await this.plugin.app.vault.adapter.mkdir(vaultImagePath);
 			
 			// Get all files in cards/ folder
 			const imageFiles: Array<{ name: string; file: JSZip.JSZipObject }> = [];
@@ -204,17 +213,17 @@ export class DeckLoader {
 				}
 			});
 			
-			// Extract each image
+			// Extract each image to vault
 			for (const { name, file } of imageFiles) {
 				const imageData = await file.async('uint8array');
-				const imagePath = `${cardsDirPath}/${name}`;
+				const imagePath = `${vaultImagePath}/${name}`;
 				await this.plugin.app.vault.adapter.writeBinary(imagePath, imageData);
 			}
 		});
 	}
 
 	/**
-	 * Remove a deck
+	 * Remove a deck (removes both deck.json and images if present)
 	 */
 	async removeDeck(deckId: string): Promise<void> {
 		const deckPath = `${this.getDecksPath()}/${deckId}`;
@@ -224,8 +233,18 @@ export class DeckLoader {
 			throw new Error(`Deck "${deckId}" not found`);
 		}
 
-		// Remove entire directory
+		// Remove deck.json directory
 		await adapter.rmdir(deckPath, true);
+		
+		// Remove images from vault if they exist
+		const settings = (this.plugin as any).settings;
+		const templateBaseFolder = settings?.templateBaseFolder || 'Templates/Tarot';
+		const vaultImagePath = `${templateBaseFolder}/Decks/${deckId}`;
+		
+		if (await adapter.exists(vaultImagePath)) {
+			await adapter.rmdir(vaultImagePath, true);
+		}
+		
 		new Notice(`Deck "${deckId}" removed`);
 	}
 
@@ -235,5 +254,74 @@ export class DeckLoader {
 	async deckExists(deckId: string): Promise<boolean> {
 		const deckPath = `${this.getDecksPath()}/${deckId}`;
 		return await this.plugin.app.vault.adapter.exists(deckPath);
+	}
+
+	/**
+	 * Re-download and restore deck images from sourceUrl
+	 * 
+	 * @param deck - The deck definition with sourceUrl
+	 */
+	async restoreDeckImages(deck: DeckDefinition): Promise<void> {
+		if (!deck.sourceUrl) {
+			throw new Error(`Deck "${deck.name}" does not have a source URL`);
+		}
+
+		new Notice(`Downloading deck images for "${deck.name}"...`);
+
+		try {
+			// Download the ZIP file
+			const response = await fetch(deck.sourceUrl);
+			if (!response.ok) {
+				throw new Error(`Failed to download: ${response.statusText}`);
+			}
+
+			const blob = await response.blob();
+			const file = new File([blob], `${deck.id}.zip`, { type: 'application/zip' });
+
+			// Dynamically import JSZip
+			const JSZip = (await import('jszip')).default;
+			const zip = await JSZip.loadAsync(file);
+
+			// Get template base folder from settings
+			const settings = (this.plugin as any).settings;
+			const templateBaseFolder = settings?.templateBaseFolder || 'Templates/Tarot';
+			
+			// Extract images to vault: {templateBaseFolder}/Decks/{deck-id}/cards/
+			const vaultImagePath = `${templateBaseFolder}/Decks/${deck.id}/cards`;
+			
+			// Remove existing images if present
+			const adapter = this.plugin.app.vault.adapter;
+			if (await adapter.exists(vaultImagePath)) {
+				await adapter.rmdir(vaultImagePath, true);
+			}
+			
+			// Create directory
+			await adapter.mkdir(vaultImagePath);
+			
+			// Get all files in cards/ folder
+			const imageFiles: Array<{ name: string; file: JSZip.JSZipObject }> = [];
+			zip.folder('cards')?.forEach((relativePath, file) => {
+				if (!file.dir) {
+					imageFiles.push({ name: relativePath, file });
+				}
+			});
+			
+			if (imageFiles.length === 0) {
+				throw new Error('No images found in ZIP archive');
+			}
+			
+			// Extract each image to vault
+			for (const { name, file } of imageFiles) {
+				const imageData = await file.async('uint8array');
+				const imagePath = `${vaultImagePath}/${name}`;
+				await adapter.writeBinary(imagePath, imageData);
+			}
+
+			new Notice(`Restored ${imageFiles.length} images for "${deck.name}"`);
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			new Notice(`Failed to restore deck images: ${msg}`);
+			throw error;
+		}
 	}
 }

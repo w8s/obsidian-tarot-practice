@@ -540,7 +540,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			.setIcon('document')
 			.setTooltip('View deck details')
 			.onClick(() => {
-				new DeckDetailsModal(this.app, deck).open();
+				new DeckDetailsModal(this.app, deck, this.plugin).open();
 			}));
 
 		// Remove button (only for custom decks)
