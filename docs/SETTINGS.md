@@ -273,7 +273,26 @@ Output examples:
 
 ## Spreads
 
-Settings for managing built-in and custom spreads.
+Settings for managing built-in and custom spreads. Import and export spreads to share with the community.
+
+### Spread Management Actions
+
+**General Actions:**
+- **Create spread** - Design your own custom spread layout
+- **Import spread** - Install spreads from JSON or ZIP files
+- **Export example spread** - Download template to learn format
+
+**Per-Spread Actions (Built-in):**
+- **View** - Preview spread definition and template
+- **Customize** - Override shuffle/cut/template settings
+- **Reset** - Restore to default settings
+- *(Cannot delete built-in spreads)*
+
+**Per-Spread Actions (Custom):**
+- **View** - Preview spread definition
+- **Edit** - Modify positions and settings
+- **Export** - Share spread as JSON or ZIP
+- **Delete** - Permanently remove custom spread
 
 ### Built-in Spreads
 
@@ -334,6 +353,58 @@ Each spread (built-in or custom) can be customized:
 - Timeline: "Past", "Present", "Future"
 - Decision: "Current Situation", "Action to Take", "Likely Outcome"
 - Celtic Cross: "Present", "Challenge", "Past", "Future", "Above", "Below", "Advice", "External", "Hopes/Fears", "Outcome"
+
+### Importing and Exporting Spreads
+
+**Importing Spreads:**
+
+Spreads can be imported from JSON or ZIP files shared by the community.
+
+1. Click "Import spread" in Spreads section
+2. Select a `.json` or `.zip` file
+3. Plugin validates spread structure
+4. Spread installs and appears in your list
+
+**Import Formats:**
+- **JSON file** - Spread definition only
+  - Lightweight format
+  - Uses built-in template or customize later
+- **ZIP file** - Spread definition + custom template
+  - Complete package ready to use
+  - Template extracts to: `{templateBaseFolder}/Spreads/{spread-id}/template.md`
+  - Template automatically linked to spread
+
+**Validation:**
+- Checks required fields (id, name, positions)
+- Verifies position structure (labels required)
+- Ensures ID is unique
+- Shows clear error messages if validation fails
+
+**Exporting Spreads:**
+
+Share your custom spreads with the community.
+
+1. Find custom spread in list
+2. Click "Export" button (download icon)
+3. Choose format:
+   - **JSON only** - Spread definition without template
+   - **ZIP with template** - Includes spread.json + template.md
+4. File downloads to your computer
+5. Share via GitHub, Discord, forums, etc.
+
+**Export Format Selection:**
+- **JSON only** - Best for simple spreads using default templates
+- **ZIP with template** - Best for spreads with specialized formatting
+
+**Example Use Cases:**
+- Create specialized spreads for specific questions
+- Share traditional spread layouts with the community
+- Collaborate on spread designs with study groups
+- Build personal spread libraries
+
+For complete documentation on sharing spreads, see:
+- [Usage Guide - Sharing Spreads](USAGE.md#sharing-spreads) - Import/export workflows
+- Export example spread to see JSON structure
 
 ### Template Variables for Spreads
 
