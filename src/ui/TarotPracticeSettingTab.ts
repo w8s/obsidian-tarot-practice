@@ -16,6 +16,8 @@ import { DeckDetailsModal } from '../modals/DeckDetailsModal';
 import { DeckRemoveConfirmModal } from '../modals/DeckRemoveConfirmModal';
 import { Spread } from '../core/spreads';
 import type { DeckDefinition } from '../types/deck';
+import { SpreadLoader } from '../core/SpreadLoader';
+import { SpreadExportFormatModal } from '../modals/SpreadExportFormatModal';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -249,10 +251,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			this.addSpreadListItem(containerEl, spread);
 		});
 
-		// Create new spread button
-		const spreadButtonSetting = new Setting(containerEl)
+		// Spread action buttons
+		new Setting(containerEl)
 			.addButton(button => button
-				.setButtonText('Create custom spread')
+				.setButtonText('Create spread')
 				.setCta()
 				.onClick(() => {
 					void new SpreadCreateModal(this.app, this.plugin.settings, (newSpread) => {
@@ -263,12 +265,17 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 							this.display(); // Refresh UI
 						})();
 					}).open();
+				}))
+			.addButton(button => button
+				.setButtonText('Import spread')
+				.onClick(() => {
+					void this.importSpread();
+				}))
+			.addButton(button => button
+				.setButtonText('Export example spread')
+				.onClick(() => {
+					void this.exportExampleSpread();
 				}));
-		
-		// Style the setting to align button to the right (like multi-button settings)
-		spreadButtonSetting.settingEl.setCssProps({
-			'justify-content': 'flex-end'
-		});
 	}
 
 	/**
@@ -398,6 +405,16 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					})();
 				}).open();
 			}));
+
+		// Export button (only for custom spreads)
+		if (!spread.isBuiltIn) {
+			setting.addExtraButton(button => button
+				.setIcon('download')
+				.setTooltip('Export spread')
+				.onClick(() => {
+					void this.exportSpread(spread);
+				}));
+		}
 
 		// Delete button (only for custom spreads)
 		if (!spread.isBuiltIn) {
@@ -613,5 +630,129 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		URL.revokeObjectURL(url);
 		
 		new Notice('Example deck exported! Edit and install via "add deck".');
+	}
+
+	/**
+	 * Import spread from file (JSON or ZIP)
+	 */
+	private async importSpread(): Promise<void> {
+		// Create file input
+		const input = document.createElement('input');
+		input.type = 'file';
+		input.accept = '.json,.zip';
+		
+		input.onchange = async () => {
+			const file = input.files?.[0];
+			if (!file) return;
+
+			try {
+				const loader = new SpreadLoader(this.plugin);
+				
+				// Install based on file type
+				if (file.name.endsWith('.zip')) {
+					await loader.installFromZIP(file);
+				} else {
+					await loader.installFromJSON(file);
+				}
+				
+				// Refresh settings UI
+				this.display();
+			} catch (error) {
+				const msg = error instanceof Error ? error.message : String(error);
+				new Notice(`Failed to import spread: ${msg}`);
+				console.error('Spread import error:', error);
+			}
+		};
+		
+		input.click();
+	}
+
+	/**
+	 * Export a spread (prompt for format: JSON or ZIP with template)
+	 */
+	private async exportSpread(spread: Spread): Promise<void> {
+		try {
+			const loader = new SpreadLoader(this.plugin);
+			
+			// Check if spread has a template
+			const hasTemplate = spread.templatePath && spread.templatePath.trim() !== '';
+			
+			// If no template, just export JSON
+			if (!hasTemplate) {
+				const { blob, filename } = await loader.exportSpread(spread, false);
+				this.downloadBlob(blob, filename);
+				new Notice(`Spread "${spread.name}" exported as JSON`);
+				return;
+			}
+			
+			// Ask user if they want to include template
+			const includeTemplate = await this.confirmIncludeTemplate(spread);
+			const { blob, filename } = await loader.exportSpread(spread, includeTemplate);
+			this.downloadBlob(blob, filename);
+			
+			const format = includeTemplate ? 'ZIP with template' : 'JSON only';
+			new Notice(`Spread "${spread.name}" exported as ${format}`);
+		} catch (error) {
+			const msg = error instanceof Error ? error.message : String(error);
+			new Notice(`Failed to export spread: ${msg}`);
+			console.error('Spread export error:', error);
+		}
+	}
+
+	/**
+	 * Ask user if they want to include template in export
+	 */
+	private async confirmIncludeTemplate(spread: Spread): Promise<boolean> {
+		return new Promise((resolve) => {
+			new SpreadExportFormatModal(this.app, spread.name, resolve).open();
+		});
+	}
+
+	/**
+	 * Download blob as file
+	 */
+	private downloadBlob(blob: Blob, filename: string): void {
+		const url = URL.createObjectURL(blob);
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = filename;
+		a.click();
+		URL.revokeObjectURL(url);
+	}
+
+	/**
+	 * Export an example spread for users to learn the format
+	 */
+	private async exportExampleSpread(): Promise<void> {
+		const exampleSpread: Spread = {
+			id: "example-three-card",
+			name: "Example Three Card Spread",
+			description: "A simple three card spread for demonstration",
+			isBuiltIn: false,
+			positions: [
+				{
+					label: "Past",
+					description: "Influences from the past"
+				},
+				{
+					label: "Present",
+					description: "Current situation"
+				},
+				{
+					label: "Future",
+					description: "Potential outcome"
+				}
+			],
+			shuffleCount: 3,
+			cutDeck: true,
+			templatePath: "",
+			insertMode: "inline"
+		};
+
+		const json = JSON.stringify(exampleSpread, null, 2);
+		const blob = new Blob([json], { type: 'application/json' });
+		this.downloadBlob(blob, 'example-three-card.json');
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		new Notice('Example spread exported! Edit and import via "Import spread".');
 	}
 }

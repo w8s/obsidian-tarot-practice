@@ -36,6 +36,7 @@ That's it! Customize settings later in Settings → Tarot Practice.
 - 🖼️ **Card images** - Display images in readings using vault-based storage
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts plus custom spread creation
+- 📤 **Spread sharing** - Import/export custom spreads as JSON or ZIP with templates
 - 🎲 **Deck preparation** - Traditional shuffle (1-7x) with intention-influenced cut
 - 📝 **Handlebars templates** - Fully customizable output formatting
 - 🔄 **Reversal support** - Optional reversed cards with configurable probability
@@ -128,6 +129,8 @@ Configure in Settings → Tarot Practice:
 
 ### Spreads
 - Manage built-in and custom spreads
+- Import/export spreads as JSON or ZIP files
+- Bundle custom templates with spread exports
 - Customize shuffle/cut settings per spread
 - Override templates for specific spreads
 
@@ -213,13 +216,16 @@ See complete documentation:
 
 ## Roadmap
 
+**v1.8.1 (Current):**
+- ✅ Spread import/export - Share custom spreads as JSON or ZIP files
+- ✅ Template bundling - Export spreads with custom templates included
+
 **v1.8.0 (Released):**
 - ✅ ZIP deck installation (import complete decks with images)
 - ✅ Vault-based image storage with wikilink support
 - ✅ sourceUrl for deck image restoration
 
 **v1.9.0+ (Planned):**
-- Spread import/export for sharing
 - Different shuffle styles (overhand, riffle, Hindu)
 - Reading history and analytics
 
