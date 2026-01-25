@@ -9,11 +9,13 @@ import { prepareDeck } from 'core/DeckPreparation';
 import { DeckType } from 'core/Deck';
 import { DeckRegistry } from 'core/DeckRegistry';
 import { DeckLoader } from 'core/DeckLoader';
+import { DrawHistory } from 'core/DrawHistory';
 
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
 	deckRegistry: DeckRegistry;
 	deckLoader: DeckLoader;
+	drawHistory: DrawHistory;
 
 	async onload() {
 		await this.loadSettings();
@@ -27,6 +29,10 @@ export default class TarotPracticePlugin extends Plugin {
 		for (const deck of customDecks) {
 			this.deckRegistry.registerDeck(deck);
 		}
+
+		// Initialize draw history system (v1.8.2)
+		this.drawHistory = new DrawHistory(this);
+		await this.drawHistory.load();
 
 		// Register Handlebars helpers for spread templates
 		registerHandlebarsHelpers();
@@ -161,6 +167,9 @@ export default class TarotPracticePlugin extends Plugin {
 				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined,
 				querent: querent
 			};
+
+			// Save to history (v1.8.2)
+			await this.drawHistory.addDraw(drawResult);
 
 			// Get template
 			const spreadResolver = new SpreadResolver(this.app);

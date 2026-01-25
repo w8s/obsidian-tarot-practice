@@ -29,6 +29,7 @@
 		"typescript-eslint": "8.35.1"
 	},
 	"dependencies": {
+		"alasql": "^4.17.0",
 		"handlebars": "^4.7.8",
 		"jszip": "^3.10.1",
 		"obsidian": "latest",
