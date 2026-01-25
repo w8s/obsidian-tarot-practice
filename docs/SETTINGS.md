@@ -8,11 +8,52 @@ Settings are organized into logical sections for easy navigation. Access all set
 
 ## Table of Contents
 
+- [Deck Management](#deck-management)
 - [Deck Preparation](#deck-preparation)
 - [Daily Practice](#daily-practice)
 - [Templates](#templates)
 - [Reversals](#reversals)
 - [Spreads](#spreads)
+
+---
+
+## Deck Management
+
+Settings for managing your deck collection. Add custom decks, set defaults, and control deck persistence across spreads.
+
+| Setting | Type | Default | Description |
+|---------|------|---------|-------------|
+| **Default deck** | Dropdown | Rider-Waite-Smith | The deck used when no spread-specific deck is set |
+| **Remember last deck per spread** | Toggle | On | Each spread remembers the last deck used; when disabled, always use default deck |
+
+### Available Decks
+
+The plugin comes with Rider-Waite-Smith tarot (78 cards) built-in. Additional decks can be installed from JSON or ZIP files.
+
+**Installing Decks:**
+1. Click "Add deck" button
+2. Select a `.json` or `.zip` file
+3. For ZIP files: deck.json + optional card images in `cards/` folder
+4. Deck is validated and extracted to plugin directory
+
+**Deck Actions:**
+- **View details** (document icon) - See full card list and metadata
+- **Remove** (trash icon) - Delete custom decks (built-in decks cannot be removed)
+
+**Download Additional Decks:**
+Free public domain decks available from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks):
+- Elder Futhark Runes (24 cards)
+- Petit Lenormand (36 cards)  
+- Playing Cards (52 cards)
+- I Ching (64 hexagrams)
+
+**Creating Custom Decks:**
+1. Click "Export example deck" to get a template
+2. Edit the JSON with your cards
+3. Optionally create a ZIP with images in `cards/` folder
+4. Import via "Add deck"
+
+See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for complete documentation.
 
 ---
 

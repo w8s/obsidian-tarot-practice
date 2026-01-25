@@ -7,6 +7,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - TBD
+
+### Added
+- **ZIP Deck Support** - Import complete deck packages with card images
+  - One-click installation from ZIP files containing deck.json + images
+  - Auto-extracts card images to plugin directory (`cards/` folder)
+  - Maintains backward compatibility with JSON-only deck imports
+  - File picker accepts both `.json` and `.zip` files
+  - Integrated with [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository releases
+
+### Changed
+- **UI Consistency Improvements**
+  - Deck display now matches Spreads section pattern (Setting components with icon buttons)
+  - "Create custom spread" button styling matches "Add deck" button
+  - Cleaner, more consistent settings interface
+
+### Technical
+- DRY refactoring: shared `installDeck()` helper eliminates duplication between JSON and ZIP installers
+- Added JSZip library for ZIP extraction
+- Proper error handling with cleanup on failed installations
+- Validates ZIP structure before extraction (requires deck.json in root)
+
 ## [1.7.1] - 2025-01-25
 
 ### Changed

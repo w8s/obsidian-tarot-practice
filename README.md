@@ -151,14 +151,14 @@ Download free public domain decks from the **[obsidian-tarot-decks](https://gith
 - **Playing Cards** (52) - Standard deck divination, medieval Europe
 - **I Ching** (64) - Ancient Chinese oracle, 3000+ years old
 
-Each deck includes complete documentation and is ready to install.
+**Installation:** Download the ZIP file and import via Settings → Deck Management → "Add deck". ZIP packages include card images for enhanced readings.
 
 ### Creating Your Own Deck
 
 1. Settings → Deck Management → "Export example deck"
 2. Edit the JSON file with your cards
-3. Optionally add image paths (`imageUrl` for cards, `backImageUrl` for deck)
-4. Install via Settings → Deck Management → "Add deck"
+3. Optionally create a ZIP with card images in a `cards/` folder
+4. Install via Settings → Deck Management → "Add deck" (supports both JSON and ZIP)
 
 **Complete deck creation guide:** See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for JSON structure, validation rules, and best practices.
 
