@@ -6,7 +6,6 @@ import { SpreadResolver } from 'spreads/SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
 import { prepareDeck } from 'core/DeckPreparation';
-import { getCardName } from 'core/CardDatabase';
 import { DEFAULT_DECK } from 'core/Deck';
 import { DeckRegistry } from 'core/DeckRegistry';
 import { DeckLoader } from 'core/DeckLoader';
@@ -65,20 +64,21 @@ export default class TarotPracticePlugin extends Plugin {
 	}
 
 	async drawSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) {
-		// TODO v1.7.0: Use deckId to get the actual deck and use it for drawing
-		// For now, we accept and store the deckId but still use RWS deck (78 cards)
-		// This will be implemented when we refactor prepareDeck() to accept DeckDefinition
-		console.debug(`Drawing spread with deck: ${deckId}`);
-		
 		// Delegate to unified execution method
-		await this.executeSpread(spread, intention, querent);
+		await this.executeSpread(spread, intention, deckId, querent);
 	}
 
 	/**
 	 * Unified spread execution that handles all insert modes
 	 */
-	async executeSpread(spread: Spread, intention: string, querent?: { name: string; notePath?: string }): Promise<void> {
+	async executeSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }): Promise<void> {
 		try {
+			// Get the selected deck
+			const deck = this.deckRegistry.getDeck(deckId);
+			if (!deck) {
+				throw new Error(`Deck "${deckId}" not found`);
+			}
+
 			// Prepare the deck using spread's shuffle settings
 			const timestamp = Date.now();
 			const deckSettings = {
@@ -90,7 +90,8 @@ export default class TarotPracticePlugin extends Plugin {
 			const preparedDeck = await prepareDeck(
 				intention,
 				timestamp.toString(),
-				deckSettings
+				deckSettings,
+				deck.cardCount
 			);
 
 			// Draw cards for each position
@@ -102,7 +103,12 @@ export default class TarotPracticePlugin extends Plugin {
 					throw new Error(`Failed to draw card at position ${i}`);
 				}
 				
-				const cardName = getCardName(cardIndex);
+				// Get card name from the selected deck
+				const card = deck.cards[cardIndex];
+				if (!card) {
+					throw new Error(`Card at index ${cardIndex} not found in deck "${deck.name}"`);
+				}
+				const cardName = card.name;
 				
 				// Determine reversal
 				let isReversed = false;

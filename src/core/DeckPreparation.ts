@@ -18,12 +18,13 @@ export interface PreparedDeck {
 export async function prepareDeck(
 	intention: string,
 	timestamp: string,
-	settings: TarotPracticeSettings
+	settings: TarotPracticeSettings,
+	cardCount: number = 78
 ): Promise<PreparedDeck> {
 	const rngi = new RngWithIntention();
 	
-	// Start with full deck [0-77]
-	let deck = Array.from({ length: 78 }, (_, i) => i);
+	// Start with full deck [0 to cardCount-1]
+	let deck = Array.from({ length: cardCount }, (_, i) => i);
 	
 	// Shuffle deck N times (from settings)
 	for (let s = 0; s < settings.shuffleCount; s++) {
@@ -54,8 +55,8 @@ export async function prepareDeck(
 		const adjustedPercent = Math.max(1, Math.min(100, cutBase + variance));
 		cutPositionPercent = Math.round(adjustedPercent * 10) / 10; // Round to 1 decimal
 		
-		// Calculate cut position
-		const cutPosition = Math.floor((adjustedPercent / 100) * 78);
+		// Calculate cut position based on actual card count
+		const cutPosition = Math.floor((adjustedPercent / 100) * cardCount);
 		cutPositionCards = cutPosition;
 		
 		// Cut: move cards from cutPosition to end, then 0 to cutPosition
