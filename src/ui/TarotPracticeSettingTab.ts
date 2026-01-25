@@ -250,30 +250,20 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		});
 
 		// Create new spread button
-		const createSpreadContainer = containerEl.createDiv({ cls: 'setting-item' });
-		createSpreadContainer.setCssProps({
-			'border-top': '1px solid var(--background-modifier-border)',
-			'padding-top': '12px',
-			'margin-top': '8px'
-		});
-		
-		const createButton = createSpreadContainer.createEl('button', {
-			text: '+ create custom spread',
-			cls: 'mod-cta'
-		});
-		createButton.setCssProps({
-			'width': '100%'
-		});
-		createButton.addEventListener('click', () => {
-			void new SpreadCreateModal(this.app, this.plugin.settings, (newSpread) => {
-				void (async () => {
-					// Add to custom spreads
-					this.plugin.settings.customSpreads.push(newSpread);
-					await this.plugin.saveSettings();
-					this.display(); // Refresh UI
-				})();
-			}).open();
-		});
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Create custom spread')
+				.setCta()
+				.onClick(() => {
+					void new SpreadCreateModal(this.app, this.plugin.settings, (newSpread) => {
+						void (async () => {
+							// Add to custom spreads
+							this.plugin.settings.customSpreads.push(newSpread);
+							await this.plugin.saveSettings();
+							this.display(); // Refresh UI
+						})();
+					}).open();
+				}));
 	}
 
 	/**
