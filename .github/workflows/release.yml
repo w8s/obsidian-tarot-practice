@@ -31,6 +31,37 @@ jobs:
         id: version
         run: echo "version=$(jq -r '.version' manifest.json)" >> $GITHUB_OUTPUT
       
+      - name: Extract changelog for this version
+        id: changelog
+        run: |
+          VERSION="${{ steps.version.outputs.version }}"
+          echo "Extracting changelog for version $VERSION"
+          
+          # Extract the section for this version from CHANGELOG.md
+          # Finds lines between ## [$VERSION] and the next ## [ or end of file
+          awk "/## \[$VERSION\]/,/^## \[/" CHANGELOG.md | sed '1d;$d' > release_notes.md
+          
+          # Add installation instructions at the end
+          cat >> release_notes.md << 'EOF'
+          
+          ---
+          
+          ## 📦 Installation
+          
+          Download `main.js`, `manifest.json`, and `styles.css` below.
+          
+          **Manual Installation:**
+          1. Create folder `YourVault/.obsidian/plugins/tarot-practice/`
+          2. Copy the three files into that folder
+          3. Reload Obsidian (or restart)
+          4. Enable "Tarot Practice" in Settings → Community Plugins
+          
+          **Additional Decks:** Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks)
+          EOF
+          
+          echo "Release notes:"
+          cat release_notes.md
+      
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:
@@ -38,16 +69,7 @@ jobs:
             dist/main.js
             dist/manifest.json
             dist/styles.css
-          body: |
-            ## Tarot Practice v${{ steps.version.outputs.version }}
-            
-            Download the plugin files below and install manually:
-            1. Download `main.js`, `manifest.json`, and `styles.css`
-            2. Place in `YourVault/.obsidian/plugins/tarot-practice/`
-            3. Reload Obsidian
-            4. Enable "Tarot Practice" in Settings → Community Plugins
-            
-            See [CHANGELOG.md](https://github.com/w8s/obsidian-tarot-practice/blob/master/CHANGELOG.md) for details.
+          body_path: release_notes.md
           draft: false
           prerelease: false
         env:
