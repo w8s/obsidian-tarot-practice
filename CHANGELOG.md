@@ -7,6 +7,54 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.1] - 2025-01-25
+
+### Added
+- **Spread Import/Export** - Share custom spreads with the community
+  - Import spreads from JSON or ZIP files
+  - Export spreads as JSON (definition only) or ZIP (with template)
+  - File picker for easy spread installation
+  - Settings UI with Import/Export buttons matching deck section
+  - Export button on custom spreads for quick sharing
+  - Export example spread template for learning format
+
+- **SpreadValidator** - Validates spread structure before import
+  - Required fields: id, name, positions array
+  - Position validation: labels required, order preserved
+  - ID format checking (lowercase, hyphens only)
+  - Metadata completeness recommendations
+  - Clear error messages for troubleshooting
+
+- **SpreadLoader** - Handles import/export operations
+  - `installFromJSON()` - Import spread definition
+  - `installFromZIP()` - Import spread with bundled template
+  - `exportSpread()` - Export as JSON or ZIP with template
+  - Template extraction to `{templateBaseFolder}/Spreads/{spread-id}/`
+  - Automatic templatePath updating for vault paths
+
+- **SpreadExportFormatModal** - Choose export format
+  - "ZIP with template" - Bundles spread.json + template.md
+  - "JSON only" - Lightweight spread definition
+
+### Changed
+- Settings UI now matches deck management pattern
+  - Three action buttons: Create | Import | Export Example
+  - Individual spread export buttons (download icon)
+  - Consistent button styling across sections
+
+### Technical
+- Zero ESLint errors
+- Clean separation: SpreadValidator (validation), SpreadLoader (I/O)
+- Spreads remain in settings.customSpreads (no migration needed)
+- File-based system is additive, not replacing settings storage
+- Template bundling works with existing vault-based templates
+
+### Notes
+- **No migration needed** - Zero users exist, no backward compat issues
+- Settings-based spreads continue working via SpreadResolver
+- File-based import/export enables community sharing
+- Can deprecate settings-based spreads in v2.0 if needed
+
 ## [1.8.0] - 2025-01-25
 
 ### Added
