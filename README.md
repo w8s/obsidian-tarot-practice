@@ -32,18 +32,15 @@ That's it! Customize settings later in Settings → Tarot Practice.
 
 ## Features
 
-- 🎴 **Multi-deck support** - Use any divination system! Runes, Lenormand, I Ching, playing cards, or custom decks
-- 🎨 **Rider-Waite-Smith tarot included** - Ready to use out of the box
-- 📦 **Additional decks available** - Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository
-- 🖼️ **Image support** - Display card and deck back images in your readings
+- 🎴 **Multi-deck support** - Tarot, runes, Lenormand, I Ching, playing cards, or custom decks
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
-- 🔀 **Built-in spreads** - Five traditional layouts (Single, Three Card variants, Five Card Week, Celtic Cross)
-- ✨ **Custom spreads** - Create your own position layouts with custom meanings
-- 🎲 **Deck preparation** - Traditional shuffle (1-7x) and intention-influenced cut with ±10% variance
-- 📝 **Handlebars templates** - Fully customizable output with 30+ variables and advanced formatting
+- 🔀 **Built-in spreads** - Five traditional layouts plus custom spread creation
+- 🎲 **Deck preparation** - Traditional shuffle (1-7x) with intention-influenced cut
+- 📝 **Handlebars templates** - Fully customizable output formatting
 - 🔄 **Reversal support** - Optional reversed cards with configurable probability
 - 📱 **Cross-platform** - Works on desktop, iOS, and Android
-- 🔍 **Full transparency** - Complete metadata for every draw (shuffle count, cut position, variance)
+
+**Additional decks:** Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository
 
 ## Installation
 
@@ -202,36 +199,13 @@ See complete documentation:
 
 ## Roadmap
 
-**v1.7.1 - Deck Repository (In Progress):**
-- ✅ Moved example decks to separate repository
-- ✅ Created [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) for community sharing
-- ✅ Lighter plugin bundle (RWS tarot only built-in)
-- ✅ Foundation for community deck contributions
-
-**v1.7.0 - Multi-Deck Support (Released):**
-- ✅ Custom deck loading from JSON files
-- ✅ Deck management UI in settings
-- ✅ Per-spread deck selection
-- ✅ Five public domain example decks (Runes, Lenormand, Playing Cards, I Ching, Oracle)
-- ✅ Image path support for cards and deck backs
-- ✅ 10 new template variables for deck metadata
-
-**v1.6.1 (Released):**
-- ✅ 5 built-in spreads with Handlebars templates
-- ✅ Custom spread creation with position definitions
-- ✅ Per-spread deck preparation settings
-- ✅ File-based template system with "Create from Example"
-- ✅ Card metadata infrastructure (category, suit, rank, value)
-- ✅ Querent tracking for readings done for others
-
-**Future (v1.8.0+):**
+**v1.8.0+ (Planned):**
 - ZIP deck installation (import complete decks with images)
 - Spread import/export for sharing
-- Card interpretation database
-- Reading history and analytics
 - Different shuffle styles (overhand, riffle, Hindu)
+- Reading history and analytics
 
-For detailed feature plans, see [GitHub Issues](https://github.com/w8s/obsidian-tarot-practice/issues) and [Discussions](https://github.com/w8s/obsidian-tarot-practice/discussions).
+See [CHANGELOG.md](CHANGELOG.md) for version history and [GitHub Issues](https://github.com/w8s/obsidian-tarot-practice/issues) for detailed feature plans.
 
 ## License
 
