@@ -150,7 +150,8 @@ export default class TarotPracticePlugin extends Plugin {
 					type: deck.metadata?.tradition as DeckType || 'other',
 					cardCount: deck.cardCount,
 					supportsReversals: deck.supportsReversals,
-					isBuiltIn: deck.isBuiltIn
+					isBuiltIn: deck.isBuiltIn,
+					definition: deck
 				},
 				shuffleCount: preparedDeck.metadata.shuffleCount,
 				wasCut: preparedDeck.metadata.wasCut,

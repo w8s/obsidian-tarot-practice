@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- **Image Path Support** - Display card and deck images in readings
+  - `{{card.imageUrl}}` - Raw image path for cards
+  - `{{card.image}}` - Auto-formatted Obsidian wikilink `![[path]]`
+  - `{{deck_back_image_url}}` - Raw deck back image path
+  - `{{deck_back_image}}` - Auto-formatted deck back wikilink
+  - Works with relative paths (deck directory) or vault paths
+  - Empty string when images not defined (template-safe)
+
+### Changed
+- **DeckType** - Added `"runes"` to supported deck types
+- **Deck Interface** - Added optional `definition` field with full DeckDefinition
+
 ## [1.7.0] - 2025-01-25
 
 ### Added

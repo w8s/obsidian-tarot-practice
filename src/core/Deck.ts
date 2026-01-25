@@ -2,10 +2,12 @@
  * Deck type definitions
  */
 
+import { DeckDefinition } from '../types/deck';
+
 /**
  * Types of divination decks supported
  */
-export type DeckType = 'tarot' | 'oracle' | 'lenormand' | 'playing-cards' | 'other';
+export type DeckType = 'tarot' | 'oracle' | 'lenormand' | 'playing-cards' | 'runes' | 'other';
 
 /**
  * Definition of a divination deck
@@ -28,6 +30,9 @@ export interface Deck {
 	
 	/** True for built-in decks (cannot be deleted) */
 	isBuiltIn: boolean;
+	
+	/** Full deck definition (includes cards and image paths) */
+	definition?: DeckDefinition;
 }
 
 /**
