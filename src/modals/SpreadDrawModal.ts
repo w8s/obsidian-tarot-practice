@@ -1,6 +1,7 @@
 import { App, Modal, Setting, DropdownComponent } from 'obsidian';
 import { Spread } from '../core/spreads';
 import { FileSuggest } from '../ui/FileSuggest';
+import type TarotPracticePlugin from '../main';
 
 /**
  * Modal for selecting a spread and entering intention before drawing cards
@@ -8,18 +9,22 @@ import { FileSuggest } from '../ui/FileSuggest';
 export class SpreadDrawModal extends Modal {
 	private spreads: Spread[];
 	private selectedSpread: Spread;
+	private selectedDeckId: string;
 	private intention: string = '';
 	private showQuerentInput: boolean = false;
 	private querentName: string = '';
 	private querentNotePath: string = '';
-	private callback: (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => void;
+	private callback: (spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) => void;
+	private plugin: TarotPracticePlugin;
 
 	constructor(
 		app: App,
+		plugin: TarotPracticePlugin,
 		spreads: Spread[],
-		callback: (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => void
+		callback: (spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) => void
 	) {
 		super(app);
+		this.plugin = plugin;
 		this.spreads = spreads;
 		
 		if (spreads.length === 0) {
@@ -33,6 +38,13 @@ export class SpreadDrawModal extends Modal {
 		
 		this.selectedSpread = firstSpread;
 		this.callback = callback;
+		
+		// Determine initial deck selection
+		if (plugin.settings.rememberDeckPerSpread && plugin.settings.perSpreadDeckIds[firstSpread.id]) {
+			this.selectedDeckId = plugin.settings.perSpreadDeckIds[firstSpread.id];
+		} else {
+			this.selectedDeckId = plugin.settings.defaultDeckId;
+		}
 	}
 
 	onOpen() {
@@ -61,7 +73,32 @@ export class SpreadDrawModal extends Modal {
 					if (spread) {
 						this.selectedSpread = spread;
 						this.updateSpreadDescription();
+						
+						// Update deck selection if remembering per spread
+						if (this.plugin.settings.rememberDeckPerSpread && this.plugin.settings.perSpreadDeckIds[spread.id]) {
+							this.selectedDeckId = this.plugin.settings.perSpreadDeckIds[spread.id];
+						}
 					}
+				});
+			});
+
+		// Deck selection dropdown
+		const allDecks = this.plugin.deckRegistry.getAllDecks();
+		new Setting(contentEl)
+			.setName('Deck')
+			.setDesc('Choose which deck to use for this reading')
+			.addDropdown((dropdown: DropdownComponent) => {
+				// Add all decks to dropdown
+				allDecks.forEach(deck => {
+					dropdown.addOption(deck.id, deck.name);
+				});
+
+				// Set initial value
+				dropdown.setValue(this.selectedDeckId);
+
+				// Handle selection change
+				dropdown.onChange(async (value) => {
+					this.selectedDeckId = value;
 				});
 			});
 
@@ -209,6 +246,12 @@ export class SpreadDrawModal extends Modal {
 			// Some users might want to draw without a specific question
 		}
 
+		// Save deck selection for this spread if remembering
+		if (this.plugin.settings.rememberDeckPerSpread) {
+			this.plugin.settings.perSpreadDeckIds[this.selectedSpread.id] = this.selectedDeckId;
+			void this.plugin.saveSettings();
+		}
+
 		// Build querent object if provided
 		let querent: { name: string; notePath?: string } | undefined;
 		if (this.showQuerentInput && this.querentName.trim()) {
@@ -218,7 +261,7 @@ export class SpreadDrawModal extends Modal {
 			};
 		}
 
-		this.callback(this.selectedSpread, this.intention, querent);
+		this.callback(this.selectedSpread, this.intention, this.selectedDeckId, querent);
 		this.close();
 	}
 

@@ -59,12 +59,17 @@ export default class TarotPracticePlugin extends Plugin {
 		);
 
 		// Open modal to select spread and enter intention
-		new SpreadDrawModal(this.app, allSpreads, (spread: Spread, intention: string, querent?: { name: string; notePath?: string }) => {
-			void this.drawSpread(spread, intention, querent);
+		new SpreadDrawModal(this.app, this, allSpreads, (spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) => {
+			void this.drawSpread(spread, intention, deckId, querent);
 		}).open();
 	}
 
-	async drawSpread(spread: Spread, intention: string, querent?: { name: string; notePath?: string }) {
+	async drawSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) {
+		// TODO v1.7.0: Use deckId to get the actual deck and use it for drawing
+		// For now, we accept and store the deckId but still use RWS deck (78 cards)
+		// This will be implemented when we refactor prepareDeck() to accept DeckDefinition
+		console.debug(`Drawing spread with deck: ${deckId}`);
+		
 		// Delegate to unified execution method
 		await this.executeSpread(spread, intention, querent);
 	}
