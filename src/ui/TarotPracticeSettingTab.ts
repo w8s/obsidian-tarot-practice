@@ -15,6 +15,7 @@ import { DeckInstallModal } from '../modals/DeckInstallModal';
 import { DeckDetailsModal } from '../modals/DeckDetailsModal';
 import { DeckRemoveConfirmModal } from '../modals/DeckRemoveConfirmModal';
 import { Spread } from '../core/spreads';
+import type { DeckDefinition } from '../types/deck';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -249,29 +250,24 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		});
 
 		// Create new spread button
-		const createSpreadContainer = containerEl.createDiv({ cls: 'setting-item' });
-		createSpreadContainer.setCssProps({
-			'border-top': '1px solid var(--background-modifier-border)',
-			'padding-top': '12px',
-			'margin-top': '8px'
-		});
+		const spreadButtonSetting = new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Create custom spread')
+				.setCta()
+				.onClick(() => {
+					void new SpreadCreateModal(this.app, this.plugin.settings, (newSpread) => {
+						void (async () => {
+							// Add to custom spreads
+							this.plugin.settings.customSpreads.push(newSpread);
+							await this.plugin.saveSettings();
+							this.display(); // Refresh UI
+						})();
+					}).open();
+				}));
 		
-		const createButton = createSpreadContainer.createEl('button', {
-			text: '+ create custom spread',
-			cls: 'mod-cta'
-		});
-		createButton.setCssProps({
-			'width': '100%'
-		});
-		createButton.addEventListener('click', () => {
-			void new SpreadCreateModal(this.app, this.plugin.settings, (newSpread) => {
-				void (async () => {
-					// Add to custom spreads
-					this.plugin.settings.customSpreads.push(newSpread);
-					await this.plugin.saveSettings();
-					this.display(); // Refresh UI
-				})();
-			}).open();
+		// Style the setting to align button to the right (like multi-button settings)
+		spreadButtonSetting.settingEl.setCssProps({
+			'justify-content': 'flex-end'
 		});
 	}
 
@@ -504,40 +500,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		new Setting(containerEl).setName('Available decks').setHeading();
 
 		for (const deck of allDecks) {
-			const deckItem = containerEl.createDiv('deck-list-item');
-			
-			// Deck name and info
-			const deckInfo = deckItem.createDiv('deck-info');
-			const deckName = deckInfo.createEl('strong', { text: deck.name });
-			if (deck.isBuiltIn) {
-				deckName.appendText(' (Built-in)');
-			}
-			deckInfo.createEl('div', { 
-				text: `${deck.cardCount} cards${deck.supportsReversals ? ', supports reversals' : ', no reversals'}`,
-				cls: 'deck-details-text'
-			});
-
-			// Buttons
-			const deckButtons = deckItem.createDiv('deck-buttons');
-			
-			// View Details button
-			deckButtons.createEl('button', { text: 'View details' })
-				.addEventListener('click', () => {
-					new DeckDetailsModal(this.app, deck).open();
-				});
-
-			// Remove button (only for custom decks)
-			if (!deck.isBuiltIn) {
-				deckButtons.createEl('button', { text: 'Remove', cls: 'mod-warning' })
-					.addEventListener('click', () => {
-						new DeckRemoveConfirmModal(
-							this.app,
-							this.plugin,
-							deck,
-							() => this.display() // Refresh settings after removal
-						).open();
-					});
-			}
+			this.addDeckListItem(containerEl, deck);
 		}
 
 		// Add Deck button
@@ -557,6 +520,43 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.onClick(() => {
 					void this.exportExampleDeck();
 				}));
+	}
+
+	/**
+	 * Add a deck list item (similar to spread list items)
+	 */
+	private addDeckListItem(containerEl: HTMLElement, deck: DeckDefinition): void {
+		// Build description
+		const builtInLabel = deck.isBuiltIn ? ' (Built-in)' : '';
+		const reversalsText = deck.supportsReversals ? 'supports reversals' : 'no reversals';
+		const description = `${deck.cardCount} cards, ${reversalsText}`;
+
+		const setting = new Setting(containerEl)
+			.setName(deck.name + builtInLabel)
+			.setDesc(description);
+
+		// View details button
+		setting.addExtraButton(button => button
+			.setIcon('document')
+			.setTooltip('View deck details')
+			.onClick(() => {
+				new DeckDetailsModal(this.app, deck, this.plugin).open();
+			}));
+
+		// Remove button (only for custom decks)
+		if (!deck.isBuiltIn) {
+			setting.addExtraButton(button => button
+				.setIcon('trash')
+				.setTooltip('Remove deck')
+				.onClick(() => {
+					new DeckRemoveConfirmModal(
+						this.app,
+						this.plugin,
+						deck,
+						() => this.display() // Refresh after removal
+					).open();
+				}));
+		}
 	}
 
 	private async exportExampleDeck(): Promise<void> {

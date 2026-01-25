@@ -33,11 +33,13 @@ That's it! Customize settings later in Settings → Tarot Practice.
 ## Features
 
 - 🎴 **Multi-deck support** - Tarot, runes, Lenormand, I Ching, playing cards, or custom decks
+- 🖼️ **Card images** - Display images in readings using vault-based storage
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts plus custom spread creation
 - 🎲 **Deck preparation** - Traditional shuffle (1-7x) with intention-influenced cut
 - 📝 **Handlebars templates** - Fully customizable output formatting
 - 🔄 **Reversal support** - Optional reversed cards with configurable probability
+- 📦 **ZIP deck import** - Install complete decks with images in one click
 - 📱 **Cross-platform** - Works on desktop, iOS, and Android
 
 **Additional decks:** Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository
@@ -151,16 +153,28 @@ Download free public domain decks from the **[obsidian-tarot-decks](https://gith
 - **Playing Cards** (52) - Standard deck divination, medieval Europe
 - **I Ching** (64) - Ancient Chinese oracle, 3000+ years old
 
-Each deck includes complete documentation and is ready to install.
+**Installation:** Download the ZIP file and import via Settings → Deck Management → "Add deck". ZIP packages include card images for enhanced readings.
 
 ### Creating Your Own Deck
 
+**Two formats supported:**
+
+1. **ZIP package** (recommended) - Includes deck definition + images
+   - Automatic image extraction to your vault
+   - Card images display in readings using `![[image]]` syntax
+   - Optional source URL for re-downloading if images are deleted
+
+2. **JSON file** - Deck definition only (no images)
+   - Lightweight option for text-only readings
+   - Can add image paths to external files later
+
+**Getting started:**
 1. Settings → Deck Management → "Export example deck"
-2. Edit the JSON file with your cards
-3. Optionally add image paths (`imageUrl` for cards, `backImageUrl` for deck)
+2. Edit the JSON file with your cards and metadata
+3. For ZIP format: Create `cards/` folder with images, add deck.json in root
 4. Install via Settings → Deck Management → "Add deck"
 
-**Complete deck creation guide:** See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for JSON structure, validation rules, and best practices.
+**Complete deck creation guide:** See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for JSON structure, ZIP packaging, validation rules, and best practices.
 
 ## Templates
 
@@ -199,8 +213,12 @@ See complete documentation:
 
 ## Roadmap
 
-**v1.8.0+ (Planned):**
-- ZIP deck installation (import complete decks with images)
+**v1.8.0 (Released):**
+- ✅ ZIP deck installation (import complete decks with images)
+- ✅ Vault-based image storage with wikilink support
+- ✅ sourceUrl for deck image restoration
+
+**v1.9.0+ (Planned):**
 - Spread import/export for sharing
 - Different shuffle styles (overhand, riffle, Hindu)
 - Reading history and analytics

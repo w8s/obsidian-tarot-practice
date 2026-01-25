@@ -1,5 +1,6 @@
-import { App, Modal } from 'obsidian';
+import { App, Modal, Notice } from 'obsidian';
 import type { DeckDefinition } from '../types/deck';
+import type TarotPracticePlugin from '../main';
 
 /**
  * Modal for viewing deck details
@@ -7,7 +8,8 @@ import type { DeckDefinition } from '../types/deck';
 export class DeckDetailsModal extends Modal {
 	constructor(
 		app: App,
-		private deck: DeckDefinition
+		private deck: DeckDefinition,
+		private plugin?: TarotPracticePlugin
 	) {
 		super(app);
 	}
@@ -60,8 +62,26 @@ export class DeckDetailsModal extends Modal {
 			cardList.createEl('li', { text: `${card.index}: ${cardText}` });
 		}
 
-		// Close button
+		// Button container
 		const buttonContainer = contentEl.createDiv('modal-button-container');
+		
+		// Restore images button (if deck has sourceUrl and plugin is available)
+		if (this.deck.sourceUrl && this.plugin) {
+			buttonContainer.createEl('button', { text: 'Restore images' })
+				.addEventListener('click', () => {
+					void (async () => {
+						try {
+							await this.plugin!.deckLoader.restoreDeckImages(this.deck);
+							new Notice(`Images restored for "${this.deck.name}"`);
+						} catch (error) {
+							console.error('Failed to restore images:', error);
+							// Error notice already shown by restoreDeckImages
+						}
+					})();
+				});
+		}
+		
+		// Close button
 		buttonContainer.createEl('button', { text: 'Close', cls: 'mod-cta' })
 			.addEventListener('click', () => {
 				this.close();

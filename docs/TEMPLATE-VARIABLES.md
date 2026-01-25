@@ -101,17 +101,19 @@ This creates a wikilink to the person's note if provided, otherwise just shows t
 
 **`{{deck_back_image_url}}`**
 - File path to the deck back image (if defined)
-- Relative to deck directory: `"back.png"`
-- Or vault path: `"Assets/Decks/my-deck-back.png"`
+- Vault-absolute path for ZIP-imported decks: `"Templates/Tarot/Decks/rider-waite-smith/cards/back.png"`
+- Custom vault path for manual setups: `"Assets/Decks/my-deck-back.png"`
 - Empty string if not defined
 - Use for custom deck back display
+- Images from ZIP decks are stored in: `{templateBaseFolder}/Decks/{deck-id}/cards/`
 
 **`{{deck_back_image}}`**
 - Deck back image formatted as Obsidian wikilink
 - Automatically formatted as `![[path]]`
 - Empty string if no image defined
 - Displays immediately in reading view
-- Example: `![[Assets/Decks/celtic-back.png]]`
+- Example: `![[Templates/Tarot/Decks/celtic/cards/back.png]]`
+- Works with vault-stored images from ZIP deck imports
 
 ---
 
@@ -234,18 +236,20 @@ Variables available for each card. Use inside `{{#each cards}}` loops or via dir
 
 **`{{imageUrl}}`**
 - File path to the card image (if defined in deck)
-- Relative to deck directory: `"cards/09-hermit.png"`
-- Or vault path: `"Assets/Tarot/RWS/hermit.png"`
+- Vault-absolute path for ZIP-imported decks: `"Templates/Tarot/Decks/rider-waite-smith/cards/09-hermit.jpg"`
+- Custom vault path for manual setups: `"Assets/Tarot/RWS/hermit.png"`
 - Empty string if not defined
 - Use for custom image embedding or linking
+- Images from ZIP decks are stored in: `{templateBaseFolder}/Decks/{deck-id}/cards/`
 
 **`{{image}}`**
 - Card image formatted as Obsidian wikilink
 - Automatically formatted as `![[path]]`
 - Empty string if no image defined
 - Displays immediately in reading view
-- Example: `![[cards/09-hermit.png]]`
+- Example: `![[Templates/Tarot/Decks/rider-waite-smith/cards/09-hermit.jpg]]`
 - Useful for visual spreads with card images
+- Works with vault-stored images from ZIP deck imports
 
 ### Usage Examples
 

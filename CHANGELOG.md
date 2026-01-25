@@ -7,6 +7,62 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2025-01-25
+
+### Added
+- **ZIP Deck Support** - Import complete deck packages with card images
+  - One-click installation from ZIP files containing deck.json + images
+  - Auto-extracts card images to vault (`{templateBaseFolder}/Decks/{deck-id}/cards/`)
+  - Images stored in vault for Obsidian wikilink compatibility
+  - Maintains backward compatibility with JSON-only deck imports
+  - File picker accepts both `.json` and `.zip` files
+  - Integrated with [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository releases
+  
+- **Vault-Based Image Storage**
+  - Images extracted to vault location (default: `Templates/Tarot/Decks/`)
+  - Works with Obsidian's `![[image]]` wikilink syntax
+  - Respects user's template base folder setting
+  - Portable deck.json files with relative image paths
+  - Path resolution at render time for flexibility
+
+- **sourceUrl Support** - Restore deleted deck images
+  - Optional `sourceUrl` field in deck.json
+  - "Restore images" button in deck details modal
+  - Re-downloads and extracts images from GitHub releases
+  - No duplicate storage - images recoverable on demand
+  - Future-proof for deck updates and community sharing
+
+- **Image Path Template Variables**
+  - `{{card.imageUrl}}` - Vault path to card image
+  - `{{card.image}}` - Formatted wikilink `![[path]]`
+  - `{{deck_back_image_url}}` - Vault path to deck back
+  - `{{deck_back_image}}` - Formatted wikilink for deck back
+
+### Changed
+- **UI Consistency Improvements**
+  - Deck display now matches Spreads section pattern (Setting components with icon buttons)
+  - "Create custom spread" button styling matches "Add deck" button
+  - Cleaner, more consistent settings interface
+
+- **Deck Removal** - Now cleans up both config and images
+  - Removes deck.json from plugin directory
+  - Removes images from vault directory
+  - No orphaned files after deck removal
+
+### Technical
+- DRY refactoring: shared `installDeck()` helper eliminates duplication between JSON and ZIP installers
+- Added JSZip library for ZIP extraction
+- Uses Obsidian's `requestUrl()` for downloading decks (not `fetch()`)
+- Proper error handling with cleanup on failed installations
+- Validates ZIP structure before extraction (requires deck.json in root)
+- Type-safe plugin access (TarotPracticePlugin instead of Plugin)
+- Zero ESLint errors with proper async/await patterns
+
+### Fixed
+- Type safety issues with settings access
+- Async event handler warnings in modals
+- Duplicate code in deck installation paths
+
 ## [1.7.1] - 2025-01-25
 
 ### Changed

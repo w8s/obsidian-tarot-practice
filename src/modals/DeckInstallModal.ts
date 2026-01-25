@@ -21,14 +21,14 @@ export class DeckInstallModal extends Modal {
 		contentEl.createEl('h2', { text: 'Add deck' });
 		
 		contentEl.createEl('p', { 
-			text: 'Select a deck.json file to install. The deck will be added to your plugin directory.'
+			text: 'Select a deck file to install. The deck will be added to your plugin directory.'
 		});
 
 		// File input
 		const fileInput = contentEl.createEl('input', {
 			type: 'file',
 			attr: {
-				accept: '.json'
+				accept: '.json,.zip'
 			}
 		});
 
@@ -56,10 +56,17 @@ export class DeckInstallModal extends Modal {
 					installButton.disabled = true;
 					installButton.textContent = 'Installing...';
 
-					const deck = await this.plugin.deckLoader.installFromJSON(file);
+					// Determine file type and call appropriate installer
+					let deck;
+					if (file.name.endsWith('.zip')) {
+						deck = await this.plugin.deckLoader.installFromZIP(file);
+					} else if (file.name.endsWith('.json')) {
+						deck = await this.plugin.deckLoader.installFromJSON(file);
+					} else {
+						throw new Error('Invalid file type. Please select a .json or .zip file.');
+					}
+
 					this.plugin.deckRegistry.registerDeck(deck);
-					
-					new Notice(`Deck "${deck.name}" installed successfully`);
 					this.onInstalled();
 					this.close();
 				} catch (error) {
