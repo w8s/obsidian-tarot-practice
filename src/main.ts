@@ -6,7 +6,7 @@ import { SpreadResolver } from 'spreads/SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
 import { prepareDeck } from 'core/DeckPreparation';
-import { DEFAULT_DECK } from 'core/Deck';
+import { DeckType } from 'core/Deck';
 import { DeckRegistry } from 'core/DeckRegistry';
 import { DeckLoader } from 'core/DeckLoader';
 
@@ -144,7 +144,14 @@ export default class TarotPracticePlugin extends Plugin {
 				intention: intention,
 				timestamp: timestamp,
 				positions: positions,
-				deck: DEFAULT_DECK,
+				deck: {
+					id: deck.id,
+					name: deck.name,
+					type: deck.metadata?.tradition as DeckType || 'other',
+					cardCount: deck.cardCount,
+					supportsReversals: deck.supportsReversals,
+					isBuiltIn: deck.isBuiltIn
+				},
 				shuffleCount: preparedDeck.metadata.shuffleCount,
 				wasCut: preparedDeck.metadata.wasCut,
 				cutPosition: preparedDeck.metadata.cutPositionPercent ?? undefined,
