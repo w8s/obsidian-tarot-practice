@@ -11,6 +11,9 @@ import { SpreadResolver } from '../spreads/SpreadResolver';
 import { SpreadViewModal } from '../modals/SpreadViewModal';
 import { SpreadEditModal } from '../modals/SpreadEditModal';
 import { SpreadCreateModal } from '../modals/SpreadCreateModal';
+import { DeckInstallModal } from '../modals/DeckInstallModal';
+import { DeckDetailsModal } from '../modals/DeckDetailsModal';
+import { DeckRemoveConfirmModal } from '../modals/DeckRemoveConfirmModal';
 import { Spread } from '../core/spreads';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
@@ -497,8 +500,57 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 				}));
 
-		// TODO: Add deck list with View Details, Remove buttons
-		// TODO: Add "Add Deck" button
-		// TODO: Add "Export Example Deck" button
+		// Deck list
+		new Setting(containerEl).setName('Available decks').setHeading();
+
+		for (const deck of allDecks) {
+			const deckItem = containerEl.createDiv('deck-list-item');
+			
+			// Deck name and info
+			const deckInfo = deckItem.createDiv('deck-info');
+			const deckName = deckInfo.createEl('strong', { text: deck.name });
+			if (deck.isBuiltIn) {
+				deckName.appendText(' (Built-in)');
+			}
+			deckInfo.createEl('div', { 
+				text: `${deck.cardCount} cards${deck.supportsReversals ? ', supports reversals' : ', no reversals'}`,
+				cls: 'deck-details-text'
+			});
+
+			// Buttons
+			const deckButtons = deckItem.createDiv('deck-buttons');
+			
+			// View Details button
+			deckButtons.createEl('button', { text: 'View details' })
+				.addEventListener('click', () => {
+					new DeckDetailsModal(this.app, deck).open();
+				});
+
+			// Remove button (only for custom decks)
+			if (!deck.isBuiltIn) {
+				deckButtons.createEl('button', { text: 'Remove', cls: 'mod-warning' })
+					.addEventListener('click', () => {
+						new DeckRemoveConfirmModal(
+							this.app,
+							this.plugin,
+							deck,
+							() => this.display() // Refresh settings after removal
+						).open();
+					});
+			}
+		}
+
+		// Add Deck button
+		new Setting(containerEl)
+			.addButton(button => button
+				.setButtonText('Add deck')
+				.setCta()
+				.onClick(() => {
+					new DeckInstallModal(
+						this.app,
+						this.plugin,
+						() => this.display() // Refresh settings after installation
+					).open();
+				}));
 	}
 }
