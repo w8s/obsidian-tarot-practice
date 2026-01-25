@@ -1,7 +1,7 @@
 {
 	"id": "tarot-practice",
 	"name": "Tarot Practice",
-	"version": "1.8.0",
+	"version": "1.8.1",
 	"minAppVersion": "0.15.0",
 	"description": "A divination plugin supporting tarot, runes, Lenormand, I Ching, and custom decks. Draw cards with intention using randomness seeded by your words. Full mobile support.",
 	"author": "Todd Waits",
