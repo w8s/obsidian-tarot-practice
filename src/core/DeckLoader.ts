@@ -1,13 +1,14 @@
-import { Notice, Plugin } from 'obsidian';
+import { Notice, requestUrl } from 'obsidian';
 import type { DeckDefinition } from '../types/deck';
 import { DeckValidator } from './DeckValidator';
 import type JSZip from 'jszip';
+import type TarotPracticePlugin from '../main';
 
 /**
  * Handles loading and installing deck definitions from files
  */
 export class DeckLoader {
-	constructor(private plugin: Plugin) {}
+	constructor(private plugin: TarotPracticePlugin) {}
 
 	/**
 	 * Get the decks directory path
@@ -198,8 +199,7 @@ export class DeckLoader {
 			}
 			
 			// Get template base folder from settings
-			const settings = (this.plugin as any).settings;
-			const templateBaseFolder = settings?.templateBaseFolder || 'Templates/Tarot';
+			const templateBaseFolder = this.plugin.settings.templateBaseFolder || 'Templates/Tarot';
 			
 			// Extract images to vault: {templateBaseFolder}/Decks/{deck-id}/cards/
 			const vaultImagePath = `${templateBaseFolder}/Decks/${deckData.id}/cards`;
@@ -237,8 +237,7 @@ export class DeckLoader {
 		await adapter.rmdir(deckPath, true);
 		
 		// Remove images from vault if they exist
-		const settings = (this.plugin as any).settings;
-		const templateBaseFolder = settings?.templateBaseFolder || 'Templates/Tarot';
+		const templateBaseFolder = this.plugin.settings.templateBaseFolder || 'Templates/Tarot';
 		const vaultImagePath = `${templateBaseFolder}/Decks/${deckId}`;
 		
 		if (await adapter.exists(vaultImagePath)) {
@@ -269,22 +268,17 @@ export class DeckLoader {
 		new Notice(`Downloading deck images for "${deck.name}"...`);
 
 		try {
-			// Download the ZIP file
-			const response = await fetch(deck.sourceUrl);
-			if (!response.ok) {
-				throw new Error(`Failed to download: ${response.statusText}`);
-			}
-
-			const blob = await response.blob();
-			const file = new File([blob], `${deck.id}.zip`, { type: 'application/zip' });
+			// Download the ZIP file using Obsidian's requestUrl
+			const response = await requestUrl({ url: deck.sourceUrl });
+			const arrayBuffer = response.arrayBuffer;
+			const file = new File([arrayBuffer], `${deck.id}.zip`, { type: 'application/zip' });
 
 			// Dynamically import JSZip
 			const JSZip = (await import('jszip')).default;
 			const zip = await JSZip.loadAsync(file);
 
 			// Get template base folder from settings
-			const settings = (this.plugin as any).settings;
-			const templateBaseFolder = settings?.templateBaseFolder || 'Templates/Tarot';
+			const templateBaseFolder = this.plugin.settings.templateBaseFolder || 'Templates/Tarot';
 			
 			// Extract images to vault: {templateBaseFolder}/Decks/{deck-id}/cards/
 			const vaultImagePath = `${templateBaseFolder}/Decks/${deck.id}/cards`;

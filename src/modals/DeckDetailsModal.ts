@@ -68,14 +68,16 @@ export class DeckDetailsModal extends Modal {
 		// Restore images button (if deck has sourceUrl and plugin is available)
 		if (this.deck.sourceUrl && this.plugin) {
 			buttonContainer.createEl('button', { text: 'Restore images' })
-				.addEventListener('click', async () => {
-					try {
-						await this.plugin!.deckLoader.restoreDeckImages(this.deck);
-						new Notice(`Images restored for "${this.deck.name}"`);
-					} catch (error) {
-						console.error('Failed to restore images:', error);
-						// Error notice already shown by restoreDeckImages
-					}
+				.addEventListener('click', () => {
+					void (async () => {
+						try {
+							await this.plugin!.deckLoader.restoreDeckImages(this.deck);
+							new Notice(`Images restored for "${this.deck.name}"`);
+						} catch (error) {
+							console.error('Failed to restore images:', error);
+							// Error notice already shown by restoreDeckImages
+						}
+					})();
 				});
 		}
 		
