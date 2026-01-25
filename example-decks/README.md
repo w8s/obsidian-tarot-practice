@@ -70,18 +70,49 @@ Use these files as templates! The required structure is:
       "category": "Category or null",
       "suit": "Suit or null",
       "rank": "Rank or null",
-      "value": "Value or null"
+      "value": "Value or null",
+      "imageUrl": "cards/00-card-name.png"
     }
   ],
   "cardCount": 24,
   "supportsReversals": true,
   "isBuiltIn": false,
+  "backImageUrl": "back.png",
   "metadata": {
     "author": "Creator Name",
     "year": 2025,
     "publisher": "Publisher",
-    "tradition": "tarot|oracle|lenormand|playing-cards|other"
+    "tradition": "tarot|oracle|lenormand|playing-cards|runes|other"
   }
+}
+```
+
+### Optional Image Support
+
+Decks can include images for visual spreads:
+
+**Card images:**
+- Add `"imageUrl": "path/to/image.png"` to each card
+- Paths can be relative to deck directory or vault paths
+- Use in templates with `{{card.image}}` or `{{card.imageUrl}}`
+
+**Deck back image:**
+- Add `"backImageUrl": "back.png"` at deck level
+- Use in templates with `{{deck_back_image}}` or `{{deck_back_image_url}}`
+
+**Example with images:**
+```json
+{
+  "id": "my-oracle",
+  "name": "My Oracle Deck",
+  "backImageUrl": "assets/deck-back.png",
+  "cards": [
+    {
+      "index": 0,
+      "name": "The Seeker",
+      "imageUrl": "assets/cards/00-seeker.png"
+    }
+  ]
 }
 ```
 
