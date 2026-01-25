@@ -7,19 +7,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
-### Added
-- **Image Path Support** - Display card and deck images in readings
-  - `{{card.imageUrl}}` - Raw image path for cards
-  - `{{card.image}}` - Auto-formatted Obsidian wikilink `![[path]]`
-  - `{{deck_back_image_url}}` - Raw deck back image path
-  - `{{deck_back_image}}` - Auto-formatted deck back wikilink
-  - Works with relative paths (deck directory) or vault paths
-  - Empty string when images not defined (template-safe)
-
-### Changed
-- **DeckType** - Added `"runes"` to supported deck types
-- **Deck Interface** - Added optional `definition` field with full DeckDefinition
-
 ## [1.7.0] - 2025-01-25
 
 ### Added
@@ -41,6 +28,58 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Toggle "Remember deck per spread" setting
 
 - **Five Public Domain Example Decks** (`/example-decks/`)
+  - **Elder Futhark Runes** (24 runes) - Norse divination, 2nd-8th century CE
+  - **Petit Lenormand** (36 cards) - French cartomancy, early 1800s
+  - **Playing Cards** (52 cards) - Standard deck divination, medieval Europe
+  - **I Ching** (64 hexagrams) - Ancient Chinese oracle, 3000+ years old
+  - **Example Oracle** (3 cards) - Simple template (via Export button)
+
+- **New Template Variables**
+  - `{{deck_name}}`, `{{deck_id}}`, `{{deck_type}}`
+  - `{{deck_card_count}}`, `{{deck_supports_reversals}}`
+  - `{{card.imageUrl}}`, `{{card.image}}` - Card image support
+  - `{{deck_back_image_url}}`, `{{deck_back_image}}` - Deck back image support
+
+- **Image Path Support** - Display card and deck images in readings
+  - Works with relative paths (deck directory) or vault paths
+  - Auto-formatted as Obsidian wikilinks `![[path]]`
+  - Empty string when images not defined (template-safe)
+  - Full documentation in TEMPLATE-VARIABLES.md
+
+- **New Core Components**
+  - `DeckValidator` - Validates deck structure, card indices, duplicates
+  - `DeckLoader` - Loads decks from plugin directory
+  - `DeckRegistry` - Manages all available decks
+  - `DeckInstallModal` - Install wizard for new decks
+  - `DeckDetailsModal` - View deck information
+  - `DeckRemoveConfirmModal` - Safe deck removal
+
+### Changed
+- **Spread Drawing** - Now uses selected deck instead of hardcoded RWS
+  - `prepareDeck()` accepts any card count
+  - Card names pulled from selected deck
+  - Works with decks from 3 to 100+ cards
+- **Settings Structure** - New deck-related settings
+  - `defaultDeckId` - Default deck for new readings
+  - `rememberDeckPerSpread` - Persist deck choice per spread type
+  - `perSpreadDeckIds` - Stores deck selections
+  - `ignoredDeckWarnings` - Suppresses duplicate warnings
+- **DeckType** - Added `"runes"` to supported deck types
+- **Deck Interface** - Added optional `definition` field with full DeckDefinition
+
+### Technical
+- Zero ESLint errors across all new code
+- TypeScript strict mode compliance
+- Cross-platform compatibility (desktop + mobile)
+- Comprehensive validation with helpful error messages
+- Backward compatible - existing RWS deck still works
+- Example decks included in repository
+
+### Notes
+- All example decks are public domain and freely usable
+- Deck JSON format documented in `/example-decks/README.md`
+- ZIP deck installation planned for future release
+- Users can create custom decks for any divination system
   - **Elder Futhark Runes** (24 runes) - Norse divination, 2nd-8th century CE
   - **Petit Lenormand** (36 cards) - French cartomancy, early 1800s
   - **Playing Cards** (52 cards) - Standard deck divination, medieval Europe
