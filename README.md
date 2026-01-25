@@ -1,6 +1,6 @@
 # Tarot Practice
 
-![](https://img.shields.io/badge/Obidian_Plugin_Submission-Pending-orange) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
+![](https://img.shields.io/badge/Obsidian_Plugin_Submission-Pending-orange) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
 
 
 *Bringing necessary imprecision to digital mystical arts since 2025*
