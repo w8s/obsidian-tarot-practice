@@ -250,7 +250,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		});
 
 		// Create new spread button
-		new Setting(containerEl)
+		const spreadButtonSetting = new Setting(containerEl)
 			.addButton(button => button
 				.setButtonText('Create custom spread')
 				.setCta()
@@ -264,6 +264,11 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						})();
 					}).open();
 				}));
+		
+		// Style the setting to align button to the right (like multi-button settings)
+		spreadButtonSetting.settingEl.setCssProps({
+			'justify-content': 'flex-end'
+		});
 	}
 
 	/**
