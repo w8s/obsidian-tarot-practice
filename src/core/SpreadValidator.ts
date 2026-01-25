@@ -1,4 +1,4 @@
-import type { Spread, SpreadPositionDefinition } from './spreads';
+import type { Spread } from './spreads';
 
 /**
  * Validation result with errors and warnings
@@ -194,13 +194,17 @@ export class SpreadValidator {
 	): void {
 		// Check metadata if present
 		if ('metadata' in spread) {
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any
 			const metadata = (spread as any).metadata;
 			
+			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 			if (metadata && typeof metadata === 'object') {
 				// Recommend metadata fields
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				if (!metadata.author) {
 					result.warnings.push('Consider adding metadata.author for attribution');
 				}
+				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 				if (!metadata.tradition) {
 					result.warnings.push('Consider adding metadata.tradition (e.g., "tarot", "oracle")');
 				}

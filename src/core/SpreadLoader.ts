@@ -1,7 +1,6 @@
-import { Notice, requestUrl } from 'obsidian';
+import { Notice } from 'obsidian';
 import type { Spread } from './spreads';
 import { SpreadValidator } from './SpreadValidator';
-import type JSZip from 'jszip';
 import type TarotPracticePlugin from '../main';
 
 /**
