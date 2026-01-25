@@ -752,6 +752,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const json = JSON.stringify(exampleSpread, null, 2);
 		const blob = new Blob([json], { type: 'application/json' });
 		this.downloadBlob(blob, 'example-three-card.json');
+		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		new Notice('Example spread exported! Edit and import via "Import spread".');
 	}
 }

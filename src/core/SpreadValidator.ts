@@ -194,7 +194,7 @@ export class SpreadValidator {
 	): void {
 		// Check metadata if present
 		if ('metadata' in spread) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any
+			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment
 			const metadata = (spread as any).metadata;
 			
 			// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
