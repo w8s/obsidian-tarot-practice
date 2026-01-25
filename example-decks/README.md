@@ -24,6 +24,29 @@ Named after the famous French fortune teller Mademoiselle Lenormand (1772-1843),
 
 Lenormand readings focus on combinations of cards rather than individual card meanings. Common spreads include the Grand Tableau (all 36 cards) and smaller 3-9 card layouts.
 
+### Playing Card Cartomancy (52 cards)
+**File:** `playing-cards.json`
+
+Standard playing card divination, dating back to 14th century Europe and popularized in the 18th-19th centuries. The four suits represent:
+- **Hearts** - Love, emotions, relationships, home
+- **Diamonds** - Money, resources, work, material concerns
+- **Clubs** - Passion, creativity, inspiration, action
+- **Spades** - Challenges, obstacles, difficulties, truth
+
+Cartomancy is known for providing direct, straightforward answers. No reversals used.
+
+### I Ching / Book of Changes (64 hexagrams)
+**File:** `i-ching.json`
+
+The ancient Chinese divination system, over 3,000 years old. Each of the 64 hexagrams is formed from six lines (either broken yin or unbroken yang). Hexagrams represent different life situations and changes.
+
+Traditionally consulted by:
+- Casting three coins six times
+- Dividing yarrow stalks
+- Random selection (modern method)
+
+Each hexagram has deep philosophical meaning and can include "changing lines" for additional insight.
+
 ## Installation
 
 1. Open Obsidian Settings → Tarot Practice → Deck Management
@@ -65,7 +88,9 @@ Use these files as templates! The required structure is:
 ## Public Domain Status
 
 These decks are based on historical divination systems that are in the public domain:
-- Elder Futhark runes date from the 2nd-8th centuries CE
-- Lenormand system dates from the early 1800s
+- **Elder Futhark runes** - 2nd-8th centuries CE
+- **Lenormand system** - Early 1800s
+- **Playing card cartomancy** - 14th century Europe onwards
+- **I Ching** - Over 3,000 years old (ancient China)
 
-Both systems are freely available for use, study, and distribution.
+All systems are freely available for use, study, and distribution.
