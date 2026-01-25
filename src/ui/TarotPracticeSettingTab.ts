@@ -33,6 +33,9 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 			return; // Don't show settings until migration is handled
 		}
 
+		// ===== DECK MANAGEMENT SECTION =====
+		this.displayDeckManagement(containerEl);
+
 		// ===== DECK PREPARATION SECTION =====
 		new Setting(containerEl).setName('Deck preparation').setHeading();
 		containerEl.createDiv('setting-item-description', el => {
@@ -458,5 +461,44 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 					await this.plugin.saveSettings();
 					this.display(); // Refresh settings
 				}));
+	}
+
+	private displayDeckManagement(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName('Deck management').setHeading();
+		
+		// Default deck dropdown
+		const deckRegistry = this.plugin.deckRegistry;
+		const allDecks = deckRegistry.getAllDecks();
+		
+		const deckOptions: Record<string, string> = {};
+		for (const deck of allDecks) {
+			deckOptions[deck.id] = deck.name;
+		}
+
+		new Setting(containerEl)
+			.setName('Default deck')
+			.setDesc('Deck to use when no spread-specific deck is set')
+			.addDropdown(dropdown => dropdown
+				.addOptions(deckOptions)
+				.setValue(this.plugin.settings.defaultDeckId)
+				.onChange(async (value) => {
+					this.plugin.settings.defaultDeckId = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// Remember deck per spread toggle
+		new Setting(containerEl)
+			.setName('Remember last deck per spread')
+			.setDesc('Each spread remembers the last deck used. When disabled, always use default deck.')
+			.addToggle(toggle => toggle
+				.setValue(this.plugin.settings.rememberDeckPerSpread)
+				.onChange(async (value) => {
+					this.plugin.settings.rememberDeckPerSpread = value;
+					await this.plugin.saveSettings();
+				}));
+
+		// TODO: Add deck list with View Details, Remove buttons
+		// TODO: Add "Add Deck" button
+		// TODO: Add "Export Example Deck" button
 	}
 }

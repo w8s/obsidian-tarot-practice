@@ -30,6 +30,12 @@ export interface TarotPracticeSettings {
 	customSpreads: Spread[];
 	builtInSpreadOverrides: Record<string, Partial<Spread>>;
 	
+	// Deck management (v1.7.0+)
+	defaultDeckId: string;
+	rememberDeckPerSpread: boolean;
+	perSpreadDeckIds: Record<string, string>; // spreadId -> deckId
+	ignoredDeckWarnings: string[]; // deck IDs to ignore duplicate name warnings for
+	
 	// Migration flag
 	hasTemplatesMigrated: boolean;
 	
@@ -87,6 +93,12 @@ export const DEFAULT_SETTINGS: TarotPracticeSettings = {
 	// Spreads (v1.4.0+)
 	customSpreads: [],
 	builtInSpreadOverrides: {},
+	
+	// Deck management (v1.7.0+)
+	defaultDeckId: 'rider-waite-smith',
+	rememberDeckPerSpread: true,
+	perSpreadDeckIds: {},
+	ignoredDeckWarnings: [],
 	
 	// Migration flag
 	hasTemplatesMigrated: false,

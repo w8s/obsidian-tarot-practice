@@ -8,12 +8,26 @@ import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
 import { prepareDeck } from 'core/DeckPreparation';
 import { getCardName } from 'core/CardDatabase';
 import { DEFAULT_DECK } from 'core/Deck';
+import { DeckRegistry } from 'core/DeckRegistry';
+import { DeckLoader } from 'core/DeckLoader';
 
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
+	deckRegistry: DeckRegistry;
+	deckLoader: DeckLoader;
 
 	async onload() {
 		await this.loadSettings();
+
+		// Initialize deck system (v1.7.0)
+		this.deckRegistry = new DeckRegistry();
+		this.deckLoader = new DeckLoader(this);
+		
+		// Load custom decks
+		const customDecks = await this.deckLoader.loadAllDecks();
+		for (const deck of customDecks) {
+			this.deckRegistry.registerDeck(deck);
+		}
 
 		// Register Handlebars helpers for spread templates
 		registerHandlebarsHelpers();
