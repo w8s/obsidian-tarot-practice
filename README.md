@@ -32,11 +32,13 @@ That's it! Customize settings later in Settings → Tarot Practice.
 
 ## Features
 
-- 🎴 **Daily & inline draws** - Single or multiple cards (1-78) with intention-based randomness
+- 🎴 **Multi-deck support** - Use any divination system! Runes, Lenormand, I Ching, playing cards, or custom decks
+- 🎨 **Five included decks** - Elder Futhark Runes, Lenormand, Playing Cards, I Ching, plus RWS Tarot
+- 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts (Single, Three Card variants, Five Card Week, Celtic Cross)
 - ✨ **Custom spreads** - Create your own position layouts with custom meanings
-- 🎯 **Deck preparation** - Traditional shuffle (1-7x) and intention-influenced cut with ±10% variance
-- 📝 **Handlebars templates** - Fully customizable output with 15+ variables and advanced formatting
+- 🎲 **Deck preparation** - Traditional shuffle (1-7x) and intention-influenced cut with ±10% variance
+- 📝 **Handlebars templates** - Fully customizable output with 20+ variables and advanced formatting
 - 🔄 **Reversal support** - Optional reversed cards with configurable probability
 - 📱 **Cross-platform** - Works on desktop, iOS, and Android
 - 🔍 **Full transparency** - Complete metadata for every draw (shuffle count, cut position, variance)
@@ -96,6 +98,14 @@ See [Usage Guide](docs/USAGE.md) for detailed examples and workflows.
 
 Configure in Settings → Tarot Practice:
 
+### Deck Management
+- **Default deck** - Choose which deck to use for all spreads
+- **Remember per spread** - Remember deck choice for each spread type
+- **Install deck** - Add custom decks from JSON files
+- **View deck details** - See card list and metadata
+- **Remove deck** - Delete custom decks
+- **Export example** - Download template deck for creating your own
+
 ### Deck Preparation
 - **Shuffle count** (1-7, default: 3) - How many times to shuffle
 - **Cut deck** (On/Off, default: On) - Intention-based cutting after shuffle
@@ -122,12 +132,41 @@ Configure in Settings → Tarot Practice:
 
 See [Settings Reference](docs/SETTINGS.md) for complete options and defaults.
 
+## Custom Decks
+
+The plugin supports any divination system! Create JSON decks for:
+- Oracle cards
+- Runes (Elder Futhark, Anglo-Saxon, etc.)
+- Lenormand or Kipper cards
+- Playing cards
+- I Ching hexagrams
+- Ogham staves
+- Any custom system
+
+### Included Example Decks
+
+Located in `/example-decks/`:
+- **Elder Futhark Runes** (24) - Norse divination
+- **Petit Lenormand** (36) - French cartomancy
+- **Playing Cards** (52) - Standard deck divination
+- **I Ching** (64) - Ancient Chinese oracle
+- **Example Oracle** (3) - Simple template
+
+### Creating Your Own Deck
+
+1. Export example deck (Settings → Deck Management → "Export example deck")
+2. Edit JSON with your cards
+3. Install via Settings → Deck Management → "Add deck"
+
+See `/example-decks/README.md` for complete JSON structure and examples.
+
 ## Templates
 
-Templates use **Handlebars** syntax with 15+ variables for customizing draw output.
+Templates use **Handlebars** syntax with 20+ variables for customizing draw output.
 
 ### Quick Reference
 
+**Deck info:** `{{deck_name}}`, `{{deck_id}}`, `{{deck_type}}`, `{{deck_card_count}}`, `{{deck_supports_reversals}}`  
 **Spread info:** `{{spread_name}}`, `{{spread_description}}`, `{{intention}}`  
 **Cards:** `{{card_count}}`, `{{cards}}` (array for loops)  
 **Date/time:** `{{date}}`, `{{time}}`, `{{datetime}}` (supports Moment.js formats)  

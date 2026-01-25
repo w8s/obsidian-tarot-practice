@@ -7,6 +7,73 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.0] - 2025-01-25
+
+### Added
+- **Multi-Deck Support** - Use any divination deck, not just tarot!
+  - Install custom decks via JSON files
+  - Deck validation with helpful error messages
+  - Deck registry manages built-in and custom decks
+  - Per-spread deck persistence (remembers your choice)
+  - Deck selection dropdown in spread draw modal
+  - Works with any card count (24 runes, 36 Lenormand, 52 playing cards, etc.)
+
+- **Deck Management UI** (Settings → Deck Management)
+  - View all installed decks with card counts and reversal support
+  - Install decks from JSON files
+  - View detailed deck information (metadata, card list)
+  - Remove custom decks (built-in decks protected)
+  - Export example deck as template
+  - Set default deck for all spreads
+  - Toggle "Remember deck per spread" setting
+
+- **Five Public Domain Example Decks** (`/example-decks/`)
+  - **Elder Futhark Runes** (24 runes) - Norse divination, 2nd-8th century CE
+  - **Petit Lenormand** (36 cards) - French cartomancy, early 1800s
+  - **Playing Cards** (52 cards) - Standard deck divination, medieval Europe
+  - **I Ching** (64 hexagrams) - Ancient Chinese oracle, 3000+ years old
+  - **Example Oracle** (3 cards) - Simple template (via Export button)
+
+- **New Template Variables**
+  - `{{deck_name}}` - Display name (e.g., "Elder Futhark Runes")
+  - `{{deck_id}}` - Unique identifier
+  - `{{deck_type}}` - Deck tradition (tarot, oracle, lenormand, runes, etc.)
+  - `{{deck_card_count}}` - Total cards in deck
+  - `{{deck_supports_reversals}}` - true/false
+
+- **New Core Components**
+  - `DeckValidator` - Validates deck structure, card indices, duplicates
+  - `DeckLoader` - Loads decks from plugin directory
+  - `DeckRegistry` - Manages all available decks
+  - `DeckInstallModal` - Install wizard for new decks
+  - `DeckDetailsModal` - View deck information
+  - `DeckRemoveConfirmModal` - Safe deck removal
+
+### Changed
+- **Spread Drawing** - Now uses selected deck instead of hardcoded RWS
+  - `prepareDeck()` accepts any card count
+  - Card names pulled from selected deck
+  - Works with decks from 3 to 100+ cards
+- **Settings Structure** - New deck-related settings
+  - `defaultDeckId` - Default deck for new readings
+  - `rememberDeckPerSpread` - Persist deck choice per spread type
+  - `perSpreadDeckIds` - Stores deck selections
+  - `ignoredDeckWarnings` - Suppresses duplicate warnings
+
+### Technical
+- Zero ESLint errors across all new code
+- TypeScript strict mode compliance
+- Cross-platform compatibility (desktop + mobile)
+- Comprehensive validation with helpful error messages
+- Backward compatible - existing RWS deck still works
+- Example decks included in repository
+
+### Notes
+- All example decks are public domain and freely usable
+- Deck JSON format documented in `/example-decks/README.md`
+- ZIP deck installation planned for future release
+- Users can create custom decks for any divination system
+
 ## [1.6.1] - 2025-01-24
 
 ### Added
