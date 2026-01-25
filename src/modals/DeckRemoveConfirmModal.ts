@@ -62,7 +62,8 @@ export class DeckRemoveConfirmModal extends Modal {
 					this.onRemoved();
 					this.close();
 				} catch (error) {
-					new Notice(`Failed to remove deck: ${error.message}`);
+					const msg = error instanceof Error ? error.message : String(error);
+					new Notice(`Failed to remove deck: ${msg}`);
 					removeButton.disabled = false;
 					removeButton.textContent = 'Remove';
 				}

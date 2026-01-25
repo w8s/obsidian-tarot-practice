@@ -63,7 +63,8 @@ export class DeckInstallModal extends Modal {
 					this.onInstalled();
 					this.close();
 				} catch (error) {
-					new Notice(`Failed to install deck: ${error.message}`);
+					const msg = error instanceof Error ? error.message : String(error);
+					new Notice(`Failed to install deck: ${msg}`);
 					installButton.disabled = false;
 					installButton.textContent = 'Install';
 				}

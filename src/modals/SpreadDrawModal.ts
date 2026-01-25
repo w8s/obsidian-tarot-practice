@@ -41,7 +41,7 @@ export class SpreadDrawModal extends Modal {
 		
 		// Determine initial deck selection
 		if (plugin.settings.rememberDeckPerSpread && plugin.settings.perSpreadDeckIds[firstSpread.id]) {
-			this.selectedDeckId = plugin.settings.perSpreadDeckIds[firstSpread.id];
+			this.selectedDeckId = plugin.settings.perSpreadDeckIds[firstSpread.id]!;
 		} else {
 			this.selectedDeckId = plugin.settings.defaultDeckId;
 		}
@@ -76,7 +76,7 @@ export class SpreadDrawModal extends Modal {
 						
 						// Update deck selection if remembering per spread
 						if (this.plugin.settings.rememberDeckPerSpread && this.plugin.settings.perSpreadDeckIds[spread.id]) {
-							this.selectedDeckId = this.plugin.settings.perSpreadDeckIds[spread.id];
+							this.selectedDeckId = this.plugin.settings.perSpreadDeckIds[spread.id]!;
 						}
 					}
 				});
