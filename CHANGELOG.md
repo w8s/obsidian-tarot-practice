@@ -7,6 +7,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.7.1] - 2025-01-25
+
+### Changed
+- **Moved example decks to separate repository** - Plugin now ships with RWS tarot only
+  - Example decks (Elder Futhark, Lenormand, Playing Cards, I Ching) moved to [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks)
+  - Smaller plugin bundle size (~50KB lighter)
+  - Decks available as free downloads with complete documentation
+  - Foundation for community deck sharing and contributions
+
+### Updated
+- README now points to deck repository for additional decks
+- Deck creation documentation moved to external repository
+- Updated roadmap to reflect deck repository milestone
+
 ## [1.7.0] - 2025-01-25
 
 ### Added
