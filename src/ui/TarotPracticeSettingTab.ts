@@ -1,4 +1,4 @@
-import { App, PluginSettingTab, Setting } from 'obsidian';
+import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import TarotPracticePlugin from '../main';
 import { InsertLocation } from '../settings';
 import { TemplateMigrator } from '../templates/TemplateMigrator';
@@ -551,6 +551,67 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 						this.plugin,
 						() => this.display() // Refresh settings after installation
 					).open();
+				}))
+			.addButton(button => button
+				.setButtonText('Export example deck')
+				.onClick(() => {
+					void this.exportExampleDeck();
 				}));
+	}
+
+	private async exportExampleDeck(): Promise<void> {
+		const exampleDeck = {
+			id: "example-oracle",
+			name: "Example Oracle Deck",
+			description: "A simple example deck to demonstrate the JSON format",
+			cards: [
+				{
+					index: 0,
+					name: "New Beginnings",
+					category: "Oracle",
+					suit: null,
+					rank: null,
+					value: null
+				},
+				{
+					index: 1,
+					name: "Inner Wisdom",
+					category: "Oracle",
+					suit: null,
+					rank: null,
+					value: null
+				},
+				{
+					index: 2,
+					name: "Transformation",
+					category: "Oracle",
+					suit: null,
+					rank: null,
+					value: null
+				}
+			],
+			cardCount: 3,
+			supportsReversals: false,
+			isBuiltIn: false,
+			metadata: {
+				author: "Your Name",
+				year: 2025,
+				publisher: "Self Published",
+				tradition: "oracle"
+			}
+		};
+
+		const json = JSON.stringify(exampleDeck, null, 2);
+		const blob = new Blob([json], { type: 'application/json' });
+		const url = URL.createObjectURL(blob);
+		
+		const a = document.createElement('a');
+		a.href = url;
+		a.download = 'example-deck.json';
+		a.click();
+		
+		URL.revokeObjectURL(url);
+		
+		new Notice('Example deck exported! Edit and install via "Add deck"');
 	}
 }
