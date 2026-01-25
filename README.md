@@ -33,7 +33,8 @@ That's it! Customize settings later in Settings → Tarot Practice.
 ## Features
 
 - 🎴 **Multi-deck support** - Use any divination system! Runes, Lenormand, I Ching, playing cards, or custom decks
-- 🎨 **Five included decks** - Elder Futhark Runes, Lenormand, Playing Cards, I Ching, plus RWS Tarot
+- 🎨 **Rider-Waite-Smith tarot included** - Ready to use out of the box
+- 📦 **Additional decks available** - Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository
 - 🖼️ **Image support** - Display card and deck back images in your readings
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts (Single, Three Card variants, Five Card Week, Celtic Cross)
@@ -144,23 +145,25 @@ The plugin supports any divination system! Create JSON decks for:
 - Ogham staves
 - Any custom system
 
-### Included Example Decks
+### Additional Decks
 
-Located in `/example-decks/`:
-- **Elder Futhark Runes** (24) - Norse divination
-- **Petit Lenormand** (36) - French cartomancy
-- **Playing Cards** (52) - Standard deck divination
-- **I Ching** (64) - Ancient Chinese oracle
-- **Example Oracle** (3) - Simple template
+Download free public domain decks from the **[obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks)** repository:
+
+- **Elder Futhark Runes** (24) - Norse divination, 2nd-8th century CE
+- **Petit Lenormand** (36) - French cartomancy, early 1800s  
+- **Playing Cards** (52) - Standard deck divination, medieval Europe
+- **I Ching** (64) - Ancient Chinese oracle, 3000+ years old
+
+Each deck includes complete documentation and is ready to install.
 
 ### Creating Your Own Deck
 
-1. Export example deck (Settings → Deck Management → "Export example deck")
-2. Edit JSON with your cards
+1. Settings → Deck Management → "Export example deck"
+2. Edit the JSON file with your cards
 3. Optionally add image paths (`imageUrl` for cards, `backImageUrl` for deck)
 4. Install via Settings → Deck Management → "Add deck"
 
-See `/example-decks/README.md` for complete JSON structure, image support, and examples.
+**Complete deck creation guide:** See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for JSON structure, validation rules, and best practices.
 
 ## Templates
 
@@ -199,7 +202,13 @@ See complete documentation:
 
 ## Roadmap
 
-**v1.7.0 - Multi-Deck Support (Released!):**
+**v1.7.1 - Deck Repository (In Progress):**
+- ✅ Moved example decks to separate repository
+- ✅ Created [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) for community sharing
+- ✅ Lighter plugin bundle (RWS tarot only built-in)
+- ✅ Foundation for community deck contributions
+
+**v1.7.0 - Multi-Deck Support (Released):**
 - ✅ Custom deck loading from JSON files
 - ✅ Deck management UI in settings
 - ✅ Per-spread deck selection
