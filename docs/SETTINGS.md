@@ -31,29 +31,91 @@ Settings for managing your deck collection. Add custom decks, set defaults, and 
 The plugin comes with Rider-Waite-Smith tarot (78 cards) built-in. Additional decks can be installed from JSON or ZIP files.
 
 **Installing Decks:**
-1. Click "Add deck" button
+
+Two installation formats supported:
+
+1. **ZIP Package** (recommended) - Complete deck with images
+   - Contains `deck.json` in root + `cards/` folder with images
+   - Images auto-extract to vault: `Templates/Tarot/Decks/{deck-id}/cards/`
+   - Works with Obsidian wikilinks: `![[path/to/image.jpg]]`
+   - Supports optional `sourceUrl` for image restoration
+
+2. **JSON File** - Deck definition only (no images)
+   - Lightweight option for text-only readings
+   - Can reference external image paths if needed
+
+**Installation Steps:**
+1. Click "Add deck" button in Deck Management section
 2. Select a `.json` or `.zip` file
-3. For ZIP files: deck.json + optional card images in `cards/` folder
-4. Deck is validated and extracted to plugin directory
+3. Plugin validates deck structure and extracts content
+4. Images (if present) are copied to your vault
+5. Deck appears in available decks list
 
 **Deck Actions:**
-- **View details** (document icon) - See full card list and metadata
-- **Remove** (trash icon) - Delete custom decks (built-in decks cannot be removed)
+- **View details** (document icon) - See full card list, metadata, and deck info
+  - Card list shows all cards with index numbers
+  - Metadata displays author, year, publisher, tradition
+  - "Restore images" button (if deck has sourceUrl and images were deleted)
+- **Remove** (trash icon) - Delete custom decks
+  - Removes both deck definition and vault images
+  - Built-in decks cannot be removed
+  - Confirmation required before deletion
+
+**Image Restoration:**
+
+If a deck includes a `sourceUrl` (typically a GitHub release URL), you can restore deleted images:
+1. Open deck details via "View details" button
+2. Click "Restore images" button
+3. Plugin downloads ZIP from sourceUrl
+4. Images re-extract to vault location
+5. No need to re-import entire deck
 
 **Download Additional Decks:**
+
 Free public domain decks available from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks):
-- Elder Futhark Runes (24 cards)
-- Petit Lenormand (36 cards)  
-- Playing Cards (52 cards)
-- I Ching (64 hexagrams)
+- Elder Futhark Runes (24 cards) - ZIP with images
+- Petit Lenormand (36 cards) - ZIP with images
+- Playing Cards (52 cards) - ZIP with images
+- I Ching (64 hexagrams) - JSON only
 
 **Creating Custom Decks:**
-1. Click "Export example deck" to get a template
-2. Edit the JSON with your cards
-3. Optionally create a ZIP with images in `cards/` folder
-4. Import via "Add deck"
 
-See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for complete documentation.
+1. Click "Export example deck" to get a template
+2. Edit the JSON with your cards and metadata
+3. **For ZIP format:**
+   - Create `cards/` folder with your images
+   - Place `deck.json` in root of ZIP
+   - Images should match paths in card definitions (e.g., `cards/00-fool.jpg`)
+   - Optionally add `sourceUrl` for future restoration
+4. **For JSON format:**
+   - Just edit the deck.json file
+   - Can include image paths pointing to vault files
+5. Import via "Add deck" button
+
+**ZIP Structure Example:**
+```
+my-deck.zip
+├── deck.json           (required: deck definition)
+└── cards/              (optional: card images)
+    ├── 00-fool.jpg
+    ├── 01-magician.jpg
+    └── ...
+```
+
+**Image Path Resolution:**
+
+When a deck is installed from ZIP:
+- Images extract to: `{templateBaseFolder}/Decks/{deck-id}/cards/`
+- Default location: `Templates/Tarot/Decks/{deck-id}/cards/`
+- deck.json uses relative paths: `"imageUrl": "cards/00-fool.jpg"`
+- Plugin resolves to full vault path at render time
+- Works with Obsidian's `![[image]]` syntax in templates
+
+See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for complete documentation including:
+- JSON schema and validation rules
+- ZIP packaging guidelines
+- Image format recommendations
+- sourceUrl best practices
 
 ---
 
