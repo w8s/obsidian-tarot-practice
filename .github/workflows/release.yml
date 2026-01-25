@@ -1,0 +1,54 @@
+name: Release Plugin
+
+on:
+  push:
+    tags:
+      - '*'
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Build plugin
+        run: npm run build
+      
+      - name: Get version from manifest
+        id: version
+        run: echo "version=$(jq -r '.version' manifest.json)" >> $GITHUB_OUTPUT
+      
+      - name: Create release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            dist/main.js
+            dist/manifest.json
+            dist/styles.css
+          body: |
+            ## Tarot Practice v${{ steps.version.outputs.version }}
+            
+            Download the plugin files below and install manually:
+            1. Download `main.js`, `manifest.json`, and `styles.css`
+            2. Place in `YourVault/.obsidian/plugins/tarot-practice/`
+            3. Reload Obsidian
+            4. Enable "Tarot Practice" in Settings → Community Plugins
+            
+            See [CHANGELOG.md](https://github.com/w8s/obsidian-tarot-practice/blob/master/CHANGELOG.md) for details.
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
