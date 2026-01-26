@@ -29,17 +29,17 @@ export class DrawHistory {
 	 * Load draw history from plugin data
 	 */
 	async load(): Promise<void> {
-		const data = await this.plugin.loadData();
-		this.draws = data?.drawHistory || [];
+		const data = await this.plugin.loadData() as { drawHistory?: DrawHistoryEntry[] } | null;
+		this.draws = data?.drawHistory ?? [];
 	}
 
 	/**
 	 * Save draw history to plugin data
 	 */
 	async save(): Promise<void> {
-		const currentData = await this.plugin.loadData();
+		const currentData = await this.plugin.loadData() as Record<string, unknown> | null;
 		await this.plugin.saveData({
-			...currentData,
+			...(currentData ?? {}),
 			drawHistory: this.draws
 		});
 	}
@@ -239,7 +239,7 @@ export class DrawHistory {
 	 * @param sql SQL query string
 	 * @param params Optional parameters (defaults to using draws array)
 	 */
-	query(sql: string, params?: any[]): any {
-		return alasql(sql, params || [this.draws]);
+	query(sql: string, params?: unknown[]): unknown {
+		return alasql(sql, params ?? [this.draws]);
 	}
 }

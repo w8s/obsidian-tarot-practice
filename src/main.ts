@@ -2,6 +2,7 @@ import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from 'ui/TarotPracticeSettingTab';
 import { SpreadDrawModal } from 'modals/SpreadDrawModal';
+import { DrawHistoryModal } from 'modals/DrawHistoryModal';
 import { SpreadResolver } from 'spreads/SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
@@ -48,6 +49,15 @@ export default class TarotPracticePlugin extends Plugin {
 			name: 'Draw tarot spread',
 			callback: () => {
 				this.openSpreadDrawModal();
+			}
+		});
+
+		// Add command for viewing history (v1.8.2)
+		this.addCommand({
+			id: 'view-draw-history',
+			name: 'View draw history',
+			callback: () => {
+				new DrawHistoryModal(this.app, this).open();
 			}
 		});
 
