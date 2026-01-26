@@ -37,6 +37,7 @@ That's it! Customize settings later in Settings → Tarot Practice.
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts plus custom spread creation
 - 📤 **Spread sharing** - Import/export custom spreads as JSON or ZIP with templates
+- 📊 **Draw history** - Track all readings with statistics and export to JSON/CSV
 - 🎲 **Deck preparation** - Traditional shuffle (1-7x) with intention-influenced cut
 - 📝 **Handlebars templates** - Fully customizable output formatting
 - 🔄 **Reversal support** - Optional reversed cards with configurable probability

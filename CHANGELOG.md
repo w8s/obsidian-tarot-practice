@@ -7,6 +7,41 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.2] - 2025-01-26
+
+### Added
+- **Draw History Tracking** - Automatic tracking of all spread draws
+  - Records spread name, deck used, cards drawn, intention, and querent
+  - Tracks shuffle metadata (shuffle count, cut status, cut position)
+  - Stores up to 1,000 draws with automatic pruning
+  - Data syncs seamlessly via Obsidian Sync (stored in plugin data.json)
+  
+- **History Statistics** - SQL-powered analytics with AlaSQL
+  - Most used decks (with draw counts)
+  - Most used spreads (with draw counts)
+  - Most frequent cards (across all draws)
+  - Readings by querent (if querent tracking enabled)
+  - Date range statistics (draws per day, unique decks/spreads)
+  
+- **History Viewer Modal** - Browse and analyze your draw history
+  - Recent draws tab: View last 20 draws with full details
+  - Statistics tab: Aggregated insights about your practice
+  - Clear history button with confirmation dialog
+  - Access via Settings → Tarot Practice → Draw History section
+  
+- **Export Functionality** - Download history for external analysis
+  - Export as JSON: Complete structured data with all fields
+  - Export as CSV: Spreadsheet-friendly format for Excel/Google Sheets
+  - Timestamps in both Unix and ISO formats for flexibility
+  - Proper CSV escaping for complex text fields
+
+### Technical
+- Integrated AlaSQL library for SQL-like queries on JSON data
+- Uses native JavaScript filtering/sorting for simple queries
+- AlaSQL aggregation for GROUP BY, COUNT, and DISTINCT operations
+- DrawHistory class with comprehensive query methods
+- Type-safe interfaces for history entries and statistics
+
 ## [1.8.1] - 2025-01-25
 
 ### Added
