@@ -218,9 +218,9 @@ export class DrawHistory {
 			 FROM ? 
 			 GROUP BY DATE(NEW Date(timestamp))
 			 ORDER BY date
-		`, [rangeDraws]) as DateRangeStats[];
+		`, [rangeDraws]);
 
-		return results;
+		return results as DateRangeStats[];
 	}
 
 	/**
