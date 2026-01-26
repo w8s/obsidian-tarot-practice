@@ -2,6 +2,7 @@ import { Plugin, moment, TFile, Notice, MarkdownView } from 'obsidian';
 import { TarotPracticeSettings, DEFAULT_SETTINGS } from './settings';
 import { TarotPracticeSettingTab } from 'ui/TarotPracticeSettingTab';
 import { SpreadDrawModal } from 'modals/SpreadDrawModal';
+import { DrawHistoryModal } from 'modals/DrawHistoryModal';
 import { SpreadResolver } from 'spreads/SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
@@ -9,11 +10,13 @@ import { prepareDeck } from 'core/DeckPreparation';
 import { DeckType } from 'core/Deck';
 import { DeckRegistry } from 'core/DeckRegistry';
 import { DeckLoader } from 'core/DeckLoader';
+import { DrawHistory } from 'core/DrawHistory';
 
 export default class TarotPracticePlugin extends Plugin {
 	settings: TarotPracticeSettings;
 	deckRegistry: DeckRegistry;
 	deckLoader: DeckLoader;
+	drawHistory: DrawHistory;
 
 	async onload() {
 		await this.loadSettings();
@@ -27,6 +30,10 @@ export default class TarotPracticePlugin extends Plugin {
 		for (const deck of customDecks) {
 			this.deckRegistry.registerDeck(deck);
 		}
+
+		// Initialize draw history system (v1.8.2)
+		this.drawHistory = new DrawHistory(this);
+		await this.drawHistory.load();
 
 		// Register Handlebars helpers for spread templates
 		registerHandlebarsHelpers();
@@ -42,6 +49,15 @@ export default class TarotPracticePlugin extends Plugin {
 			name: 'Draw tarot spread',
 			callback: () => {
 				this.openSpreadDrawModal();
+			}
+		});
+
+		// Add command for viewing history (v1.8.2)
+		this.addCommand({
+			id: 'view-draw-history',
+			name: 'View draw history',
+			callback: () => {
+				new DrawHistoryModal(this.app, this).open();
 			}
 		});
 
@@ -161,6 +177,9 @@ export default class TarotPracticePlugin extends Plugin {
 				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined,
 				querent: querent
 			};
+
+			// Save to history (v1.8.2)
+			await this.drawHistory.addDraw(drawResult);
 
 			// Get template
 			const spreadResolver = new SpreadResolver(this.app);

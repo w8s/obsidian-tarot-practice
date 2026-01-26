@@ -18,6 +18,7 @@ import { Spread } from '../core/spreads';
 import type { DeckDefinition } from '../types/deck';
 import { SpreadLoader } from '../core/SpreadLoader';
 import { SpreadExportFormatModal } from '../modals/SpreadExportFormatModal';
+import { DrawHistoryModal } from '../modals/DrawHistoryModal';
 
 export class TarotPracticeSettingTab extends PluginSettingTab {
 	plugin: TarotPracticePlugin;
@@ -41,6 +42,9 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// ===== DECK MANAGEMENT SECTION =====
 		this.displayDeckManagement(containerEl);
+
+		// ===== DRAW HISTORY SECTION (v1.8.2) =====
+		this.displayDrawHistory(containerEl);
 
 		// ===== DECK PREPARATION SECTION =====
 		new Setting(containerEl).setName('Deck preparation').setHeading();
@@ -755,4 +759,29 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		// eslint-disable-next-line obsidianmd/ui/sentence-case
 		new Notice('Example spread exported! Edit and import via "Import spread".');
 	}
+
+	/**
+	 * Display draw history section (v1.8.2)
+	 */
+	private displayDrawHistory(containerEl: HTMLElement): void {
+		new Setting(containerEl).setName('Draw history').setHeading();
+
+		const totalDraws = this.plugin.drawHistory.getTotalDraws();
+		
+		containerEl.createDiv('setting-item-description', el => {
+			el.setText(`${totalDraws} draw${totalDraws !== 1 ? 's' : ''} recorded`);
+		});
+
+		// View History button
+		new Setting(containerEl)
+			.setName('View draw history')
+			.setDesc('View recent draws and statistics')
+			.addButton(button => button
+				.setButtonText('View history')
+				.setCta()
+				.onClick(() => {
+					new DrawHistoryModal(this.app, this.plugin).open();
+				}));
+	}
 }
+
