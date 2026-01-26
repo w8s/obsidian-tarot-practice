@@ -84,6 +84,28 @@ export class DrawHistoryModal extends Modal {
 						this.close();
 					}
 				}));
+
+		// Add export buttons
+		const exportSection = contentEl.createDiv({ cls: 'tarot-history-export-section' });
+		exportSection.createEl('h3', { text: 'Export history' });
+		
+		new Setting(exportSection)
+			.setName('Export as JSON')
+			.setDesc('Download history as JSON file for backup or analysis')
+			.addButton(button => button
+				.setButtonText('Export JSON')
+				.onClick(() => {
+					this.exportHistory('json');
+				}));
+
+		new Setting(exportSection)
+			.setName('Export as CSV')
+			.setDesc('Download history as CSV file for spreadsheet analysis')
+			.addButton(button => button
+				.setButtonText('Export CSV')
+				.onClick(() => {
+					this.exportHistory('csv');
+				}));
 	}
 
 	async confirmClearHistory(totalDraws: number): Promise<boolean> {
@@ -113,6 +135,33 @@ export class DrawHistoryModal extends Modal {
 
 			modal.open();
 		});
+	}
+
+	exportHistory(format: 'json' | 'csv') {
+		const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+		const filename = `tarot-draw-history-${timestamp}.${format}`;
+		
+		let content: string;
+		let mimeType: string;
+
+		if (format === 'json') {
+			content = this.plugin.drawHistory.exportAsJSON();
+			mimeType = 'application/json';
+		} else {
+			content = this.plugin.drawHistory.exportAsCSV();
+			mimeType = 'text/csv';
+		}
+
+		// Create blob and download
+		const blob = new Blob([content], { type: mimeType });
+		const url = URL.createObjectURL(blob);
+		const link = document.createElement('a');
+		link.href = url;
+		link.download = filename;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+		URL.revokeObjectURL(url);
 	}
 
 	showRecentDraws(container: HTMLElement) {

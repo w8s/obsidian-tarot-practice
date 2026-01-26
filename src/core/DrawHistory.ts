@@ -85,71 +85,76 @@ export class DrawHistory {
 	 * Get recent draws
 	 */
 	getRecent(count: number = 10): DrawHistoryEntry[] {
-		return alasql(
-			'SELECT * FROM ? ORDER BY timestamp DESC LIMIT ?',
-			[this.draws, count]
-		);
+		// Sort in-memory instead of using SQL
+		return this.draws
+			.slice()
+			.sort((a, b) => b.timestamp - a.timestamp)
+			.slice(0, count);
 	}
 
 	/**
 	 * Get draws by date range (Unix timestamps)
 	 */
 	getByDateRange(start: number, end: number): DrawHistoryEntry[] {
-		return alasql(
-			'SELECT * FROM ? WHERE timestamp BETWEEN ? AND ? ORDER BY timestamp DESC',
-			[this.draws, start, end]
-		);
+		return this.draws
+			.filter(d => d.timestamp >= start && d.timestamp <= end)
+			.sort((a, b) => b.timestamp - a.timestamp);
 	}
 
 	/**
 	 * Get draws by deck
 	 */
 	getByDeck(deckId: string): DrawHistoryEntry[] {
-		return alasql(
-			'SELECT * FROM ? WHERE deckId = ? ORDER BY timestamp DESC',
-			[this.draws, deckId]
-		);
+		return this.draws
+			.filter(d => d.deckId === deckId)
+			.sort((a, b) => b.timestamp - a.timestamp);
 	}
 
 	/**
 	 * Get draws by spread
 	 */
 	getBySpread(spreadId: string): DrawHistoryEntry[] {
-		return alasql(
-			'SELECT * FROM ? WHERE spreadId = ? ORDER BY timestamp DESC',
-			[this.draws, spreadId]
-		);
+		return this.draws
+			.filter(d => d.spreadId === spreadId)
+			.sort((a, b) => b.timestamp - a.timestamp);
 	}
 
 	/**
 	 * Get deck usage statistics
 	 */
 	getDeckUsage(): DeckUsageStats[] {
-		return alasql(
-			`SELECT deckId, deckName, COUNT(*) as count 
-			 FROM ? 
-			 GROUP BY deckId, deckName 
-			 ORDER BY count DESC`,
-			[this.draws]
-		);
+		if (this.draws.length === 0) {
+			return [];
+		}
+
+		// Use AlaSQL for aggregation - pass data directly, not as parameter
+		return alasql(`
+			SELECT deckId, deckName, COUNT(*) as count 
+			FROM ? 
+			GROUP BY deckId, deckName 
+			ORDER BY count DESC
+		`, [this.draws]);
 	}
 
 	/**
 	 * Get spread usage statistics
 	 */
 	getSpreadUsage(): SpreadUsageStats[] {
-		return alasql(
-			`SELECT spreadId, spreadName, COUNT(*) as count 
-			 FROM ? 
-			 GROUP BY spreadId, spreadName 
-			 ORDER BY count DESC`,
-			[this.draws]
-		);
+		if (this.draws.length === 0) {
+			return [];
+		}
+
+		return alasql(`
+			SELECT spreadId, spreadName, COUNT(*) as count 
+			FROM ? 
+			GROUP BY spreadId, spreadName 
+			ORDER BY count DESC
+		`, [this.draws]);
 	}
 
 	/**
 	 * Get card frequency statistics
-	 * Note: This queries nested arrays using CROSS APPLY
+	 * Note: This queries nested arrays
 	 */
 	getCardFrequency(): CardFrequencyStats[] {
 		if (this.draws.length === 0) {
@@ -164,13 +169,12 @@ export class DrawHistory {
 			}
 		}
 
-		return alasql(
-			`SELECT name as cardName, COUNT(*) as frequency 
-			 FROM ? 
-			 GROUP BY name 
-			 ORDER BY frequency DESC`,
-			[allCards]
-		);
+		return alasql(`
+			SELECT name as cardName, COUNT(*) as frequency 
+			FROM ? 
+			GROUP BY name 
+			ORDER BY frequency DESC
+		`, [allCards]);
 	}
 
 	/**
@@ -186,13 +190,12 @@ export class DrawHistory {
 			return [];
 		}
 
-		return alasql(
-			`SELECT name as querent, COUNT(*) as readings 
-			 FROM ? 
-			 GROUP BY name 
-			 ORDER BY readings DESC`,
-			[querents]
-		);
+		return alasql(`
+			SELECT name as querent, COUNT(*) as readings 
+			FROM ? 
+			GROUP BY name 
+			ORDER BY readings DESC
+		`, [querents]);
 	}
 
 	/**
@@ -206,17 +209,18 @@ export class DrawHistory {
 		}
 
 		// Group by date for statistics
-		return alasql(
-			`SELECT 
+		const results = alasql(`
+			SELECT 
 				DATE(NEW Date(timestamp)) as date,
 				COUNT(*) as draws,
 				COUNT(DISTINCT deckId) as decksUsed,
 				COUNT(DISTINCT spreadId) as spreadsUsed
 			 FROM ? 
 			 GROUP BY DATE(NEW Date(timestamp))
-			 ORDER BY date`,
-			[rangeDraws]
-		);
+			 ORDER BY date
+		`, [rangeDraws]) as DateRangeStats[];
+
+		return results;
 	}
 
 	/**
@@ -232,6 +236,82 @@ export class DrawHistory {
 	async clearHistory(): Promise<void> {
 		this.draws = [];
 		await this.save();
+	}
+
+	/**
+	 * Export history as JSON string
+	 */
+	exportAsJSON(): string {
+		return JSON.stringify(this.draws, null, 2);
+	}
+
+	/**
+	 * Export history as CSV string
+	 */
+	exportAsCSV(): string {
+		if (this.draws.length === 0) {
+			return '';
+		}
+
+		// CSV headers
+		const headers = [
+			'ID',
+			'Timestamp',
+			'Date',
+			'Spread ID',
+			'Spread Name',
+			'Deck ID',
+			'Deck Name',
+			'Intention',
+			'Cards',
+			'Card Count',
+			'Querent Name',
+			'Querent Note Path',
+			'Shuffle Count',
+			'Was Cut',
+			'Cut Position'
+		];
+
+		const rows: string[] = [headers.join(',')];
+
+		for (const entry of this.draws) {
+			const cardsList = entry.cards
+				.map(c => `${c.position}: ${c.name} ${c.orientation}`)
+				.join('; ');
+
+			const row = [
+				entry.id,
+				entry.timestamp.toString(),
+				new Date(entry.timestamp).toISOString(),
+				entry.spreadId,
+				this.escapeCSV(entry.spreadName),
+				entry.deckId,
+				this.escapeCSV(entry.deckName),
+				this.escapeCSV(entry.intention),
+				this.escapeCSV(cardsList),
+				entry.cards.length.toString(),
+				entry.querent ? this.escapeCSV(entry.querent.name) : '',
+				entry.querent?.notePath ? this.escapeCSV(entry.querent.notePath) : '',
+				entry.metadata.shuffleCount.toString(),
+				entry.metadata.wasCut.toString(),
+				entry.metadata.cutPosition?.toString() ?? ''
+			];
+
+			rows.push(row.join(','));
+		}
+
+		return rows.join('\n');
+	}
+
+	/**
+	 * Escape CSV field values
+	 */
+	private escapeCSV(value: string): string {
+		// If value contains comma, quote, or newline, wrap in quotes and escape quotes
+		if (value.includes(',') || value.includes('"') || value.includes('\n')) {
+			return `"${value.replace(/"/g, '""')}"`;
+		}
+		return value;
 	}
 
 	/**
