@@ -1,7 +1,7 @@
 {
-	"name": "obsidian-sample-plugin",
+	"name": "obsidian-tarot-practice",
 	"version": "1.8.4",
-	"description": "This is a sample plugin for Obsidian (https://obsidian.md)",
+	"description": "A tarot plugin for daily practice. Draw single or multiple cards with intention using randomness seeded by your words. Full mobile support.",
 	"main": "main.js",
 	"type": "module",
 	"scripts": {
