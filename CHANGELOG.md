@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.3] - 2025-01-27
+
+### Fixed
+- Template file picker now correctly stores full file paths with `.md` extension
+- Custom spread templates can now be loaded from files (previously fell back to built-in templates)
+- Reduced console logging noise - only warnings and errors are logged now
+
 ## [1.8.2] - 2025-01-26
 
 ### Added
