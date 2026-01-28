@@ -78,11 +78,13 @@ export class SpreadResolver {
 			const file = this.app.vault.getAbstractFileByPath(path);
 			
 			if (!file) {
+				console.warn('[SpreadResolver] Template file not found:', path);
 				new Notice(`Spread template file not found: ${path}\nUsing built-in template.`);
 				return null;
 			}
 			
 			if (!(file instanceof TFile)) {
+				console.warn('[SpreadResolver] Path is not a file:', path);
 				new Notice(`Path is not a file: ${path}\nUsing built-in template.`);
 				return null;
 			}
@@ -91,7 +93,7 @@ export class SpreadResolver {
 			return content;
 			
 		} catch (error) {
-			console.error('Failed to load spread template file:', path, error);
+			console.error('[SpreadResolver] Failed to load spread template:', path, error);
 			new Notice(`Failed to load spread template: ${path}\nUsing built-in template.`);
 			return null;
 		}

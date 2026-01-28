@@ -63,11 +63,13 @@ export class TemplateResolver {
 			const file = this.app.vault.getAbstractFileByPath(path);
 			
 			if (!file) {
+				console.warn('[TemplateResolver] Template file not found:', path);
 				new Notice(`Template file not found: ${path}\nUsing built-in template.`);
 				return null;
 			}
 			
 			if (!(file instanceof TFile)) {
+				console.warn('[TemplateResolver] Path is not a file:', path);
 				new Notice(`Path is not a file: ${path}\nUsing built-in template.`);
 				return null;
 			}
@@ -76,7 +78,7 @@ export class TemplateResolver {
 			return content;
 			
 		} catch (error) {
-			console.error('Failed to load template file:', path, error);
+			console.error('[TemplateResolver] Failed to load template:', path, error);
 			new Notice(`Failed to load template: ${path}\nUsing built-in template.`);
 			return null;
 		}
