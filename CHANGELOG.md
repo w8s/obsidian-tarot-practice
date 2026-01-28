@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.4] - 2025-01-28
+
+### Improved
+- **Template Selection UI** - Completely redesigned template picker in spread editor
+  - Replaced confusing dropdown with clear toggle switch ("Use built-in template")
+  - Added direct file input with autocomplete for custom templates (FileSuggest)
+  - "Create from example..." is now a dedicated button (easier to discover)
+  - Better visual hierarchy showing current template status
+  - More intuitive workflow for both casual and advanced users
+
 ## [1.8.3] - 2025-01-27
 
 ### Fixed

@@ -5,6 +5,12 @@ import { TemplateExporter } from '../templates/TemplateExporter';
 import { TarotPracticeSettings } from '../settings';
 import { ConfirmModal } from './ConfirmModal';
 
+interface TemplateUIElements {
+	toggle: Setting;
+	customContainer: HTMLElement;
+	pathContainer: HTMLElement;
+}
+
 /**
  * Modal to edit spread settings - allows full customization
  */
@@ -22,6 +28,9 @@ export class SpreadEditModal extends Modal {
 	private insertMode: 'daily-note' | 'new-note' | 'inline';
 	private templatePath: string;
 	private templateExample: string = 'generic';
+	private templateUIElements?: TemplateUIElements;
+	private fileInput?: HTMLInputElement;
+	private useBuiltInTemplate: boolean;
 
 	constructor(
 		app: App,
@@ -42,6 +51,7 @@ export class SpreadEditModal extends Modal {
 		this.cutDeck = spread.cutDeck;
 		this.insertMode = spread.insertMode;
 		this.templatePath = spread.templatePath;
+		this.useBuiltInTemplate = !spread.templatePath || spread.templatePath === '';
 	}
 
 	onOpen() {
@@ -163,34 +173,36 @@ export class SpreadEditModal extends Modal {
 					this.cutDeck = value;
 				}));
 
-		// Template section
-		new Setting(contentEl)
-			.setName('Template')
-			.setDesc('Choose template for this spread')
-			.addDropdown(dropdown => {
-				const isUsingBuiltIn = !this.templatePath || this.templatePath === '';
-				
-				dropdown.addOption('builtin', isUsingBuiltIn ? 'Built-in (current)' : 'Built-in');
-				dropdown.addOption('create-example', 'Create from example...');
-				dropdown.addOption('custom', this.templatePath ? `Custom: ${this.templatePath}` : 'Choose custom file...');
-				
-				dropdown.setValue(isUsingBuiltIn ? 'builtin' : 'custom');
-				
-				dropdown.onChange(async (value) => {
-					if (value === 'create-example') {
-						await this.createFromExample();
-						dropdown.setValue('custom');
-					} else if (value === 'builtin') {
+		// Template section - Toggle for built-in vs custom
+		const useBuiltInToggle = new Setting(contentEl)
+			.setName('Use built-in template')
+			.setDesc('Use the default template for this spread type')
+			.addToggle(toggle => toggle
+				.setValue(this.useBuiltInTemplate)
+				.onChange((value) => {
+					this.useBuiltInTemplate = value;
+					if (value) {
+						// Switching to built-in - clear the path
 						this.templatePath = '';
-					} else if (value === 'custom') {
-						this.showFilePicker();
 					}
-				});
-			});
+					this.updateTemplateUI();
+				}));
+
+		// Custom template file picker container (will be populated by updateTemplateUI)
+		const customTemplateContainer = contentEl.createDiv({ cls: 'custom-template-container' });
 
 		// Template path display
 		const templatePathContainer = contentEl.createDiv({ cls: 'template-path-container' });
-		this.updateTemplateDescription(templatePathContainer);
+		
+		// Store references for updating
+		this.templateUIElements = {
+			toggle: useBuiltInToggle,
+			customContainer: customTemplateContainer,
+			pathContainer: templatePathContainer
+		};
+		
+		// Initial UI setup
+		this.updateTemplateUI();
 
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
@@ -292,7 +304,7 @@ export class SpreadEditModal extends Modal {
 				this.templateExample,
 				spreadId
 			);
-			this.updateTemplateDescription();
+			this.updateTemplateUI();
 			new Notice(`Template created at ${this.templatePath}`);
 		} catch (error) {
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
@@ -300,39 +312,70 @@ export class SpreadEditModal extends Modal {
 		}
 	}
 
-	private showFilePicker() {
-		const pathInput = this.contentEl.createEl('input', {
-			type: 'text',
-			placeholder: 'Templates/Tarot/Spreads/my-spread.md',
-			value: this.templatePath
-		});
-		
-		new FileSuggest(this.app, pathInput);
-		
-		pathInput.addEventListener('change', () => {
-			this.templatePath = pathInput.value;
-			this.updateTemplateDescription();
-		});
+	private updateTemplateUI() {
+		if (!this.templateUIElements) return;
+
+		const { customContainer } = this.templateUIElements;
+
+		// Always clear and recreate the custom container content
+		customContainer.empty();
+
+		if (this.useBuiltInTemplate) {
+			// Hide when using built-in
+			customContainer.hide();
+		} else {
+			// Show and populate when using custom
+			customContainer.show();
+			
+			const fileInputContainer = customContainer.createDiv();
+			fileInputContainer.setAttr('style', 'margin-top: 8px;');
+			
+			this.fileInput = fileInputContainer.createEl('input', {
+				type: 'text',
+				placeholder: 'templates/Tarot/Spreads/my-spread.md',
+				value: this.templatePath
+			});
+			this.fileInput.setAttr('style', 'width: 100%;');
+			
+			new FileSuggest(this.app, this.fileInput);
+			
+			this.fileInput.addEventListener('input', () => {
+				this.templatePath = this.fileInput!.value;
+				this.updateTemplatePathDisplay();
+			});
+			
+			// Create from example button
+			const createExampleButton = customContainer.createEl('button', {
+				text: 'Create from example...',
+				cls: 'mod-cta'
+			});
+			createExampleButton.setAttr('style', 'margin-top: 8px;');
+			createExampleButton.addEventListener('click', () => {
+				void this.createFromExample();
+			});
+		}
+
+		this.updateTemplatePathDisplay();
 	}
 
-	private updateTemplateDescription(container?: HTMLElement) {
-		const targetContainer = container || this.contentEl.querySelector('.template-path-container') as HTMLElement;
-		if (!targetContainer) return;
-
-		targetContainer.empty();
+	private updateTemplatePathDisplay() {
+		if (!this.templateUIElements) return;
+		
+		const { pathContainer } = this.templateUIElements;
+		pathContainer.empty();
 		
 		if (this.templatePath) {
-			const usingDiv = targetContainer.createEl('div', {
+			const usingDiv = pathContainer.createEl('div', {
 				text: `Using: ${this.templatePath}`,
 				cls: 'setting-item-description'
 			});
-			usingDiv.setAttr('style', 'margin-top: 8px;');
+			usingDiv.setAttr('style', 'margin-top: 8px; color: var(--text-muted);');
 		} else {
-			const builtInDiv = targetContainer.createEl('div', {
+			const builtInDiv = pathContainer.createEl('div', {
 				text: 'Using built-in template',
 				cls: 'setting-item-description'
 			});
-			builtInDiv.setAttr('style', 'margin-top: 8px;');
+			builtInDiv.setAttr('style', 'margin-top: 8px; color: var(--text-muted);');
 		}
 	}
 
