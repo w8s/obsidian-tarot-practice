@@ -39,7 +39,7 @@ permissions:
 ```
 
 **Why this matters:**
-- Limits blast radius if workflow is compromised
+- Reduces potential impact if workflow credentials are misused
 - Documents actual needs of the workflow
 - Prevents issues if defaults change
 - Protects when workflow is copied to other repos
@@ -92,13 +92,13 @@ uses: actions/setup-node@v4
 **Response Process:**
 
 1. **Critical/High Severity:**
-   - Assess if vulnerability affects runtime code
-   - Update immediately if exploitable
+   - Assess if issue affects runtime code
+   - Update immediately if it impacts users
    - Test thoroughly before merging
 
 2. **Moderate/Low Severity:**
    - Assess actual risk to project
-   - Dismiss if not applicable (e.g., dev server vulnerabilities)
+   - Dismiss if not applicable (e.g., dev server issues)
    - Update during normal maintenance if applicable
 
 3. **Dev Dependencies:**
@@ -107,16 +107,16 @@ uses: actions/setup-node@v4
 
 ### Example Assessment
 
-**Alert:** esbuild dev server vulnerability
+**Alert:** esbuild dev server issue
 - **Severity:** Moderate
 - **Scope:** Development only
-- **Risk:** None (we don't use dev server)
+- **Impact:** None (we don't use dev server)
 - **Action:** Dismiss with reason "Not using affected feature"
 
 **Alert:** Handlebars template injection
 - **Severity:** High
 - **Scope:** Runtime (user templates)
-- **Risk:** HIGH (we process user input)
+- **Impact:** Could affect user data
 - **Action:** Update immediately, test, release patch
 
 ### Manual Dependency Audits
@@ -194,7 +194,7 @@ Handlebars.registerHelper('eval', (code) => {
 
 ### File Operations
 
-**Risk:** Path traversal attacks (accessing files outside intended directories)
+**Concern:** Path traversal (accessing files outside intended directories)
 
 **Mitigation:**
 ```typescript
@@ -206,7 +206,7 @@ if (file instanceof TFile) {
 }
 
 // Don't use direct filesystem access
-// ❌ const content = fs.readFileSync(path);  // Unsafe
+// ❌ const content = fs.readFileSync(path);  // Not safe
 ```
 
 **Current status:** ✅ We use Obsidian API exclusively
@@ -312,19 +312,19 @@ GitHub's CodeQL scans for:
    - What's the severity?
 
 2. **Assess impact**
-   - Can it be exploited?
-   - What data is at risk?
-   - Who could exploit it?
+   - Could this affect user data?
+   - What information is at risk?
+   - What are the usage patterns?
 
 3. **Fix or dismiss**
-   - Fix real vulnerabilities
+   - Fix real issues
    - Dismiss false positives with reason
    - Document decision
 
 **Example dismissal reasons:**
 - "False positive - this is test code"
-- "Not exploitable - input is sanitized upstream"
-- "Won't fix - requires user to intentionally harm themselves"
+- "Not applicable - input is validated upstream"
+- "Won't fix - requires intentional misconfiguration"
 
 ---
 
@@ -399,12 +399,12 @@ const safeName = Handlebars.escapeExpression(card.name);
 - [ ] Review CodeQL alerts (if enabled)
 - [ ] Check for Obsidian API security updates
 
-### If Vulnerability Discovered
+### If Security Issue Discovered
 
 1. **Assess severity** (use CVSS calculator)
 2. **Develop fix** on private branch
 3. **Test thoroughly**
-4. **Release patch** ASAP
+4. **Release patch** promptly
 5. **Notify users** in release notes
 6. **Document** in CHANGELOG
 7. **If critical:** Email Obsidian team
@@ -443,7 +443,7 @@ const safeName = Handlebars.escapeExpression(card.name);
 ### For Contributors
 
 **If you find a security issue while developing:**
-1. Don't commit the vulnerable code
+1. Don't commit the problematic code
 2. Report to maintainer privately
 3. Wait for assessment before proceeding
 4. Help develop fix if possible
