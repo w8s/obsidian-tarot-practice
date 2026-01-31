@@ -22,7 +22,7 @@
 		"@eslint/js": "9.30.1",
 		"@types/handlebars": "^4.0.40",
 		"@types/jszip": "^3.4.0",
-		"@types/node": "^16.11.6",
+		"@types/node": "^20.0.0",
 		"@vitest/coverage-v8": "^2.1.8",
 		"@vitest/ui": "^2.1.8",
 		"esbuild": "^0.25.12",
