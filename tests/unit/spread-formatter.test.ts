@@ -28,23 +28,35 @@ describe('SpreadFormatter', () => {
 				id: 'test-deck',
 				name: 'Test Deck',
 				type: 'Tarot',
-				cards: [],
+				cardCount: 5,
+				supportsReversals: true,
+				definition: {
+					cards: [
+						{
+							index: 0,
+							name: 'The Fool',
+							category: 'Major',
+						},
+					],
+				},
 			},
 			intention: 'Test intention',
 			positions: [
 				{
-					positionNumber: 1,
-					positionLabel: 'Card',
-					card: {
-						index: 0,
-						name: 'The Fool',
-						category: 'Major',
-					},
+					cardIndex: 0,
+					number: 1,
+					label: 'Card',
+					card: 'The Fool',  // String, not object!
 					isReversed: false,
 					orientation: 'upright',
 				},
 			],
 			timestamp: Date.now(),
+			shuffleCount: 3,
+			wasCut: false,
+			cutPosition: null,
+			cutPositionCards: null,
+			cutBase: null,
 		} as SpreadDrawResult;
 	});
 
