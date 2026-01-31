@@ -26,3 +26,5 @@ data.json
 
 # Test artifacts (development only)
 test-deck/
+coverage/
+.vitest/

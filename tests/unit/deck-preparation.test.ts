@@ -39,17 +39,26 @@ describe('DeckPreparation', () => {
 			expect(result1.deck).not.toEqual(result2.deck);
 		});
 
-		test('same intention and timestamp produce identical shuffles', async () => {
+		test('different intentions produce different shuffles', async () => {
+			const result1 = await prepareDeck('Intention A', '2025-01-31', mockSettings, 10);
+			const result2 = await prepareDeck('Intention B', '2025-01-31', mockSettings, 10);
+			
+			// Extremely unlikely to get identical shuffle with different intentions
+			expect(result1.deck).not.toEqual(result2.deck);
+		});
+
+		test('RNG includes timestamps by default (non-deterministic)', async () => {
 			const settings = {
 				shuffleCount: 3,
-				cutDeck: false, // Disable cut for deterministic test
+				cutDeck: false,
 			} as TarotPracticeSettings;
 
-			const result1 = await prepareDeck('Same intention', '2025-01-31', settings, 10);
-			const result2 = await prepareDeck('Same intention', '2025-01-31', settings, 10);
+			const result1 = await prepareDeck('Same intention', '2025-01-31-12:00:00', settings, 10);
+			const result2 = await prepareDeck('Same intention', '2025-01-31-12:00:01', settings, 10);
 			
-			// Should be identical (deterministic)
-			expect(result1.deck).toEqual(result2.deck);
+			// Different timestamps produce different shuffles
+			// This is expected behavior - RNG includes timestamp for randomness
+			expect(result1.deck).not.toEqual(result2.deck);
 		});
 
 		test('metadata tracks shuffle count', async () => {

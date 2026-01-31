@@ -9,10 +9,10 @@ A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intenti
 
 ## Documentation
 
-- 📖 [Template Variables](docs/TEMPLATE-VARIABLES.md) - Complete variable reference
-- 📖 [Template Examples](docs/TEMPLATE-EXAMPLES.md) - Common template patterns  
-- 📖 [Spread Templates](docs/spread-templates/README.md) - Spread-specific examples
-- 📋 [Usage Guide](docs/USAGE.md) - Detailed usage instructions
+- 📚 [Template Variables](docs/TEMPLATE-VARIABLES.md) - Complete variable reference
+- 📝 [Template Examples](docs/TEMPLATE-EXAMPLES.md) - Common template patterns  
+- 🃏 [Spread Templates](docs/spread-templates/README.md) - Spread-specific examples
+- 🧭 [Usage Guide](docs/USAGE.md) - Detailed usage instructions
 - ⚙️ [Settings Reference](docs/SETTINGS.md) - Complete settings documentation
 - 📋 [Changelog](CHANGELOG.md) - Version history and release notes
 - 🔧 [Development Notes](docs/AGENTS.md) - For contributors
