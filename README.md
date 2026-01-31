@@ -1,6 +1,6 @@
 # Tarot Practice
 
-![](https://img.shields.io/badge/Obsidian_Plugin_Submission-Pending-orange) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
+![Tests](https://github.com/w8s/obsidian-tarot-practice/actions/workflows/test.yml/badge.svg) ![](https://img.shields.io/badge/Obsidian_Plugin_Submission-Pending-orange) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
 
 
 *Bringing necessary imprecision to digital mystical arts since 2025*
@@ -15,6 +15,7 @@ A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intenti
 - 🧭 [Usage Guide](docs/USAGE.md) - Detailed usage instructions
 - ⚙️ [Settings Reference](docs/SETTINGS.md) - Complete settings documentation
 - 📋 [Changelog](CHANGELOG.md) - Version history and release notes
+- 🧪 [Testing](docs/TESTING-SETUP.md) - Test suite documentation
 - 🔧 [Development Notes](docs/AGENTS.md) - For contributors
 
 ## Philosophy
