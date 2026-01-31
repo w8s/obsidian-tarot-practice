@@ -2,6 +2,9 @@
 	"id": "test-deck",
 	"name": "Test Deck",
 	"description": "Minimal deck for testing",
+	"cardCount": 5,
+	"supportsReversals": true,
+	"isBuiltIn": false,
 	"cards": [
 		{
 			"index": 0,

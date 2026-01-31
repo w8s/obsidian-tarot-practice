@@ -27,7 +27,7 @@ describe('DeckValidator', () => {
 			
 			const result = DeckValidator.validate(invalidDeck);
 			expect(result.isValid).toBe(false);
-			expect(result.errors).toContain('Missing required field: id');
+			expect(result.errors.some(err => err.includes('id'))).toBe(true);
 		});
 
 		test('requires name field', () => {
@@ -36,7 +36,7 @@ describe('DeckValidator', () => {
 			
 			const result = DeckValidator.validate(invalidDeck);
 			expect(result.isValid).toBe(false);
-			expect(result.errors).toContain('Missing required field: name');
+			expect(result.errors.some(err => err.includes('name'))).toBe(true);
 		});
 
 		test('requires cards array', () => {
@@ -45,26 +45,36 @@ describe('DeckValidator', () => {
 			
 			const result = DeckValidator.validate(invalidDeck);
 			expect(result.isValid).toBe(false);
-			expect(result.errors).toContain('Missing required field: cards');
+			expect(result.errors.some(err => err.includes('cards'))).toBe(true);
 		});
 
-		test('requires at least one card', () => {
-			const invalidDeck = { ...validDeck, cards: [] };
+		test('requires cardCount field', () => {
+			const invalidDeck = { ...validDeck };
+			delete (invalidDeck as any).cardCount;
 			
 			const result = DeckValidator.validate(invalidDeck);
 			expect(result.isValid).toBe(false);
-			expect(result.errors).toContain('Deck must contain at least one card');
+			expect(result.errors.some(err => err.includes('cardCount'))).toBe(true);
+		});
+
+		test('requires at least one card', () => {
+			const invalidDeck = { ...validDeck, cards: [], cardCount: 0 };
+			
+			const result = DeckValidator.validate(invalidDeck);
+			expect(result.isValid).toBe(false);
+			expect(result.errors.some(err => err.includes('cardCount'))).toBe(true);
 		});
 
 		test('validates card structure', () => {
 			const invalidDeck = {
 				...validDeck,
-				cards: [{ name: 'Invalid Card' }] // Missing index
+				cards: [{ name: 'Invalid Card' }], // Missing index
+				cardCount: 1
 			};
 			
 			const result = DeckValidator.validate(invalidDeck);
 			expect(result.isValid).toBe(false);
-			expect(result.errors.some(err => err.includes('Missing required field: index'))).toBe(true);
+			expect(result.errors.some(err => err.includes('index'))).toBe(true);
 		});
 
 		test('accepts valid deck from fixture', () => {

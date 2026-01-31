@@ -130,3 +130,36 @@ export abstract class PluginSettingTab {
 	display(): void {}
 	hide(): void {}
 }
+
+/**
+ * Mock moment function (Obsidian provides moment.js)
+ */
+export function moment(date?: number | string | Date): any {
+	const d = date ? new Date(date) : new Date();
+	
+	return {
+		format(formatStr: string): string {
+			// Simple format implementation for common patterns
+			const year = d.getFullYear();
+			const month = String(d.getMonth() + 1).padStart(2, '0');
+			const day = String(d.getDate()).padStart(2, '0');
+			const hours = String(d.getHours()).padStart(2, '0');
+			const minutes = String(d.getMinutes()).padStart(2, '0');
+			const seconds = String(d.getSeconds()).padStart(2, '0');
+			
+			// Handle common format patterns
+			if (formatStr === 'YYYY-MM-DD') return `${year}-${month}-${day}`;
+			if (formatStr === 'YYYY-MM-DD HH:mm:ss') return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+			if (formatStr === 'HH:mm') return `${hours}:${minutes}`;
+			
+			// Default: ISO string
+			return d.toISOString();
+		},
+		valueOf(): number {
+			return d.getTime();
+		},
+		toDate(): Date {
+			return d;
+		}
+	};
+}
