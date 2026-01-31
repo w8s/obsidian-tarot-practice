@@ -15,8 +15,11 @@ A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intenti
 - 🧭 [Usage Guide](docs/USAGE.md) - Detailed usage instructions
 - ⚙️ [Settings Reference](docs/SETTINGS.md) - Complete settings documentation
 - 📋 [Changelog](CHANGELOG.md) - Version history and release notes
+
+**For Developers:**
+- 🔨 [Development Workflow](docs/DEVELOPMENT-WORKFLOW.md) - Bug fixes, releases, and branching
 - 🧪 [Testing](docs/TESTING-SETUP.md) - Test suite documentation
-- 🔧 [Development Notes](docs/AGENTS.md) - For contributors
+- 🔧 [Development Notes](docs/AGENTS.md) - Architecture and context
 
 ## Philosophy
 
