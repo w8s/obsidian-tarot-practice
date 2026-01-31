@@ -1,0 +1,47 @@
+{
+	"id": "test-deck",
+	"name": "Test Deck",
+	"description": "Minimal deck for testing",
+	"cards": [
+		{
+			"index": 0,
+			"name": "The Fool",
+			"category": "Major",
+			"suit": null,
+			"rank": null,
+			"value": 0
+		},
+		{
+			"index": 1,
+			"name": "The Magician",
+			"category": "Major",
+			"suit": null,
+			"rank": null,
+			"value": 1
+		},
+		{
+			"index": 2,
+			"name": "Ace of Wands",
+			"category": "Minor",
+			"suit": "Wands",
+			"rank": "Ace",
+			"value": 1
+		},
+		{
+			"index": 3,
+			"name": "Two of Wands",
+			"category": "Minor",
+			"suit": "Wands",
+			"rank": "2",
+			"value": 2
+		},
+		{
+			"index": 4,
+			"name": "Ace of Cups",
+			"category": "Minor",
+			"suit": "Cups",
+			"rank": "Ace",
+			"value": 1
+		}
+	]
+}
