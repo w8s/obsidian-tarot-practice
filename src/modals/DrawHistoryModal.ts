@@ -280,6 +280,7 @@ export class DrawHistoryModal extends Modal {
 			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
 			
 			const topDecks = deckUsage.slice(0, 5);
+			const baseOptions = getBaseChartOptions();
 			this.deckChart = new Chart(canvas, {
 				type: 'bar',
 				data: {
@@ -293,11 +294,11 @@ export class DrawHistoryModal extends Modal {
 					}]
 				},
 				options: {
-					...getBaseChartOptions(),
+					...baseOptions,
 					scales: {
-						...getBaseChartOptions().scales,
+						...(baseOptions.scales || {}),
 						y: {
-							...getBaseChartOptions().scales?.y,
+							...(baseOptions.scales?.y || {}),
 							beginAtZero: true
 						}
 					}
@@ -316,6 +317,7 @@ export class DrawHistoryModal extends Modal {
 			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
 			
 			const topSpreads = spreadUsage.slice(0, 5);
+			const baseOptions = getBaseChartOptions();
 			this.spreadChart = new Chart(canvas, {
 				type: 'bar',
 				data: {
@@ -329,11 +331,11 @@ export class DrawHistoryModal extends Modal {
 					}]
 				},
 				options: {
-					...getBaseChartOptions(),
+					...baseOptions,
 					scales: {
-						...getBaseChartOptions().scales,
+						...(baseOptions.scales || {}),
 						y: {
-							...getBaseChartOptions().scales?.y,
+							...(baseOptions.scales?.y || {}),
 							beginAtZero: true
 						}
 					}
