@@ -7,6 +7,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.6] - 2025-01-31
+
+### Added
+- Comprehensive test suite with 28 tests covering deck validation, template rendering, and card drawing
+- Automated CI/CD workflows - tests run on every push and before releases
+- Security documentation with inclusive, fact-based language
+- Development workflow documentation for contributors
+- Test status badge in README
+
+### Changed
+- Updated rng-with-intention to v0.3.2 (improved RNG implementation)
+- GitHub Actions workflows now use explicit least-privilege permissions
+- Organized documentation into docs/ directory
+
+### Infrastructure
+- Added Vitest testing framework with UI and coverage reporting
+- Configured Dependabot, CodeQL, and Secret Scanning for security monitoring
+- All releases now require passing tests before publishing
+
 ## [1.8.5] - 2025-01-29
 
 ### Fixed
