@@ -324,16 +324,20 @@ export class DrawHistoryModal extends Modal {
 				},
 				options: {
 					...baseOptions,
+					indexAxis: 'y',  // Make horizontal
 					scales: {
 						...(baseOptions.scales || {}),
-						y: {
-							...(baseOptions.scales?.y || {}),
+						x: {
+							...(baseOptions.scales?.x || {}),
 							beginAtZero: true,
 							title: {
 								display: true,
 								text: 'Number of draws',
 								color: TAROT_COLORS.text
 							}
+						},
+						y: {
+							...(baseOptions.scales?.y || {})
 						}
 					}
 				}
@@ -383,6 +387,26 @@ export class DrawHistoryModal extends Modal {
 								font: {
 									size: 12,
 									family: "'Inter', sans-serif"
+								},
+								// Show percentage in legend
+								generateLabels: function(chart) {
+									const data = chart.data;
+									if (data.labels && data.datasets.length) {
+										const dataset = data.datasets[0];
+										const total = (dataset.data as number[]).reduce((a, b) => a + b, 0);
+										
+										return (data.labels as string[]).map((label, i) => {
+											const value = (dataset.data as number[])[i];
+											const percentage = ((value / total) * 100).toFixed(1);
+											return {
+												text: `${label}: ${percentage}%`,
+												fillStyle: (dataset.backgroundColor as string[])[i],
+												hidden: false,
+												index: i
+											};
+										});
+									}
+									return [];
 								}
 							}
 						},
