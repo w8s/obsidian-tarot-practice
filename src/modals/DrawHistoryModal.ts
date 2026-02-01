@@ -399,7 +399,7 @@ export class DrawHistoryModal extends Modal {
 								label: function(context) {
 									const label = context.label || '';
 									const value = context.parsed;
-									const total = context.dataset.data.reduce((a, b) => (a as number) + (b as number), 0) as number;
+									const total = context.dataset.data.reduce((a, b) => Number(a) + Number(b), 0);
 									const percentage = ((value / total) * 100).toFixed(1);
 									return `${label}: ${value} (${percentage}%)`;
 								}
