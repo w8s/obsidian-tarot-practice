@@ -24,7 +24,7 @@ export const TAROT_COLORS = {
 	tertiary: 'rgb(59, 130, 246)',      // Blue (intuition)
 	
 	// Dark mode compatible
-	text: 'rgb(229, 231, 235)',         // Light gray text
+	text: 'rgb(243, 244, 246)',         // Very light gray text (brighter)
 	grid: 'rgba(75, 85, 99, 0.3)',      // Subtle grid lines
 };
 

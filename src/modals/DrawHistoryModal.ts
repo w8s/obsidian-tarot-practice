@@ -385,9 +385,13 @@ export class DrawHistoryModal extends Modal {
 							labels: {
 								color: TAROT_COLORS.text,
 								font: {
-									size: 12,
-									family: "'Inter', sans-serif"
+									size: 13,
+									family: "'Inter', sans-serif",
+									weight: '500'
 								},
+								padding: 12,
+								usePointStyle: true,
+								pointStyle: 'circle',
 								// Show percentage in legend
 								generateLabels: function(chart) {
 									const data = chart.data;
