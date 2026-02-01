@@ -290,13 +290,13 @@ export class DrawHistoryModal extends Modal {
 			];
 			
 			// Create datasets for each category
-			const deckData = [
+			const deckData: number[] = [
 				...topDecks.map(d => d.count),
-				...new Array(topSpreads.length).fill(0)  // Fill with 0 for spread positions
+				...new Array<number>(topSpreads.length).fill(0)  // Fill with 0 for spread positions
 			];
 			
-			const spreadData = [
-				...new Array(topDecks.length).fill(0),  // Fill with 0 for deck positions
+			const spreadData: number[] = [
+				...new Array<number>(topDecks.length).fill(0),  // Fill with 0 for deck positions
 				...topSpreads.map(s => s.count)
 			];
 			
