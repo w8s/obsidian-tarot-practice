@@ -393,14 +393,18 @@ export class DrawHistoryModal extends Modal {
 									const data = chart.data;
 									if (data.labels && data.datasets.length) {
 										const dataset = data.datasets[0];
+										if (!dataset || !dataset.data) return [];
+										
 										const total = (dataset.data as number[]).reduce((a, b) => a + b, 0);
 										
 										return (data.labels as string[]).map((label, i) => {
 											const value = (dataset.data as number[])[i];
+											if (value === undefined) return { text: label, fillStyle: '', hidden: false, index: i };
+											
 											const percentage = ((value / total) * 100).toFixed(1);
 											return {
 												text: `${label}: ${percentage}%`,
-												fillStyle: (dataset.backgroundColor as string[])[i],
+												fillStyle: ((dataset.backgroundColor as string[])?.[i]) || '',
 												hidden: false,
 												index: i
 											};
