@@ -271,27 +271,56 @@ export class DrawHistoryModal extends Modal {
 		const cardFreq = this.plugin.drawHistory.getCardFrequency();
 		const querentStats = this.plugin.drawHistory.getQuerentStats();
 
-		// ===== DECK USAGE CHART =====
-		const deckSection = container.createDiv({ cls: 'tarot-history-stat-section' });
-		deckSection.createEl('h3', { text: 'Most used decks' });
+		// ===== COMBINED DECK & SPREAD USAGE CHART =====
+		const usageSection = container.createDiv({ cls: 'tarot-history-stat-section' });
+		usageSection.createEl('h3', { text: 'Usage patterns' });
 		
-		if (deckUsage.length > 0) {
-			const chartContainer = deckSection.createDiv({ cls: 'tarot-chart-container' });
+		if (deckUsage.length > 0 || spreadUsage.length > 0) {
+			const chartContainer = usageSection.createDiv({ cls: 'tarot-chart-container' });
 			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
 			
+			// Get top 5 of each
 			const topDecks = deckUsage.slice(0, 5);
+			const topSpreads = spreadUsage.slice(0, 5);
+			
+			// Create combined labels (deck names and spread names)
+			const allLabels = [
+				...topDecks.map(d => d.deckName),
+				...topSpreads.map(s => s.spreadName)
+			];
+			
+			// Create datasets for each category
+			const deckData = [
+				...topDecks.map(d => d.count),
+				...new Array(topSpreads.length).fill(0)  // Fill with 0 for spread positions
+			];
+			
+			const spreadData = [
+				...new Array(topDecks.length).fill(0),  // Fill with 0 for deck positions
+				...topSpreads.map(s => s.count)
+			];
+			
 			const baseOptions = getBaseChartOptions()!;
 			this.deckChart = new Chart(canvas, {
 				type: 'bar',
 				data: {
-					labels: topDecks.map(d => d.deckName),
-					datasets: [{
-						label: 'Number of draws',
-						data: topDecks.map(d => d.count),
-						backgroundColor: TAROT_COLORS.primary,
-						borderColor: TAROT_COLORS.primary,
-						borderWidth: 2
-					}]
+					labels: allLabels,
+					datasets: [
+						{
+							label: 'Decks',
+							data: deckData,
+							backgroundColor: TAROT_COLORS.primary,
+							borderColor: TAROT_COLORS.primary,
+							borderWidth: 2
+						},
+						{
+							label: 'Spreads',
+							data: spreadData,
+							backgroundColor: TAROT_COLORS.secondary,
+							borderColor: TAROT_COLORS.secondary,
+							borderWidth: 2
+						}
+					]
 				},
 				options: {
 					...baseOptions,
@@ -299,50 +328,18 @@ export class DrawHistoryModal extends Modal {
 						...(baseOptions.scales || {}),
 						y: {
 							...(baseOptions.scales?.y || {}),
-							beginAtZero: true
+							beginAtZero: true,
+							title: {
+								display: true,
+								text: 'Number of draws',
+								color: TAROT_COLORS.text
+							}
 						}
 					}
 				}
 			});
 		} else {
-			deckSection.createEl('p', { text: 'No deck statistics yet' });
-		}
-
-		// ===== SPREAD USAGE CHART =====
-		const spreadSection = container.createDiv({ cls: 'tarot-history-stat-section' });
-		spreadSection.createEl('h3', { text: 'Most used spreads' });
-		
-		if (spreadUsage.length > 0) {
-			const chartContainer = spreadSection.createDiv({ cls: 'tarot-chart-container' });
-			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
-			
-			const topSpreads = spreadUsage.slice(0, 5);
-			const baseOptions = getBaseChartOptions()!;
-			this.spreadChart = new Chart(canvas, {
-				type: 'bar',
-				data: {
-					labels: topSpreads.map(s => s.spreadName),
-					datasets: [{
-						label: 'Number of draws',
-						data: topSpreads.map(s => s.count),
-						backgroundColor: TAROT_COLORS.secondary,
-						borderColor: TAROT_COLORS.secondary,
-						borderWidth: 2
-					}]
-				},
-				options: {
-					...baseOptions,
-					scales: {
-						...(baseOptions.scales || {}),
-						y: {
-							...(baseOptions.scales?.y || {}),
-							beginAtZero: true
-						}
-					}
-				}
-			});
-		} else {
-			spreadSection.createEl('p', { text: 'No spread statistics yet' });
+			usageSection.createEl('p', { text: 'No usage statistics yet' });
 		}
 
 		// ===== SUIT DISTRIBUTION PIE CHART =====
