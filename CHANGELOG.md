@@ -7,6 +7,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.7] - 2026-02-01
+
+### Added
+- **Visual Statistics Charts** - Professional data visualization for draw history
+  - Horizontal grouped bar chart showing deck and spread usage side-by-side
+  - Pie chart with suit distribution and percentages in legend
+  - All charts are dark-mode compatible with tarot-themed colors
+  - Responsive design for desktop and mobile viewing
+
+### Changed
+- Combined "Most used decks" and "Most used spreads" into single chart for easier comparison
+- Pie chart legend now displays percentages directly (e.g., "Major Arcana: 33.3%")
+- Improved legend readability with larger font (13px), medium weight, and brighter text color
+- Bar charts now display horizontally for better label readability
+
+### Fixed
+- **Critical**: Replaced broken AlaSQL queries with native JavaScript aggregation
+  - Statistics were showing empty due to SQL parsing errors with COUNT(*)
+  - Now uses reliable Map-based counting for deck, spread, card, and querent statistics
+- Added proper null safety checks and type assertions for Chart.js integration
+- Fixed ESLint configuration to exclude test files and coverage reports
+
+### Technical
+- Added Chart.js 4.4.7 for data visualization
+- Created chart utilities with tarot-themed color palette
+- Implemented proper chart cleanup to prevent memory leaks
+
 ## [1.8.6] - 2025-01-31
 
 ### Added
