@@ -3,11 +3,23 @@
  */
 
 import { App, Modal, Setting } from 'obsidian';
+import { Chart } from 'chart.js';
 import type TarotPracticePlugin from '../main';
 import type { DrawHistoryEntry } from '../types/history';
+import { 
+	TAROT_COLORS, 
+	getBaseChartOptions, 
+	destroyChart,
+	getCardSuit,
+	getSuitColor 
+} from '../utils/charts';
 
 export class DrawHistoryModal extends Modal {
 	plugin: TarotPracticePlugin;
+	// Store chart instances for cleanup
+	private deckChart: Chart | null = null;
+	private spreadChart: Chart | null = null;
+	private suitChart: Chart | null = null;
 
 	constructor(app: App, plugin: TarotPracticePlugin) {
 		super(app);
@@ -58,6 +70,11 @@ export class DrawHistoryModal extends Modal {
 
 		// Tab switching
 		recentTab.addEventListener('click', () => {
+			// Clean up charts when switching away from statistics
+			destroyChart(this.deckChart);
+			destroyChart(this.spreadChart);
+			destroyChart(this.suitChart);
+			
 			recentTab.addClass('tarot-history-tab-active');
 			statsTab.removeClass('tarot-history-tab-active');
 			this.showRecentDraws(contentArea);
@@ -242,43 +259,160 @@ export class DrawHistoryModal extends Modal {
 
 	showStatistics(container: HTMLElement) {
 		container.empty();
+		
+		// Clean up any existing charts
+		destroyChart(this.deckChart);
+		destroyChart(this.spreadChart);
+		destroyChart(this.suitChart);
 
-		// Deck usage
+		// Get all statistics
+		const deckUsage = this.plugin.drawHistory.getDeckUsage();
+		const spreadUsage = this.plugin.drawHistory.getSpreadUsage();
+		const cardFreq = this.plugin.drawHistory.getCardFrequency();
+		const querentStats = this.plugin.drawHistory.getQuerentStats();
+
+		// ===== DECK USAGE CHART =====
 		const deckSection = container.createDiv({ cls: 'tarot-history-stat-section' });
 		deckSection.createEl('h3', { text: 'Most used decks' });
-		const deckUsage = this.plugin.drawHistory.getDeckUsage();
 		
 		if (deckUsage.length > 0) {
-			const deckList = deckSection.createEl('ol');
-			for (const stat of deckUsage.slice(0, 5)) {
-				deckList.createEl('li', { 
-					text: `${stat.deckName}: ${stat.count} draws`
-				});
-			}
+			const chartContainer = deckSection.createDiv({ cls: 'tarot-chart-container' });
+			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
+			
+			const topDecks = deckUsage.slice(0, 5);
+			this.deckChart = new Chart(canvas, {
+				type: 'bar',
+				data: {
+					labels: topDecks.map(d => d.deckName),
+					datasets: [{
+						label: 'Number of draws',
+						data: topDecks.map(d => d.count),
+						backgroundColor: TAROT_COLORS.primary,
+						borderColor: TAROT_COLORS.primary,
+						borderWidth: 2
+					}]
+				},
+				options: {
+					...getBaseChartOptions(),
+					scales: {
+						...getBaseChartOptions().scales,
+						y: {
+							...getBaseChartOptions().scales?.y,
+							beginAtZero: true
+						}
+					}
+				}
+			});
 		} else {
 			deckSection.createEl('p', { text: 'No deck statistics yet' });
 		}
 
-		// Spread usage
+		// ===== SPREAD USAGE CHART =====
 		const spreadSection = container.createDiv({ cls: 'tarot-history-stat-section' });
 		spreadSection.createEl('h3', { text: 'Most used spreads' });
-		const spreadUsage = this.plugin.drawHistory.getSpreadUsage();
 		
 		if (spreadUsage.length > 0) {
-			const spreadList = spreadSection.createEl('ol');
-			for (const stat of spreadUsage.slice(0, 5)) {
-				spreadList.createEl('li', { 
-					text: `${stat.spreadName}: ${stat.count} draws`
-				});
-			}
+			const chartContainer = spreadSection.createDiv({ cls: 'tarot-chart-container' });
+			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
+			
+			const topSpreads = spreadUsage.slice(0, 5);
+			this.spreadChart = new Chart(canvas, {
+				type: 'bar',
+				data: {
+					labels: topSpreads.map(s => s.spreadName),
+					datasets: [{
+						label: 'Number of draws',
+						data: topSpreads.map(s => s.count),
+						backgroundColor: TAROT_COLORS.secondary,
+						borderColor: TAROT_COLORS.secondary,
+						borderWidth: 2
+					}]
+				},
+				options: {
+					...getBaseChartOptions(),
+					scales: {
+						...getBaseChartOptions().scales,
+						y: {
+							...getBaseChartOptions().scales?.y,
+							beginAtZero: true
+						}
+					}
+				}
+			});
 		} else {
 			spreadSection.createEl('p', { text: 'No spread statistics yet' });
 		}
 
-		// Card frequency
+		// ===== SUIT DISTRIBUTION PIE CHART =====
+		const suitSection = container.createDiv({ cls: 'tarot-history-stat-section' });
+		suitSection.createEl('h3', { text: 'Suit distribution' });
+		
+		if (cardFreq.length > 0) {
+			// Aggregate cards by suit
+			const suitCounts = new Map<string, number>();
+			for (const card of cardFreq) {
+				const suit = getCardSuit(card.cardName);
+				suitCounts.set(suit, (suitCounts.get(suit) || 0) + card.frequency);
+			}
+			
+			const suitData = Array.from(suitCounts.entries())
+				.map(([suit, count]) => ({ suit, count }))
+				.sort((a, b) => b.count - a.count);
+			
+			const chartContainer = suitSection.createDiv({ cls: 'tarot-chart-container' });
+			const canvas = chartContainer.createEl('canvas', { cls: 'tarot-chart' });
+			
+			this.suitChart = new Chart(canvas, {
+				type: 'pie',
+				data: {
+					labels: suitData.map(s => s.suit),
+					datasets: [{
+						data: suitData.map(s => s.count),
+						backgroundColor: suitData.map(s => getSuitColor(s.suit)),
+						borderColor: 'rgba(0, 0, 0, 0.8)',
+						borderWidth: 2
+					}]
+				},
+				options: {
+					responsive: true,
+					maintainAspectRatio: true,
+					plugins: {
+						legend: {
+							position: 'right',
+							labels: {
+								color: TAROT_COLORS.text,
+								font: {
+									size: 12,
+									family: "'Inter', sans-serif"
+								}
+							}
+						},
+						tooltip: {
+							backgroundColor: 'rgba(17, 24, 39, 0.9)',
+							titleColor: TAROT_COLORS.text,
+							bodyColor: TAROT_COLORS.text,
+							borderColor: TAROT_COLORS.grid,
+							borderWidth: 1,
+							callbacks: {
+								label: function(context) {
+									const label = context.label || '';
+									const value = context.parsed;
+									const total = context.dataset.data.reduce((a, b) => (a as number) + (b as number), 0) as number;
+									const percentage = ((value / total) * 100).toFixed(1);
+									return `${label}: ${value} (${percentage}%)`;
+								}
+							}
+						}
+					}
+				}
+			});
+		} else {
+			suitSection.createEl('p', { text: 'No card statistics yet' });
+		}
+
+		// ===== MOST FREQUENT CARDS (TEXT LIST) =====
 		const cardSection = container.createDiv({ cls: 'tarot-history-stat-section' });
 		cardSection.createEl('h3', { text: 'Most frequent cards' });
-		const cardFreq = this.plugin.drawHistory.getCardFrequency();
 		
 		if (cardFreq.length > 0) {
 			const cardList = cardSection.createEl('ol');
@@ -291,8 +425,7 @@ export class DrawHistoryModal extends Modal {
 			cardSection.createEl('p', { text: 'No card statistics yet' });
 		}
 
-		// Querent stats if any
-		const querentStats = this.plugin.drawHistory.getQuerentStats();
+		// ===== QUERENT STATS (IF ANY) =====
 		if (querentStats.length > 0) {
 			const querentSection = container.createDiv({ cls: 'tarot-history-stat-section' });
 			querentSection.createEl('h3', { text: 'Readings by querent' });
@@ -306,6 +439,11 @@ export class DrawHistoryModal extends Modal {
 	}
 
 	onClose() {
+		// Clean up chart instances to prevent memory leaks
+		destroyChart(this.deckChart);
+		destroyChart(this.spreadChart);
+		destroyChart(this.suitChart);
+		
 		const { contentEl } = this;
 		contentEl.empty();
 	}

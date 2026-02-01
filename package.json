@@ -36,6 +36,7 @@
 	},
 	"dependencies": {
 		"alasql": "^4.17.0",
+		"chart.js": "^4.4.7",
 		"handlebars": "^4.7.8",
 		"jszip": "^3.10.1",
 		"obsidian": "latest",

@@ -213,3 +213,40 @@ available in the app when your plugin is enabled.
 	color: var(--text-muted);
 	font-style: italic;
 }
+
+/* Chart containers */
+.tarot-chart-container {
+	margin: 1em 0 2em;
+	padding: 1em;
+	background: var(--background-secondary);
+	border-radius: 8px;
+}
+
+.tarot-chart {
+	max-height: 400px;
+	margin: 0 auto;
+}
+
+/* Statistics sections */
+.tarot-history-stat-section {
+	margin-bottom: 2em;
+}
+
+.tarot-history-stat-section h3 {
+	color: var(--text-muted);
+	font-size: 1.1em;
+	margin-bottom: 0.5em;
+	border-bottom: 1px solid var(--background-modifier-border);
+	padding-bottom: 0.3em;
+}
+
+/* Responsive chart sizing */
+@media (max-width: 768px) {
+	.tarot-chart {
+		max-height: 300px;
+	}
+	
+	.tarot-chart-container {
+		padding: 0.5em;
+	}
+}
