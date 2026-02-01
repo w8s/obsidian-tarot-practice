@@ -127,13 +127,29 @@ export class DrawHistory {
 			return [];
 		}
 
-		// Use AlaSQL for aggregation - pass data directly, not as parameter
-		return alasql(`
-			SELECT deckId, deckName, COUNT(*) as count 
-			FROM ? 
-			GROUP BY deckId, deckName 
-			ORDER BY count DESC
-		`, [this.draws]);
+		// Use JavaScript aggregation for reliability
+		const deckCounts = new Map<string, { deckName: string; count: number }>();
+		
+		for (const draw of this.draws) {
+			const existing = deckCounts.get(draw.deckId);
+			if (existing) {
+				existing.count++;
+			} else {
+				deckCounts.set(draw.deckId, {
+					deckName: draw.deckName,
+					count: 1
+				});
+			}
+		}
+
+		// Convert to array and sort by count
+		return Array.from(deckCounts.entries())
+			.map(([deckId, data]) => ({
+				deckId,
+				deckName: data.deckName,
+				count: data.count
+			}))
+			.sort((a, b) => b.count - a.count);
 	}
 
 	/**
@@ -144,58 +160,85 @@ export class DrawHistory {
 			return [];
 		}
 
-		return alasql(`
-			SELECT spreadId, spreadName, COUNT(*) as count 
-			FROM ? 
-			GROUP BY spreadId, spreadName 
-			ORDER BY count DESC
-		`, [this.draws]);
+		// Use JavaScript aggregation for reliability
+		const spreadCounts = new Map<string, { spreadName: string; count: number }>();
+		
+		for (const draw of this.draws) {
+			const existing = spreadCounts.get(draw.spreadId);
+			if (existing) {
+				existing.count++;
+			} else {
+				spreadCounts.set(draw.spreadId, {
+					spreadName: draw.spreadName,
+					count: 1
+				});
+			}
+		}
+
+		// Convert to array and sort by count
+		return Array.from(spreadCounts.entries())
+			.map(([spreadId, data]) => ({
+				spreadId,
+				spreadName: data.spreadName,
+				count: data.count
+			}))
+			.sort((a, b) => b.count - a.count);
 	}
 
 	/**
 	 * Get card frequency statistics
-	 * Note: This queries nested arrays
 	 */
 	getCardFrequency(): CardFrequencyStats[] {
 		if (this.draws.length === 0) {
 			return [];
 		}
 
-		// Flatten cards from all draws for frequency counting
-		const allCards: Array<{ name: string }> = [];
+		// Count card occurrences using JavaScript
+		const cardCounts = new Map<string, number>();
+		
 		for (const draw of this.draws) {
 			for (const card of draw.cards) {
-				allCards.push({ name: card.name });
+				const count = cardCounts.get(card.name) || 0;
+				cardCounts.set(card.name, count + 1);
 			}
 		}
 
-		return alasql(`
-			SELECT name as cardName, COUNT(*) as frequency 
-			FROM ? 
-			GROUP BY name 
-			ORDER BY frequency DESC
-		`, [allCards]);
+		// Convert to array and sort by frequency
+		return Array.from(cardCounts.entries())
+			.map(([cardName, frequency]) => ({
+				cardName,
+				frequency
+			}))
+			.sort((a, b) => b.frequency - a.frequency);
 	}
 
 	/**
 	 * Get querent statistics
 	 */
 	getQuerentStats(): QuerentStats[] {
-		// Filter to draws with querents first
-		const querents = this.draws
-			.filter(d => d.querent)
-			.map(d => ({ name: d.querent!.name }));
-
-		if (querents.length === 0) {
+		// Filter to draws with querents
+		const querentsWithDraws = this.draws.filter(d => d.querent);
+		
+		if (querentsWithDraws.length === 0) {
 			return [];
 		}
 
-		return alasql(`
-			SELECT name as querent, COUNT(*) as readings 
-			FROM ? 
-			GROUP BY name 
-			ORDER BY readings DESC
-		`, [querents]);
+		// Count readings per querent using JavaScript
+		const querentCounts = new Map<string, number>();
+		
+		for (const draw of querentsWithDraws) {
+			const querentName = draw.querent!.name;
+			const count = querentCounts.get(querentName) || 0;
+			querentCounts.set(querentName, count + 1);
+		}
+
+		// Convert to array and sort by readings
+		return Array.from(querentCounts.entries())
+			.map(([querent, readings]) => ({
+				querent,
+				readings
+			}))
+			.sort((a, b) => b.readings - a.readings);
 	}
 
 	/**
