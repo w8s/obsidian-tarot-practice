@@ -7,6 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.8] - 2026-06-01
+
+### Changed
+- Updated plugin description to meet Obsidian submission requirements
+- Bumped `minAppVersion` from `0.15.0` to `1.4.4` (reflects actual API usage)
+- Updated Handlebars 4.7.8 → 4.7.9 (security fix)
+- Updated Obsidian API types 1.11.4 → 1.13.0
+
+### Removed
+- Removed AlaSQL dependency and all 270 transitive packages
+- Removed unused `getDateRangeStats()` and `query()` methods from DrawHistory
+
+### Fixed
+- Replaced all `createEl('h2'/'h3')` with `Setting.setHeading()` per plugin guidelines
+- Moved all inline styles to CSS classes per plugin guidelines
+- Added network use disclosure to README (optional deck image restoration)
+
 ## [1.8.7] - 2026-02-01
 
 ### Added
