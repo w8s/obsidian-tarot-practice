@@ -25,8 +25,7 @@ available in the app when your plugin is enabled.
 	border-top-right-radius: 6px;
 }
 
-/* Last setting before next heading or at end gets bottom radius */
-.tarot-practice-settings .setting-item:not(.setting-item-heading):not(.setting-item-description):has(+ .setting-item-heading),
+/* Last setting at end of container gets bottom radius */
 .tarot-practice-settings .setting-item:not(.setting-item-heading):not(.setting-item-description):last-child {
 	border-bottom-left-radius: 6px;
 	border-bottom-right-radius: 6px;
