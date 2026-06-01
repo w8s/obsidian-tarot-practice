@@ -30,7 +30,7 @@ export class DrawHistoryModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: 'Draw history' });
+		new Setting(contentEl).setName('Draw history').setHeading();
 
 		// Get total draws
 		const totalDraws = this.plugin.drawHistory.getTotalDraws();
@@ -104,7 +104,7 @@ export class DrawHistoryModal extends Modal {
 
 		// Add export buttons
 		const exportSection = contentEl.createDiv({ cls: 'tarot-history-export-section' });
-		exportSection.createEl('h3', { text: 'Export history' });
+		new Setting(exportSection).setName('Export history').setHeading();
 		
 		new Setting(exportSection)
 			.setName('Export as JSON')
@@ -273,7 +273,7 @@ export class DrawHistoryModal extends Modal {
 
 		// ===== COMBINED DECK & SPREAD USAGE CHART =====
 		const usageSection = container.createDiv({ cls: 'tarot-history-stat-section' });
-		usageSection.createEl('h3', { text: 'Usage patterns' });
+		new Setting(usageSection).setName('Usage patterns').setHeading();
 		
 		if (deckUsage.length > 0 || spreadUsage.length > 0) {
 			const chartContainer = usageSection.createDiv({ cls: 'tarot-chart-container' });
@@ -348,7 +348,7 @@ export class DrawHistoryModal extends Modal {
 
 		// ===== SUIT DISTRIBUTION PIE CHART =====
 		const suitSection = container.createDiv({ cls: 'tarot-history-stat-section' });
-		suitSection.createEl('h3', { text: 'Suit distribution' });
+		new Setting(suitSection).setName('Suit distribution').setHeading();
 		
 		if (cardFreq.length > 0) {
 			// Aggregate cards by suit
@@ -443,7 +443,7 @@ export class DrawHistoryModal extends Modal {
 
 		// ===== MOST FREQUENT CARDS (TEXT LIST) =====
 		const cardSection = container.createDiv({ cls: 'tarot-history-stat-section' });
-		cardSection.createEl('h3', { text: 'Most frequent cards' });
+		new Setting(cardSection).setName('Most frequent cards').setHeading();
 		
 		if (cardFreq.length > 0) {
 			const cardList = cardSection.createEl('ol');
@@ -459,7 +459,7 @@ export class DrawHistoryModal extends Modal {
 		// ===== QUERENT STATS (IF ANY) =====
 		if (querentStats.length > 0) {
 			const querentSection = container.createDiv({ cls: 'tarot-history-stat-section' });
-			querentSection.createEl('h3', { text: 'Readings by querent' });
+			new Setting(querentSection).setName('Readings by querent').setHeading();
 			const querentList = querentSection.createEl('ol');
 			for (const stat of querentStats) {
 				querentList.createEl('li', { 

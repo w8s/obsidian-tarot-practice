@@ -28,7 +28,7 @@ export class TemplateMigrationModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: 'Migrate to file-based templates' });
+		new Setting(contentEl).setName('Migrate to file-based templates').setHeading();
 
 		// Explanation
 		contentEl.createEl('p', {
@@ -63,7 +63,7 @@ export class TemplateMigrationModal extends Modal {
 		}
 
 		// Preview section
-		contentEl.createEl('h3', { text: 'Files to be created' });
+		new Setting(contentEl).setName('Files to be created').setHeading();
 		this.previewEl = contentEl.createEl('div', { cls: 'tarot-migration-preview' });
 		this.updatePreview();
 

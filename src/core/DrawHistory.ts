@@ -1,8 +1,7 @@
 /**
- * Draw history tracking with AlaSQL for querying
+ * Draw history tracking
  */
 
-import alasql from 'alasql';
 import type TarotPracticePlugin from '../main';
 import type { SpreadDrawResult } from './spreads';
 import type {
@@ -10,8 +9,7 @@ import type {
 	DeckUsageStats,
 	SpreadUsageStats,
 	CardFrequencyStats,
-	QuerentStats,
-	DateRangeStats
+	QuerentStats
 } from '../types/history';
 
 export class DrawHistory {
@@ -21,8 +19,6 @@ export class DrawHistory {
 
 	constructor(plugin: TarotPracticePlugin) {
 		this.plugin = plugin;
-		// Configure AlaSQL
-		alasql.options.cache = false; // Disable query caching for fresh results
 	}
 
 	/**
@@ -242,31 +238,6 @@ export class DrawHistory {
 	}
 
 	/**
-	 * Get statistics for a date range
-	 */
-	getDateRangeStats(start: number, end: number): DateRangeStats[] {
-		const rangeDraws = this.getByDateRange(start, end);
-
-		if (rangeDraws.length === 0) {
-			return [];
-		}
-
-		// Group by date for statistics
-		const results = alasql(`
-			SELECT 
-				DATE(NEW Date(timestamp)) as date,
-				COUNT(*) as draws,
-				COUNT(DISTINCT deckId) as decksUsed,
-				COUNT(DISTINCT spreadId) as spreadsUsed
-			 FROM ? 
-			 GROUP BY DATE(NEW Date(timestamp))
-			 ORDER BY date
-		`, [rangeDraws]);
-
-		return results as DateRangeStats[];
-	}
-
-	/**
 	 * Get total number of draws
 	 */
 	getTotalDraws(): number {
@@ -357,12 +328,4 @@ export class DrawHistory {
 		return value;
 	}
 
-	/**
-	 * Execute custom SQL query for power users
-	 * @param sql SQL query string
-	 * @param params Optional parameters (defaults to using draws array)
-	 */
-	query(sql: string, params?: unknown[]): unknown {
-		return alasql(sql, params ?? [this.draws]);
-	}
 }

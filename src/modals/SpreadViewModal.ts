@@ -1,4 +1,4 @@
-import { App, Modal } from 'obsidian';
+import { App, Modal, Setting } from 'obsidian';
 import { Spread } from '../core/spreads';
 
 /**
@@ -17,7 +17,7 @@ export class SpreadViewModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: this.spread.name });
+		new Setting(contentEl).setName(this.spread.name).setHeading();
 
 		// Description
 		contentEl.createEl('p', { 
@@ -27,12 +27,6 @@ export class SpreadViewModal extends Modal {
 
 		// Details section
 		const detailsContainer = contentEl.createDiv({ cls: 'spread-details-container' });
-		detailsContainer.setCssProps({
-			'padding': '16px',
-			'background-color': 'var(--background-secondary)',
-			'border-radius': '4px',
-			'margin-top': '16px'
-		});
 
 		// Basic info
 		const infoSection = detailsContainer.createDiv({ cls: 'spread-info' });
@@ -58,13 +52,7 @@ export class SpreadViewModal extends Modal {
 		});
 
 		// Positions section
-		const positionsHeading = detailsContainer.createEl('h3', { 
-			text: 'Positions',
-			cls: 'spread-positions-heading'
-		});
-		positionsHeading.setCssProps({
-			'margin-top': '16px'
-		});
+		new Setting(detailsContainer).setName('Positions').setHeading();
 
 		const positionsList = detailsContainer.createEl('ol', { cls: 'spread-positions-list' });
 		this.spread.positions.forEach((pos, index) => {
@@ -76,12 +64,7 @@ export class SpreadViewModal extends Modal {
 		});
 
 		// Close button
-		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.setCssProps({
-			'margin-top': '16px',
-			'display': 'flex',
-			'justify-content': 'flex-end'
-		});
+		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-row' });
 
 		buttonContainer.createEl('button', { text: 'Close' })
 			.addEventListener('click', () => {

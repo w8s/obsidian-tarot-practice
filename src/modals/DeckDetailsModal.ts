@@ -1,4 +1,4 @@
-import { App, Modal, Notice } from 'obsidian';
+import { App, Modal, Notice, Setting } from 'obsidian';
 import type { DeckDefinition } from '../types/deck';
 import type TarotPracticePlugin from '../main';
 
@@ -19,7 +19,7 @@ export class DeckDetailsModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('tarot-deck-details-modal');
 
-		contentEl.createEl('h2', { text: this.deck.name });
+		new Setting(contentEl).setName(this.deck.name).setHeading();
 		
 		if (this.deck.description) {
 			contentEl.createEl('p', { text: this.deck.description });
@@ -34,7 +34,7 @@ export class DeckDetailsModal extends Modal {
 		// Metadata if available
 		if (this.deck.metadata) {
 			const metaDiv = contentEl.createDiv('deck-metadata');
-			metaDiv.createEl('h3', { text: 'Metadata' });
+			new Setting(metaDiv).setName('Metadata').setHeading();
 			
 			if (this.deck.metadata.author) {
 				metaDiv.createEl('p', { text: `Author: ${this.deck.metadata.author}` });

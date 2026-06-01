@@ -231,9 +231,8 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 		// Show what folder is actually being used
 		if (isUsingDefault && autoDetected) {
-			containerEl.createDiv('setting-item-description', el => {
+			containerEl.createDiv('setting-item-description tarot-auto-detect-info', el => {
 				el.setText(`🔍 Auto-detected: ${autoDetected}`);
-				el.setAttr('style', 'margin-top: -8px; margin-bottom: 16px; color: var(--text-muted);');
 			});
 		}
 

@@ -34,7 +34,7 @@ export class SpreadCreateModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: 'Create custom spread' });
+		new Setting(contentEl).setName('Create custom spread').setHeading();
 
 		// Name
 		new Setting(contentEl)
@@ -68,8 +68,7 @@ export class SpreadCreateModal extends Modal {
 		this.renderPositions(positionsContainer);
 
 		// Add position button
-		const addButtonContainer = contentEl.createDiv();
-		addButtonContainer.setAttr('style', 'margin-bottom: 16px;');
+		const addButtonContainer = contentEl.createDiv({ cls: 'spread-add-position-row' });
 		
 		addButtonContainer.createEl('button', { text: 'Add position' })
 			.addEventListener('click', () => {
@@ -124,8 +123,7 @@ export class SpreadCreateModal extends Modal {
 			});
 
 		// Buttons
-		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
+		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-row' });
 
 		// Cancel button
 		buttonContainer.createEl('button', { text: 'Cancel' })

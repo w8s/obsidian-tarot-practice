@@ -59,18 +59,16 @@ export class SpreadEditModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: `Edit: ${this.spread.name}` });
+		new Setting(contentEl).setName(`Edit: ${this.spread.name}`).setHeading();
 
 		// Show reset button for built-in spreads
 		if (this.spread.isBuiltIn) {
-			const resetContainer = contentEl.createDiv({ cls: 'setting-item' });
-			resetContainer.setAttr('style', 'margin-bottom: 16px; padding: 8px; background-color: var(--background-secondary); border-radius: 4px;');
+			const resetContainer = contentEl.createDiv({ cls: 'spread-built-in-notice' });
 			
-			const resetDesc = resetContainer.createEl('div', {
+			resetContainer.createEl('div', {
 				text: 'This is a built-in spread. You can customize it, and your changes will be saved.',
 				cls: 'setting-item-description'
 			});
-			resetDesc.setAttr('style', 'margin-bottom: 8px;');
 			
 			const resetButton = resetContainer.createEl('button', {
 				text: 'Reset to default',
@@ -136,8 +134,7 @@ export class SpreadEditModal extends Modal {
 		this.renderPositions(positionsContainer);
 
 		// Add position button
-		const addButtonContainer = contentEl.createDiv();
-		addButtonContainer.setAttr('style', 'margin-bottom: 16px;');
+		const addButtonContainer = contentEl.createDiv({ cls: 'spread-add-position-row' });
 		
 		addButtonContainer.createEl('button', { text: 'Add position' })
 			.addEventListener('click', () => {
@@ -205,8 +202,7 @@ export class SpreadEditModal extends Modal {
 		this.updateTemplateUI();
 
 		// Buttons
-		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
+		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-row' });
 
 		buttonContainer.createEl('button', { text: 'Cancel' })
 			.addEventListener('click', () => this.close());
@@ -223,20 +219,17 @@ export class SpreadEditModal extends Modal {
 		
 		this.positions.forEach((position, index) => {
 			const positionDiv = container.createDiv({ cls: 'spread-position-item' });
-			positionDiv.setAttr('style', 'margin-bottom: 12px; padding: 12px; background-color: var(--background-secondary); border-radius: 4px;');
 
 			// Position header with number and remove button
-			const headerDiv = positionDiv.createDiv();
-			headerDiv.setAttr('style', 'display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;');
+			const headerDiv = positionDiv.createDiv({ cls: 'spread-position-header' });
 
 			headerDiv.createEl('strong', { text: `Position ${index + 1}` });
 
 			if (this.positions.length > 1) {
 				const removeBtn = headerDiv.createEl('button', {
 					text: '×',
-					cls: 'clickable-icon'
+					cls: 'clickable-icon spread-position-remove'
 				});
-				removeBtn.setAttr('style', 'font-size: 20px;');
 				removeBtn.addEventListener('click', () => {
 					this.positions.splice(index, 1);
 					this.renderPositions(container);
@@ -247,9 +240,9 @@ export class SpreadEditModal extends Modal {
 			const labelInput = positionDiv.createEl('input', {
 				type: 'text',
 				placeholder: 'Position label (e.g., past)',
-				value: position.label
+				value: position.label,
+				cls: 'spread-position-label'
 			});
-			labelInput.setAttr('style', 'width: 100%; margin-bottom: 8px;');
 			labelInput.addEventListener('input', () => {
 				position.label = labelInput.value;
 			});
@@ -258,9 +251,9 @@ export class SpreadEditModal extends Modal {
 			const descInput = positionDiv.createEl('input', {
 				type: 'text',
 				placeholder: 'Optional description',
-				value: position.description || ''
+				value: position.description || '',
+				cls: 'spread-position-desc'
 			});
-			descInput.setAttr('style', 'width: 100%;');
 			descInput.addEventListener('input', () => {
 				position.description = descInput.value || undefined;
 			});
@@ -327,15 +320,14 @@ export class SpreadEditModal extends Modal {
 			// Show and populate when using custom
 			customContainer.show();
 			
-			const fileInputContainer = customContainer.createDiv();
-			fileInputContainer.setAttr('style', 'margin-top: 8px;');
+			const fileInputContainer = customContainer.createDiv({ cls: 'spread-template-file-container' });
 			
 			this.fileInput = fileInputContainer.createEl('input', {
 				type: 'text',
 				placeholder: 'templates/Tarot/Spreads/my-spread.md',
-				value: this.templatePath
+				value: this.templatePath,
+				cls: 'spread-template-file-input'
 			});
-			this.fileInput.setAttr('style', 'width: 100%;');
 			
 			new FileSuggest(this.app, this.fileInput);
 			
@@ -347,9 +339,8 @@ export class SpreadEditModal extends Modal {
 			// Create from example button
 			const createExampleButton = customContainer.createEl('button', {
 				text: 'Create from example...',
-				cls: 'mod-cta'
+				cls: 'mod-cta spread-template-create-btn'
 			});
-			createExampleButton.setAttr('style', 'margin-top: 8px;');
 			createExampleButton.addEventListener('click', () => {
 				void this.createFromExample();
 			});
@@ -369,13 +360,13 @@ export class SpreadEditModal extends Modal {
 				text: `Using: ${this.templatePath}`,
 				cls: 'setting-item-description'
 			});
-			usingDiv.setAttr('style', 'margin-top: 8px; color: var(--text-muted);');
+			usingDiv.addClass('spread-template-path-info');
 		} else {
 			const builtInDiv = pathContainer.createEl('div', {
 				text: 'Using built-in template',
 				cls: 'setting-item-description'
 			});
-			builtInDiv.setAttr('style', 'margin-top: 8px; color: var(--text-muted);');
+			builtInDiv.addClass('spread-template-path-info');
 		}
 	}
 

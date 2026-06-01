@@ -4,45 +4,98 @@ This document provides context for AI agents working on the Tarot Practice plugi
 
 ## Project Context
 
-**Purpose**: Obsidian plugin for tarot practice with intention-seeded randomness
-**Current Version**: 1.3.1
-**Tech Stack**: TypeScript, Obsidian API, rng-with-intention library
+**Purpose**: Obsidian plugin for tarot (and other divination) practice with intention-seeded randomness  
+**Current Version**: 1.8.7  
+**Tech Stack**: TypeScript, Obsidian API, rng-with-intention library, Handlebars, Chart.js, JSZip
 
 ## Key Design Principles
 
 1. **Intention-Driven Randomness**: Uses user intention + timestamp to seed RNG
 2. **Traditional Deck Preparation**: Configurable shuffles (1-7) and optional cutting
 3. **Mobile Compatibility**: All async RNG operations for cross-platform crypto support
-4. **Template Flexibility**: File-based templates for maximum customization
+4. **Template Flexibility**: Handlebars templates with 20+ variables, file-based, per-spread
 5. **Backward Compatibility**: Keep deprecated fields for smooth migrations
+6. **Multi-Deck / Multi-System**: Supports tarot, runes, Lenormand, I Ching, playing cards, and any custom JSON deck
 
 ## Architecture Overview
 
-### Core Components
+### Data Flow
 
-**Data Flow**: User Intention → Modal → Deck Preparation → RNG Draw → Template Formatting → Note Insertion
+```
+User Intention → SpreadDrawModal → Deck Preparation (shuffle/cut) → RNG Draw
+    → SpreadFormatter (Handlebars) → Note Insertion
+    → DrawHistory (persisted to data.json)
+```
 
-**Key Files**:
-- `main.ts` - Plugin lifecycle, command registration
-- `TarotDrawModal.ts` - Unified modal for all draw types
-- `DeckPreparation.ts` - Shuffle and cut logic using rng-with-intention
-- `TemplateResolver.ts` - Load templates from files or built-ins
-- `TemplateMigrator.ts` - Migrate v1.2.0 inline templates to files
-- `settings.ts` - Settings interface and defaults
-- `BuiltInTemplates.ts` - Default template constants
-- **Spreads (in progress)**:
-  - `spreads.ts` - Spread interfaces and types
-  - `BuiltInSpreads.ts` - 5 built-in spread definitions
-  - `BuiltInSpreadTemplates.ts` - Default Handlebars templates
-  - `SpreadResolver.ts` - Load spreads and templates (separate from TemplateResolver for now)
+### Directory Structure
+
+```
+src/
+├── main.ts                          # Plugin lifecycle, command registration, ribbon
+├── settings.ts                      # Settings interface and DEFAULT_SETTINGS
+│
+├── core/                            # Domain logic
+│   ├── CardDatabase.ts              # RWS deck: RWS_DECK constant, getCard(), getDeck()
+│   ├── Deck.ts                      # Deck interfaces and DeckType
+│   ├── DeckLoader.ts                # Loads decks from plugin directory (JSON + ZIP)
+│   ├── DeckPreparation.ts           # Fisher-Yates shuffle + intention-based cut
+│   ├── DeckRegistry.ts              # Manages built-in and custom decks
+│   ├── DeckValidator.ts             # Validates deck structure before install
+│   ├── DrawHistory.ts               # Draw history CRUD, statistics queries, export
+│   ├── SpreadLoader.ts              # Spread import/export (JSON and ZIP)
+│   ├── SpreadValidator.ts           # Validates spread structure before install
+│   └── spreads.ts                   # Spread interfaces and types
+│
+├── modals/                          # UI dialogs
+│   ├── ConfirmModal.ts              # Reusable confirmation dialog
+│   ├── DeckDetailsModal.ts          # View deck info, card list, restore images
+│   ├── DeckInstallModal.ts          # Install wizard (JSON or ZIP)
+│   ├── DeckRemoveConfirmModal.ts    # Safe deck removal with confirmation
+│   ├── DrawHistoryModal.ts          # Browse history (Recent tab) + Stats tab with charts
+│   ├── SpreadCreateModal.ts         # Create custom spreads
+│   ├── SpreadDrawModal.ts           # Select spread, enter intention, choose deck, querent
+│   ├── SpreadEditModal.ts           # Edit existing custom spreads
+│   ├── SpreadExportFormatModal.ts   # Choose JSON or ZIP export format
+│   ├── SpreadViewModal.ts           # Preview spread definition and template
+│   ├── TemplateEditModal.ts         # Select custom template file
+│   ├── TemplateMigrationModal.ts    # One-time migration from inline to file templates
+│   └── TemplateViewModal.ts         # Preview template content
+│
+├── spreads/
+│   ├── BuiltInSpreads.ts            # 5 built-in spread definitions
+│   └── SpreadResolver.ts            # Load spreads and templates; resolves built-in vs custom
+│
+├── templates/
+│   ├── BuiltInSpreadTemplates.ts    # Default Handlebars templates for built-in spreads
+│   ├── BuiltInTemplates.ts          # Default templates for daily/inline/multiple draws
+│   ├── SpreadFormatter.ts           # Renders draw results via Handlebars
+│   ├── TemplateExporter.ts          # Copies example templates to vault
+│   ├── TemplateFolderDetector.ts    # Auto-detects Templater/Core Templates folders
+│   ├── TemplateMigrator.ts          # Migrates v1.2 inline templates to files
+│   ├── TemplatePaths.ts             # Standardized folder structure helpers
+│   └── TemplateResolver.ts          # Loads templates from files or falls back to built-ins
+│
+├── types/
+│   ├── deck.ts                      # DeckDefinition, CardDefinition types
+│   ├── history.ts                   # DrawHistoryEntry, DrawStatistics types
+│   └── rng-with-intention.d.ts      # Type declarations for RNG library
+│
+└── ui/
+│   ├── FileSuggest.ts               # Autocomplete component for vault file paths
+│   └── TarotPracticeSettingTab.ts   # Full settings UI
+│
+└── utils/
+    └── charts.ts                    # Chart.js helpers: tarot color palette, chart creation
+```
 
 ### Important Patterns
 
-**Async RNG**:
+**Async RNG** — always await:
 ```typescript
 import RngWithIntention from 'rng-with-intention';
 const rngi = new RngWithIntention(seed);
-const index = await rngi.draw(maxValue);  // Always await!
+const index = await rngi.draw(maxValue);
+const indices = await rngi.drawMultiple(count, maxValue);
 ```
 
 **Template Resolution**:
@@ -53,70 +106,83 @@ const template = await resolver.getDailyTemplate();  // Falls back to built-in
 
 **Settings with Fallbacks**:
 ```typescript
-this.settings.shuffleCount ?? 3  // Use ?? for deprecated optional fields
+this.settings.shuffleCount ?? 3  // Use ?? for optional fields
 ```
 
-## Version History Summary
+**File Operations** — always use TFile abstraction:
+```typescript
+const file = this.app.vault.getAbstractFileByPath(path);
+if (file instanceof TFile) {
+    const content = await this.app.vault.read(file);
+    await this.app.vault.modify(file, newContent);
+}
+```
 
-**In Progress - v1.4.0** - Spreads feature
-- Adding support for structured spreads (Celtic Cross, 3-card, etc.)
-- Handlebars template engine for advanced templating
-- 5 built-in spreads with customizable templates
-- Per-spread deck preparation settings
-- SpreadResolver for spread and template management
-- Example templates in docs/spread-templates/
+**User-Facing Errors**:
+```typescript
+try {
+    await somethingRisky();
+} catch (error) {
+    new Notice('Failed to do the thing: ' + error.message);
+    console.error('Detailed error:', error);
+}
+```
 
-**v1.3.1** (2025-01-20) - List-based template UI
-- Redesigned template settings with list interface
-- Added TemplateViewModal and TemplateEditModal
-- Action buttons for view/edit/reset templates
-- Grouped section styling for cleaner UI
-- Inspired by Obsidian Hotkeys/Bindings interface
+**Handlebars Escaping** — use triple braces for user input:
+```handlebars
+{{{intention}}}   ← triple braces: prevents HTML entity encoding of quotes/apostrophes
+{{name}}          ← double braces: fine for controlled card data
+```
 
-**v1.3.0** (2025-01-19) - File-based templates
-- Replaced inline template editors with file pickers
-- Added migration system for existing templates
-- Unified modal for single/multiple cards
-- Removed `useSharedTemplate` toggle
-
-**v1.2.0** (2025-01-19) - Multiple cards & mobile support
-- Multiple card draws (1-78 cards)
-- Mobile compatibility via rng-with-intention@0.2.2
-- Deck preparation metadata variables
-- Dedicated multiple cards template
-
-**v1.1.0** (2025-01-18) - Inline draws
-- Inline draw commands
-- Reversal support
-- Separate inline template
-- Date/time template variables
-
-**v1.0.0** (2025-01-10) - Initial release
-- Daily tarot draws with intention
-- Customizable templates
-- Daily note integration
+**Statistics Aggregation** — use native JS Map-based counting, NOT AlaSQL:
+```typescript
+// AlaSQL is unreliable for complex queries (COUNT(*) parsing fails)
+// Use Map-based aggregation for all statistics
+const counts = new Map<string, number>();
+for (const entry of history) {
+    counts.set(entry.deckId, (counts.get(entry.deckId) ?? 0) + 1);
+}
+```
 
 ## Common Development Tasks
 
 ### Adding a New Template Variable
 
-1. Add to `DrawResult`, `MultipleDrawResult`, or `SpreadDrawResult` interface
-2. Populate in draw method (e.g., `drawCards()` or spread draw)
-3. Add to template data preparation in `SpreadFormatter.ts` (all draws now use Handlebars)
+1. Add to `SpreadDrawResult` interface (in `core/spreads.ts` or `types/history.ts`)
+2. Populate in draw method in `SpreadDrawModal.ts`
+3. Add to template data preparation in `SpreadFormatter.ts`
 4. Update built-in templates in `BuiltInTemplates.ts` or `BuiltInSpreadTemplates.ts`
-5. Document in `TEMPLATE-VARIABLES.md` and update examples
+5. Document in `docs/TEMPLATE-VARIABLES.md` and update examples in `docs/TEMPLATE-EXAMPLES.md`
 
 ### Modifying Settings
 
 1. Update interface in `settings.ts`
 2. Add default in `DEFAULT_SETTINGS`
-3. Add UI in `TarotPracticeSettingTab.ts`
+3. Add UI in `ui/TarotPracticeSettingTab.ts`
 4. Use in relevant code with null-safety (`??` operator)
 5. Consider migration if changing existing fields
+
+### Adding a New Modal
+
+Follow the standard pattern:
+```typescript
+export class MyModal extends Modal {
+    constructor(app: App, private callback: (result: MyResult) => void) {
+        super(app);
+    }
+    onOpen() {
+        // Build UI with this.contentEl
+    }
+    onClose() {
+        this.contentEl.empty();
+    }
+}
+```
 
 ### Testing Checklist
 
 - [ ] Build succeeds (`npm run build`)
+- [ ] Tests pass (`npm test`)
 - [ ] Deploy works (`npm run deploy`)
 - [ ] Plugin reloads without errors
 - [ ] Desktop functionality works
@@ -127,46 +193,50 @@ this.settings.shuffleCount ?? 3  // Use ?? for deprecated optional fields
 
 ## Known Gotchas
 
-1. **Mobile Crypto**: All RNG must be async - mobile uses different crypto API
+1. **Mobile Crypto**: All RNG must be async — mobile uses a different crypto API
 2. **Template Files**: Always check file exists and provide fallback to built-in
 3. **Settings Migration**: Compare against OLD defaults, not new built-ins
-4. **Modal Reuse**: TarotDrawModal handles both single and multiple cards
-5. **Deprecated Fields**: Keep for 2-3 versions, use optional (`?`) type
+4. **AlaSQL**: Unreliable for complex SQL (avoid for new statistics work; use Map-based aggregation)
+5. **Chart.js font weight**: Must be a number (`400`, not `"normal"`); arrays require explicit typing
+6. **Deprecated Fields**: Keep for 2-3 versions, use optional (`?`) type
+7. **ZIP extraction**: Uses `requestUrl()` from Obsidian API, not native `fetch()` (mobile compatibility)
 
 ## Build & Release Process
 
-See main README.md for branch strategy and release process.
-
 **Quick Commands**:
 ```bash
-npm run build      # Build for production
+npm run build      # Production build
 npm run deploy     # Build + copy to Obsidian vault
-npm run dev        # Watch mode for development
+npm run dev        # Watch mode
+npm test           # Run test suite
+npm run test:coverage  # With coverage report
 ```
 
 **Release Checklist**:
-1. Test thoroughly (desktop + mobile if possible)
-2. Update CHANGELOG.md
-3. Bump versions (manifest.json, package.json, versions.json)
-4. Update README.md if needed
-5. Merge to master with `--no-ff`
-6. Tag release
-7. Push to GitHub
-8. Create GitHub release with artifacts
+1. Test on desktop (and mobile if applicable)
+2. Update `CHANGELOG.md`
+3. Bump versions in `manifest.json`, `package.json`, `versions.json`
+4. Commit: `git commit -m "Bump version to X.Y.Z"`
+5. Tag (no `v` prefix): `git tag X.Y.Z`
+6. Push: `git push origin master && git push origin X.Y.Z`
+7. CI automatically builds and creates GitHub release with artifacts
+
+See [Development Workflow](DEVELOPMENT-WORKFLOW.md) for full branching and release procedures.
 
 ## External Dependencies
 
-- **rng-with-intention**: ^0.2.2 (our own library, cross-platform RNG)
-- **obsidian**: latest (Obsidian API types)
+- **rng-with-intention**: `^0.3.2` — intention-seeded RNG, cross-platform crypto (our own library)
+- **chart.js**: `^4.4.7` — statistics visualization in DrawHistoryModal
+- **jszip**: ZIP deck import/export and spread packaging
+- **obsidian**: Obsidian API types
 - **moment**: Available via Obsidian API for date formatting
 
 ## Useful Resources
 
 - [Obsidian API Docs](https://docs.obsidian.md/)
 - [rng-with-intention](https://github.com/w8s/rng-with-intention)
-- [Main README](../README.md)
+- [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) — public domain deck repository
+- [Template Variables](TEMPLATE-VARIABLES.md)
 - [Template Examples](TEMPLATE-EXAMPLES.md)
-
-## Contact
-
-Created by Todd Waits ([@w8s](https://github.com/w8s))
+- [Settings Reference](SETTINGS.md)
+- [Main README](../README.md)

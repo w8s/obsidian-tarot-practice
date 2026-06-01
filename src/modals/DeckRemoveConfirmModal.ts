@@ -1,4 +1,4 @@
-import { App, Modal, Notice } from 'obsidian';
+import { App, Modal, Notice, Setting } from 'obsidian';
 import type TarotPracticePlugin from '../main';
 import type { DeckDefinition } from '../types/deck';
 
@@ -20,7 +20,7 @@ export class DeckRemoveConfirmModal extends Modal {
 		contentEl.empty();
 		contentEl.addClass('tarot-deck-remove-modal');
 
-		contentEl.createEl('h2', { text: 'Remove deck?' });
+		new Setting(contentEl).setName('Remove deck?').setHeading();
 		
 		contentEl.createEl('p', { 
 			text: `Are you sure you want to remove "${this.deck.name}"? This will delete the deck directory and all its files.`

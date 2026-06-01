@@ -52,7 +52,7 @@ export class SpreadDrawModal extends Modal {
 		contentEl.empty();
 
 		// Title
-		contentEl.createEl('h2', { text: 'Draw tarot spread' });
+		new Setting(contentEl).setName('Draw tarot spread').setHeading();
 
 		// Spread selection dropdown
 		new Setting(contentEl)
@@ -138,7 +138,7 @@ export class SpreadDrawModal extends Modal {
 
 		// Querent fields container (initially hidden)
 		const querentContainer = contentEl.createDiv({ cls: 'querent-fields' });
-		querentContainer.setAttr('style', 'display: none;');
+		querentContainer.hide();
 		
 		new Setting(querentContainer)
 			.setName('Querent name')
@@ -166,8 +166,7 @@ export class SpreadDrawModal extends Modal {
 			});
 
 		// Buttons
-		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.setAttr('style', 'display: flex; justify-content: flex-end; gap: 8px; margin-top: 16px;');
+		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-row' });
 
 		// Cancel button
 		buttonContainer.createEl('button', { text: 'Cancel' })
@@ -202,29 +201,24 @@ export class SpreadDrawModal extends Modal {
 		
 		// Spread details
 		const detailsEl = descContainer.createDiv({ cls: 'spread-details' });
-		detailsEl.setAttr('style', 'padding: 12px; background-color: var(--background-secondary); border-radius: 4px; margin-bottom: 16px;');
 
 		// Description
-		const descP = detailsEl.createEl('p', { 
+		detailsEl.createEl('p', { 
 			text: this.selectedSpread.description,
 			cls: 'spread-description-text'
 		});
-		descP.setAttr('style', 'margin-bottom: 8px;');
 
 		// Card count
-		const cardCountP = detailsEl.createEl('p', { 
+		detailsEl.createEl('p', { 
 			text: `${this.selectedSpread.positions.length} card${this.selectedSpread.positions.length === 1 ? '' : 's'}`,
 			cls: 'spread-card-count'
 		});
-		cardCountP.setAttr('style', 'font-size: 0.9em;');
 		
 		// Deck preparation
-		const deckPrepText = `${this.selectedSpread.shuffleCount} shuffle${this.selectedSpread.shuffleCount === 1 ? '' : 's'}${this.selectedSpread.cutDeck ? ', cut deck' : ''}`;
-		const deckPrepP = detailsEl.createEl('p', { 
-			text: deckPrepText,
+		detailsEl.createEl('p', { 
+			text: `${this.selectedSpread.shuffleCount} shuffle${this.selectedSpread.shuffleCount === 1 ? '' : 's'}${this.selectedSpread.cutDeck ? ', cut deck' : ''}`,
 			cls: 'spread-deck-prep'
 		});
-		deckPrepP.setAttr('style', 'font-size: 0.9em;');
 	}
 
 	/**
@@ -234,7 +228,11 @@ export class SpreadDrawModal extends Modal {
 		const querentContainer = this.contentEl.querySelector('.querent-fields') as HTMLElement;
 		if (!querentContainer) return;
 
-		querentContainer.style.display = this.showQuerentInput ? 'block' : 'none';
+		if (this.showQuerentInput) {
+			querentContainer.show();
+		} else {
+			querentContainer.hide();
+		}
 	}
 
 	/**

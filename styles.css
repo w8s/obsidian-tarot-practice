@@ -250,3 +250,117 @@ available in the app when your plugin is enabled.
 		padding: 0.5em;
 	}
 }
+
+/* ===== Spread modals ===== */
+
+/* Spread detail block (SpreadDrawModal) */
+.spread-details {
+	padding: 12px;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	margin-bottom: 16px;
+}
+
+.spread-details p {
+	margin-bottom: 8px;
+}
+
+.spread-details .spread-card-count,
+.spread-details .spread-deck-prep {
+	font-size: 0.9em;
+}
+
+/* SpreadViewModal detail block */
+.spread-details-container {
+	padding: 16px;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+	margin-top: 16px;
+}
+
+.spread-positions-heading {
+	margin-top: 16px;
+}
+
+/* Shared modal button row */
+.modal-button-row {
+	display: flex;
+	justify-content: flex-end;
+	gap: 8px;
+	margin-top: 16px;
+}
+
+/* SpreadEditModal */
+.spread-built-in-notice {
+	margin-bottom: 16px;
+	padding: 8px;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+}
+
+.spread-built-in-notice .setting-item-description {
+	margin-bottom: 8px;
+}
+
+.spread-add-position-row {
+	margin-bottom: 16px;
+}
+
+.spread-position-item {
+	margin-bottom: 12px;
+	padding: 12px;
+	background-color: var(--background-secondary);
+	border-radius: 4px;
+}
+
+.spread-position-header {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 8px;
+}
+
+.spread-position-remove {
+	font-size: 20px;
+}
+
+.spread-position-label {
+	width: 100%;
+	margin-bottom: 8px;
+}
+
+.spread-position-desc {
+	width: 100%;
+}
+
+.spread-template-file-container {
+	margin-top: 8px;
+}
+
+.spread-template-file-input {
+	width: 100%;
+}
+
+.spread-template-create-btn {
+	margin-top: 8px;
+}
+
+.spread-template-path-info {
+	margin-top: 8px;
+	color: var(--text-muted);
+}
+
+.tarot-template-preview {
+	background-color: var(--background-primary-alt);
+	padding: 1em;
+	border-radius: 4px;
+	overflow: auto;
+	max-height: 60vh;
+}
+
+/* TarotPracticeSettingTab */
+.tarot-auto-detect-info {
+	margin-top: -8px;
+	margin-bottom: 16px;
+	color: var(--text-muted);
+}

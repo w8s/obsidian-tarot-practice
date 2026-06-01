@@ -1,4 +1,4 @@
-import { App, Modal } from 'obsidian';
+import { App, Modal, Setting } from 'obsidian';
 
 /**
  * Modal to ask user if they want to include template in spread export
@@ -16,7 +16,7 @@ export class SpreadExportFormatModal extends Modal {
 	onOpen(): void {
 		const { contentEl } = this;
 		
-		contentEl.createEl('h2', { text: 'Export format' });
+		new Setting(contentEl).setName('Export format').setHeading();
 		contentEl.createEl('p', { 
 			text: `The spread "${this.spreadName}" has a custom template. How would you like to export it?` 
 		});

@@ -25,7 +25,7 @@ export class TemplateEditModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: `Edit ${this.templateName}` });
+		new Setting(contentEl).setName(`Edit ${this.templateName}`).setHeading();
 		
 		let selectedPath = this.currentPath;
 

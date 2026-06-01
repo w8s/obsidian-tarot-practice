@@ -1,4 +1,4 @@
-import { App, Modal } from 'obsidian';
+import { App, Modal, Setting } from 'obsidian';
 
 /**
  * Modal to view template content
@@ -17,19 +17,10 @@ export class TemplateViewModal extends Modal {
 		const { contentEl } = this;
 		contentEl.empty();
 
-		contentEl.createEl('h2', { text: this.templateName });
+		new Setting(contentEl).setName(this.templateName).setHeading();
 		
-		const codeBlock = contentEl.createEl('pre');
+		const codeBlock = contentEl.createEl('pre', { cls: 'tarot-template-preview' });
 		codeBlock.createEl('code', { text: this.content });
-
-		// Style the code block using setCssProps
-		codeBlock.setCssProps({
-			'background-color': 'var(--background-primary-alt)',
-			'padding': '1em',
-			'border-radius': '4px',
-			'overflow': 'auto',
-			'max-height': '60vh'
-		});
 	}
 
 	onClose(): void {

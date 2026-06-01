@@ -236,6 +236,12 @@ See complete documentation:
 
 See [CHANGELOG.md](CHANGELOG.md) for version history and [GitHub Issues](https://github.com/w8s/obsidian-tarot-practice/issues) for detailed feature plans.
 
+## Privacy & Network Use
+
+This plugin operates entirely offline. The only network access occurs when you explicitly click **"Restore images"** in the deck details modal, which downloads a ZIP file from the URL stored in that deck's `sourceUrl` field. No network requests are made automatically or in the background.
+
+Deck images can always be installed manually by downloading the ZIP file yourself and using Settings → Deck Management → "Add deck".
+
 ## License
 
 MIT
