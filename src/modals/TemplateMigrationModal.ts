@@ -64,11 +64,11 @@ export class TemplateMigrationModal extends Modal {
 
 		// Preview section
 		new Setting(contentEl).setName('Files to be created').setHeading();
-		this.previewEl = contentEl.createEl('div', { cls: 'tarot-migration-preview' });
+		this.previewEl = contentEl.createDiv({ cls: 'tarot-migration-preview' });
 		this.updatePreview();
 
 		// Buttons
-		const buttonDiv = contentEl.createEl('div', { cls: 'modal-button-container' });
+		const buttonDiv = contentEl.createDiv({ cls: 'modal-button-container' });
 		
 		new ButtonComponent(buttonDiv)
 			.setButtonText('Cancel')

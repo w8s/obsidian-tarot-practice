@@ -59,7 +59,7 @@ export class SpreadViewModal extends Modal {
 			const li = positionsList.createEl('li');
 			li.createEl('strong', { text: pos.label });
 			if (pos.description) {
-				li.createEl('span', { text: ` - ${pos.description}` });
+				li.createSpan({ text: ` - ${pos.description}` });
 			}
 		});
 

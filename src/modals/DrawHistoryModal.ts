@@ -172,12 +172,12 @@ export class DrawHistoryModal extends Modal {
 		// Create blob and download
 		const blob = new Blob([content], { type: mimeType });
 		const url = URL.createObjectURL(blob);
-		const link = document.createElement('a');
+		const link = activeDocument.createElement('a');
 		link.href = url;
 		link.download = filename;
-		document.body.appendChild(link);
+		activeDocument.body.appendChild(link);
 		link.click();
-		document.body.removeChild(link);
+		activeDocument.body.removeChild(link);
 		URL.revokeObjectURL(url);
 	}
 
@@ -204,20 +204,20 @@ export class DrawHistoryModal extends Modal {
 		// Header with spread name and date
 		const header = entryEl.createDiv({ cls: 'tarot-history-entry-header' });
 		header.createEl('strong', { text: entry.spreadName });
-		header.createEl('span', { 
+		header.createSpan({ 
 			text: new Date(entry.timestamp).toLocaleString(),
 			cls: 'tarot-history-entry-date'
 		});
 
 		// Deck used
-		entryEl.createEl('div', { 
+		entryEl.createDiv({ 
 			text: `Deck: ${entry.deckName}`,
 			cls: 'tarot-history-entry-deck'
 		});
 
 		// Intention
 		if (entry.intention) {
-			entryEl.createEl('div', { 
+			entryEl.createDiv({ 
 				text: `"${entry.intention}"`,
 				cls: 'tarot-history-entry-intention'
 			});
@@ -225,7 +225,7 @@ export class DrawHistoryModal extends Modal {
 
 		// Querent if present
 		if (entry.querent) {
-			entryEl.createEl('div', { 
+			entryEl.createDiv({ 
 				text: `For: ${entry.querent.name}`,
 				cls: 'tarot-history-entry-querent'
 			});
@@ -234,22 +234,22 @@ export class DrawHistoryModal extends Modal {
 		// Cards drawn
 		const cardsContainer = entryEl.createDiv({ cls: 'tarot-history-entry-cards' });
 		for (const card of entry.cards) {
-			const cardEl = cardsContainer.createEl('div', { cls: 'tarot-history-card' });
+			const cardEl = cardsContainer.createDiv({ cls: 'tarot-history-card' });
 			
 			if (card.position) {
-				cardEl.createEl('span', { 
+				cardEl.createSpan({ 
 					text: `${card.position}: `,
 					cls: 'tarot-history-card-position'
 				});
 			}
 			
-			cardEl.createEl('span', { 
+			cardEl.createSpan({ 
 				text: card.name,
 				cls: 'tarot-history-card-name'
 			});
 			
 			if (card.orientation === 'reversed') {
-				cardEl.createEl('span', { 
+				cardEl.createSpan({ 
 					text: ' (reversed)',
 					cls: 'tarot-history-card-reversed'
 				});

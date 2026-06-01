@@ -65,7 +65,7 @@ export class SpreadEditModal extends Modal {
 		if (this.spread.isBuiltIn) {
 			const resetContainer = contentEl.createDiv({ cls: 'spread-built-in-notice' });
 			
-			resetContainer.createEl('div', {
+			resetContainer.createDiv({
 				text: 'This is a built-in spread. You can customize it, and your changes will be saved.',
 				cls: 'setting-item-description'
 			});
@@ -356,13 +356,13 @@ export class SpreadEditModal extends Modal {
 		pathContainer.empty();
 		
 		if (this.templatePath) {
-			const usingDiv = pathContainer.createEl('div', {
+			const usingDiv = pathContainer.createDiv({
 				text: `Using: ${this.templatePath}`,
 				cls: 'setting-item-description'
 			});
 			usingDiv.addClass('spread-template-path-info');
 		} else {
-			const builtInDiv = pathContainer.createEl('div', {
+			const builtInDiv = pathContainer.createDiv({
 				text: 'Using built-in template',
 				cls: 'setting-item-description'
 			});

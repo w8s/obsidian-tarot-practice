@@ -626,7 +626,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const blob = new Blob([json], { type: 'application/json' });
 		const url = URL.createObjectURL(blob);
 		
-		const a = document.createElement('a');
+		const a = activeDocument.createElement('a');
 		a.href = url;
 		a.download = 'example-deck.json';
 		a.click();
@@ -641,7 +641,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 	 */
 	private async importSpread(): Promise<void> {
 		// Create file input
-		const input = document.createElement('input');
+		const input = activeDocument.createElement('input');
 		input.type = 'file';
 		input.accept = '.json,.zip';
 		
@@ -717,7 +717,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 	 */
 	private downloadBlob(blob: Blob, filename: string): void {
 		const url = URL.createObjectURL(blob);
-		const a = document.createElement('a');
+		const a = activeDocument.createElement('a');
 		a.href = url;
 		a.download = filename;
 		a.click();
