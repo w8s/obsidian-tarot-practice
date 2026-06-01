@@ -2,7 +2,7 @@
 	"id": "tarot-practice",
 	"name": "Tarot Practice",
 	"version": "1.8.8",
-	"minAppVersion": "1.4.4",
+	"minAppVersion": "1.4.10",
 	"description": "Draw tarot and divination cards with intention-seeded randomness. Supports custom spreads, multi-deck divination systems, draw history with statistics, Handlebars templates, and full mobile support.",
 	"author": "Todd Waits",
 	"authorUrl": "https://github.com/w8s",

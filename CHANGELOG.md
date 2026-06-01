@@ -11,7 +11,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 - Updated plugin description to meet Obsidian submission requirements
-- Bumped `minAppVersion` from `0.15.0` to `1.4.4` (reflects actual API usage)
+- Bumped `minAppVersion` from `0.15.0` to `1.4.10` (reflects actual API usage — AbstractInputSuggest, setTooltip)
 - Updated Handlebars 4.7.8 → 4.7.9 (security fix)
 - Updated Obsidian API types 1.11.4 → 1.13.0
 
