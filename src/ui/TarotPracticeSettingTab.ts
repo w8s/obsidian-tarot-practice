@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-deprecated -- display() is deprecated since 1.13.0 in favour of getSettingDefinitions(); migration deferred pending full settings search API adoption. TODO: migrate when implementing settings search support */
 import { App, PluginSettingTab, Setting, Notice } from 'obsidian';
 import TarotPracticePlugin from '../main';
 import { InsertLocation } from '../settings';

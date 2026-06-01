@@ -92,7 +92,7 @@ export class DrawHistoryModal extends Modal {
 			.setDesc('Permanently delete all draw history')
 			.addButton(button => button
 				.setButtonText('Clear all history')
-				.setWarning()
+				.setDestructive()
 				.onClick(async () => {
 					// Use Notice for confirmation instead of confirm()
 					const confirmed = await this.confirmClearHistory(totalDraws);
