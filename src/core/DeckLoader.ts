@@ -191,7 +191,7 @@ export class DeckLoader {
 		const deckData = JSON.parse(jsonContent) as { id: string };
 		
 		// Install deck with image extraction callback
-		return await this.installDeck(jsonContent, async (deckPath) => {
+		return await this.installDeck(jsonContent, async (_deckPath) => {
 			// Extract images from cards/ folder if present
 			const cardsFolder = zip.folder('cards');
 			if (!cardsFolder) {

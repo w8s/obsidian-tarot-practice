@@ -55,7 +55,7 @@ export class SpreadViewModal extends Modal {
 		new Setting(detailsContainer).setName('Positions').setHeading();
 
 		const positionsList = detailsContainer.createEl('ol', { cls: 'spread-positions-list' });
-		this.spread.positions.forEach((pos, index) => {
+		this.spread.positions.forEach((pos) => {
 			const li = positionsList.createEl('li');
 			li.createEl('strong', { text: pos.label });
 			if (pos.description) {
