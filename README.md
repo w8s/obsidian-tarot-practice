@@ -1,6 +1,6 @@
 # Tarot Practice
 
-![Tests](https://github.com/w8s/obsidian-tarot-practice/actions/workflows/test.yml/badge.svg) ![](https://img.shields.io/badge/Obsidian_Plugin_Submission-Pending-orange) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
+![Tests](https://github.com/w8s/obsidian-tarot-practice/actions/workflows/test.yml/badge.svg) ![](https://img.shields.io/badge/Shuffle_Variance-Excessively_Engineered-purple)
 
 
 *Bringing necessary imprecision to digital mystical arts since 2025*
@@ -15,6 +15,7 @@ A feature-rich Obsidian plugin for daily tarot practice. Draw cards with intenti
 - 🧭 [Usage Guide](docs/USAGE.md) - Detailed usage instructions
 - ⚙️ [Settings Reference](docs/SETTINGS.md) - Complete settings documentation
 - 📋 [Changelog](CHANGELOG.md) - Version history and release notes
+- 🗺️ [Roadmap](docs/ROADMAP.md) - Planned features
 
 **For Developers:**
 - 🔨 [Development Workflow](docs/DEVELOPMENT-WORKFLOW.md) - Bug fixes, releases, and branching
@@ -51,8 +52,6 @@ That's it! Customize settings later in Settings → Tarot Practice.
 **Additional decks:** Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository
 
 ## Installation
-
-> **Status:** Currently pending review for Obsidian Community Plugins directory ([PR-9473](https://github.com/obsidianmd/obsidian-releases/pull/9473/)). Use manual installation for now.
 
 ### Manual Installation
 
@@ -218,23 +217,6 @@ See complete documentation:
 - [Template Variables](docs/TEMPLATE-VARIABLES.md) - All available variables with examples
 - [Template Examples](docs/TEMPLATE-EXAMPLES.md) - Copy-paste ready templates
 - [Spread Templates](docs/spread-templates/README.md) - Spread-specific formatting
-
-## Roadmap
-
-**v1.8.1 (Current):**
-- ✅ Spread import/export - Share custom spreads as JSON or ZIP files
-- ✅ Template bundling - Export spreads with custom templates included
-
-**v1.8.0 (Released):**
-- ✅ ZIP deck installation (import complete decks with images)
-- ✅ Vault-based image storage with wikilink support
-- ✅ sourceUrl for deck image restoration
-
-**v1.9.0+ (Planned):**
-- Different shuffle styles (overhand, riffle, Hindu)
-- Reading history and analytics
-
-See [CHANGELOG.md](CHANGELOG.md) for version history and [GitHub Issues](https://github.com/w8s/obsidian-tarot-practice/issues) for detailed feature plans.
 
 ## Privacy & Network Use
 
