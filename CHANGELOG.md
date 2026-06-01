@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.0] - 2026-06-01
+
+### Added
+- **Physical Draw Mode** — manually enter cards drawn from a real deck using the existing spread system
+  - "Physical draw" toggle in the spread draw modal
+  - Two-phase flow: setup (spread / deck / intention) → per-position card selection
+  - Structured decks (tarot): suit dropdown → value dropdown per position; Major Arcana grouped automatically; value dropdown disabled until suit is chosen
+  - Flat decks (oracle, runes): single card name dropdown per position
+  - Orientation (upright/reversed) per position when deck supports reversals
+  - Output identical to digital draws — templates, history, and note insertion unchanged
+  - History entries tagged with `source: 'physical' | 'digital'` for future filtering
+  - New `src/utils/cardPicker.ts` utility: `isStructuredDeck`, `getSuitLabels`, `getCardsForSuit`, `getCardDisplayValue`, `findCard` — shared, DRY, fully tested
+
 ## [1.8.8] - 2026-06-01
 
 ### Changed
