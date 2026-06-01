@@ -353,6 +353,7 @@ Variables capturing technical details about how the draw was performed.
 | `{{cut_position_cards}}` | Number | Cut position in card count | `42` |
 | `{{cut_base}}` | String | RNG result before variance | `"47%"` |
 | `{{cut_variance}}` | String | Variance applied to cut | `"+7.3%"` or `"-2.1%"` |
+| `{{source}}` | String | How the draw was performed | `"digital"` or `"physical"` |
 
 ### Details
 
@@ -385,6 +386,12 @@ Variables capturing technical details about how the draw was performed.
 - Natural variance applied (±10% max)
 - Shown with sign: `"+7.3%"` or `"-2.1%"`
 - Makes cuts feel more natural/random
+
+**`{{source}}`**
+- How the draw was performed
+- `"digital"` — cards selected by RNG (default)
+- `"physical"` — cards entered manually from a real deck
+- Useful for conditional formatting or journaling notes
 
 ### Usage Example
 

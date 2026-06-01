@@ -41,6 +41,7 @@ That's it! Customize settings later in Settings → Tarot Practice.
 - 🖼️ **Card images** - Display images in readings using vault-based storage
 - 🎯 **Daily & inline draws** - Single or multiple cards with intention-based randomness
 - 🔀 **Built-in spreads** - Five traditional layouts plus custom spread creation
+- 🃏 **Physical draw mode** - Enter cards from a real deck; uses spread system for layout, templates, and history
 - 📤 **Spread sharing** - Import/export custom spreads as JSON or ZIP with templates
 - 📊 **Draw history** - Track all readings with statistics and export to JSON/CSV
 - 🎲 **Deck preparation** - Traditional shuffle (1-7x) with intention-influenced cut
@@ -86,6 +87,8 @@ Run **"Draw daily tarot"** (click sparkles icon ✨ or use command palette)
 ### Spread Draws
 
 Run **"Draw tarot spread"** → Select spread → Enter intention
+
+**Physical draw mode:** Toggle "Physical draw" in the spread modal to enter cards from a real deck instead of using RNG. For each position, select the card you drew via dropdowns (suit → card for tarot decks; single dropdown for oracle/rune decks). Output — templates, history, note insertion — is identical to a digital draw.
 
 **Pro tip:** Assign a hotkey in Settings → Hotkeys for instant access!
 

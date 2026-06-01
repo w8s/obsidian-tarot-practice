@@ -5,7 +5,7 @@ This document provides context for AI agents working on the Tarot Practice plugi
 ## Project Context
 
 **Purpose**: Obsidian plugin for tarot (and other divination) practice with intention-seeded randomness  
-**Current Version**: 1.8.8  
+**Current Version**: 1.9.0  
 **Tech Stack**: TypeScript, Obsidian API, rng-with-intention library, Handlebars, Chart.js, JSZip
 
 ## Key Design Principles
@@ -22,9 +22,13 @@ This document provides context for AI agents working on the Tarot Practice plugi
 ### Data Flow
 
 ```
-User Intention → SpreadDrawModal → Deck Preparation (shuffle/cut) → RNG Draw
-    → SpreadFormatter (Handlebars) → Note Insertion
-    → DrawHistory (persisted to data.json)
+User Intention → SpreadDrawModal (setup phase)
+    ↓ digital path                    ↓ physical path
+    Deck Preparation (shuffle/cut)    Per-position card selectors
+    RNG Draw                          User selections → cardIndex resolution
+    ↓                                 ↓
+    SpreadFormatter (Handlebars) → Note Insertion
+    DrawHistory (persisted to data.json)
 ```
 
 ### Directory Structure
@@ -53,7 +57,7 @@ src/
 │   ├── DeckRemoveConfirmModal.ts    # Safe deck removal with confirmation
 │   ├── DrawHistoryModal.ts          # Browse history (Recent tab) + Stats tab with charts
 │   ├── SpreadCreateModal.ts         # Create custom spreads
-│   ├── SpreadDrawModal.ts           # Select spread, enter intention, choose deck, querent
+│   ├── SpreadDrawModal.ts           # Two-phase modal: setup → card selectors (physical) or direct callback (digital)
 │   ├── SpreadEditModal.ts           # Edit existing custom spreads
 │   ├── SpreadExportFormatModal.ts   # Choose JSON or ZIP export format
 │   ├── SpreadViewModal.ts           # Preview spread definition and template
@@ -85,6 +89,7 @@ src/
 │   └── TarotPracticeSettingTab.ts   # Full settings UI
 │
 └── utils/
+    ├── cardPicker.ts                # Card selection helpers for physical draw mode
     └── charts.ts                    # Chart.js helpers: tarot color palette, chart creation
 ```
 
@@ -133,6 +138,25 @@ try {
 {{{intention}}}   ← triple braces: prevents HTML entity encoding of quotes/apostrophes
 {{name}}          ← double braces: fine for controlled card data
 ```
+
+**Two-Phase Modal (SpreadDrawModal)** — setup then card selection:
+```typescript
+// Phase 1: renderSetupPhase() — collects spread/deck/intention/physical toggle
+// Phase 2: renderCardSelectionPhase(deck) — per-position card selectors (physical only)
+// On submit, physicalSelections are passed to the callback; main.ts routes to
+// executeDigitalSpread() or executePhysicalSpread() accordingly.
+// Physical draws set source: 'physical' and shuffleCount: 0 / wasCut: false.
+```
+
+**Card picker utility** (`src/utils/cardPicker.ts`) — use for any future card selection UI:
+```typescript
+import { isStructuredDeck, getSuitLabels, getCardsForSuit, findCard } from 'utils/cardPicker';
+// isStructuredDeck: true if any card has non-null suit (tarot) vs flat (oracle/runes)
+// getSuitLabels: ['Major Arcana', 'Wands', 'Cups', ...] — Major always first
+// getCardsForSuit: handles MAJOR_ARCANA_SUIT_LABEL sentinel
+// findCard: resolves (suitLabel, valueLabel) → CardDefinition
+```
+
 
 **Statistics Aggregation** — use native JS Map-based counting, NOT AlaSQL:
 ```typescript
@@ -200,6 +224,7 @@ export class MyModal extends Modal {
 5. **Chart.js font weight**: Must be a number (`400`, not `"normal"`); arrays require explicit typing
 6. **Deprecated Fields**: Keep for 2-3 versions, use optional (`?`) type
 7. **ZIP extraction**: Uses `requestUrl()` from Obsidian API, not native `fetch()` (mobile compatibility)
+8. **Physical draw `source` field**: defaults to `'digital'` via `?? 'digital'` in `DrawHistory.addDraw` — existing history entries without the field are safely backward-compatible
 
 ## Build & Release Process
 
