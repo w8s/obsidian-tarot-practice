@@ -6,6 +6,7 @@ import { DrawHistoryModal } from 'modals/DrawHistoryModal';
 import { SpreadResolver } from 'spreads/SpreadResolver';
 import { SpreadFormatter, registerHandlebarsHelpers } from 'templates/SpreadFormatter';
 import { Spread, SpreadDrawResult, SpreadPositionResult } from 'core/spreads';
+import { findCard, isStructuredDeck } from 'utils/cardPicker';
 import { prepareDeck } from 'core/DeckPreparation';
 import { DeckType } from 'core/Deck';
 import { DeckRegistry } from 'core/DeckRegistry';
@@ -74,20 +75,46 @@ export default class TarotPracticePlugin extends Plugin {
 		);
 
 		// Open modal to select spread and enter intention
-		new SpreadDrawModal(this.app, this, allSpreads, (spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) => {
-			void this.drawSpread(spread, intention, deckId, querent);
+		new SpreadDrawModal(this.app, this, allSpreads, (spread, intention, deckId, querent, physicalSelections) => {
+			void this.drawSpread(spread, intention, deckId, querent, physicalSelections);
 		}).open();
 	}
 
-	async drawSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }) {
-		// Delegate to unified execution method
-		await this.executeSpread(spread, intention, deckId, querent);
+	async drawSpread(
+		spread: Spread,
+		intention: string,
+		deckId: string,
+		querent?: { name: string; notePath?: string },
+		physicalSelections?: Array<{ suitLabel: string | null; valueLabel: string | null; isReversed: boolean }>
+	) {
+		await this.executeSpread(spread, intention, deckId, querent, physicalSelections);
 	}
 
 	/**
 	 * Unified spread execution that handles all insert modes
 	 */
-	async executeSpread(spread: Spread, intention: string, deckId: string, querent?: { name: string; notePath?: string }): Promise<void> {
+	async executeSpread(
+		spread: Spread,
+		intention: string,
+		deckId: string,
+		querent?: { name: string; notePath?: string },
+		physicalSelections?: Array<{ suitLabel: string | null; valueLabel: string | null; isReversed: boolean }>
+	): Promise<void> {
+		if (physicalSelections) {
+			await this.executePhysicalSpread(spread, intention, deckId, querent, physicalSelections);
+		} else {
+			await this.executeDigitalSpread(spread, intention, deckId, querent);
+		}
+	}
+	/**
+	 * Digital draw: RNG-based card selection
+	 */
+	private async executeDigitalSpread(
+		spread: Spread,
+		intention: string,
+		deckId: string,
+		querent?: { name: string; notePath?: string }
+	): Promise<void> {
 		try {
 			// Get the selected deck
 			const deck = this.deckRegistry.getDeck(deckId);
@@ -175,6 +202,7 @@ export default class TarotPracticePlugin extends Plugin {
 				cutPositionCards: preparedDeck.metadata.cutPositionCards ?? undefined,
 				cutBase: preparedDeck.metadata.cutBasePercent ?? undefined,
 				cutVariance: preparedDeck.metadata.cutVariancePercent ?? undefined,
+				source: 'digital',
 				querent: querent
 			};
 
@@ -206,6 +234,111 @@ export default class TarotPracticePlugin extends Plugin {
 			console.error('Error executing spread:', error);
 			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
 			new Notice('Failed to execute spread: ' + errorMessage);
+		}
+	}
+
+	/**
+	 * Physical draw: user-selected cards from a real deck.
+	 * Resolves card indices from PositionSelection objects then delegates
+	 * to the same formatting / history / insertion path as a digital draw.
+	 */
+	private async executePhysicalSpread(
+		spread: Spread,
+		intention: string,
+		deckId: string,
+		querent: { name: string; notePath?: string } | undefined,
+		physicalSelections: Array<{ suitLabel: string | null; valueLabel: string | null; isReversed: boolean }>
+	): Promise<void> {
+		try {
+			const deck = this.deckRegistry.getDeck(deckId);
+			if (!deck) throw new Error(`Deck "${deckId}" not found`);
+
+			const timestamp = Date.now();
+			const structured = isStructuredDeck(deck.cards);
+			const positions: SpreadPositionResult[] = [];
+
+			for (let i = 0; i < spread.positions.length; i++) {
+				const sel = physicalSelections[i];
+				const positionDef = spread.positions[i];
+				if (!sel || !positionDef) {
+					throw new Error(`Missing selection or position definition at index ${i}`);
+				}
+
+				// Resolve CardDefinition from selection
+				let card;
+				if (structured && sel.suitLabel) {
+					card = findCard(deck.cards, sel.suitLabel, sel.valueLabel ?? '');
+				} else {
+					// Flat deck: match by name
+					card = deck.cards.find(c => c.name === sel.valueLabel);
+				}
+
+				if (!card) {
+					throw new Error(
+						`Could not resolve card "${sel.valueLabel}" in deck "${deck.name}" (position ${i + 1})`
+					);
+				}
+
+				const orientation = sel.isReversed
+					? this.settings.reversedIndicator
+					: this.settings.uprightIndicator;
+
+				positions.push({
+					index: i,
+					number: i + 1,
+					label: positionDef.label,
+					description: positionDef.description,
+					card: card.name,
+					cardIndex: card.index,
+					orientation: orientation,
+					isReversed: sel.isReversed
+				});
+			}
+
+			const drawResult: SpreadDrawResult = {
+				spread,
+				intention,
+				timestamp,
+				positions,
+				deck: {
+					id: deck.id,
+					name: deck.name,
+					type: deck.metadata?.tradition as DeckType || 'other',
+					cardCount: deck.cardCount,
+					supportsReversals: deck.supportsReversals,
+					isBuiltIn: deck.isBuiltIn,
+					definition: deck
+				},
+				// Physical draws have no shuffle/cut metadata
+				shuffleCount: 0,
+				wasCut: false,
+				source: 'physical',
+				querent
+			};
+
+			await this.drawHistory.addDraw(drawResult);
+
+			const spreadResolver = new SpreadResolver(this.app);
+			const template = await spreadResolver.getSpreadTemplate(spread);
+
+			const formatter = new SpreadFormatter(this.settings);
+			const output = formatter.format(drawResult, template);
+
+			switch (spread.insertMode) {
+				case 'daily-note':
+					await this.insertIntoDailyNote(output, spread.name);
+					break;
+				case 'inline':
+					await this.insertInline(output, spread.name);
+					break;
+				case 'new-note':
+					await this.insertIntoNewNote(output, spread.name, intention);
+					break;
+			}
+		} catch (error) {
+			console.error('Error executing physical spread:', error);
+			const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+			new Notice('Failed to record physical draw: ' + errorMessage);
 		}
 	}
 

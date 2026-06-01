@@ -39,6 +39,8 @@ export interface DrawHistoryEntry {
 		shuffleCount: number;
 		wasCut: boolean;
 		cutPosition?: number;
+		/** Whether this draw was entered manually from a physical deck */
+		source?: 'physical' | 'digital';
 	};
 }
 

@@ -70,6 +70,9 @@ export interface SpreadDrawResult {
 	cutBase?: number;
 	cutVariance?: number;
 	
+	/** Whether this draw was entered manually from a physical deck */
+	source?: 'physical' | 'digital';
+	
 	/** Optional querent information (who the reading is for) */
 	querent?: {
 		name: string;
