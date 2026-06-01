@@ -12,17 +12,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated plugin description to meet Obsidian submission requirements
 - Bumped `minAppVersion` from `0.15.0` to `1.4.10` (reflects actual API usage — AbstractInputSuggest, setTooltip)
-- Updated Handlebars 4.7.8 → 4.7.9 (security fix)
+- Updated Handlebars 4.7.8 → 4.7.9 (security fix, resolves critical vulnerability)
 - Updated Obsidian API types 1.11.4 → 1.13.0
+- Moved roadmap to `docs/ROADMAP.md`; README now links to it
+- Release workflow now opts into Node.js 24 ahead of GitHub Actions deadline
 
 ### Removed
 - Removed AlaSQL dependency and all 270 transitive packages
-- Removed unused `getDateRangeStats()` and `query()` methods from DrawHistory
+- Removed unused `getDateRangeStats()` and `query()` methods from `DrawHistory`
 
 ### Fixed
 - Replaced all `createEl('h2'/'h3')` with `Setting.setHeading()` per plugin guidelines
-- Moved all inline styles to CSS classes per plugin guidelines
-- Added network use disclosure to README (optional deck image restoration)
+- Moved all inline styles and `setCssProps` calls to CSS classes per plugin guidelines
+- Replaced `document.createElement` with `activeDocument` for pop-out window compatibility
+- Replaced `createEl('div'/'span')` with `createDiv()`/`createSpan()` shorthand throughout
+- Replaced deprecated `setWarning()` with `setDestructive()` in draw history modal
+- Fixed unused variable warnings (`index` in SpreadViewModal, `deckPath` in DeckLoader)
+- Added `activeDocument` and `activeWindow` to ESLint globals
+- Added artifact attestations to release workflow for cryptographic provenance
+- Added network use disclosure to README (optional deck image restoration via sourceUrl)
 
 ## [1.8.7] - 2026-02-01
 

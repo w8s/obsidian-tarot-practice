@@ -5,7 +5,7 @@ This document provides context for AI agents working on the Tarot Practice plugi
 ## Project Context
 
 **Purpose**: Obsidian plugin for tarot (and other divination) practice with intention-seeded randomness  
-**Current Version**: 1.8.7  
+**Current Version**: 1.8.8  
 **Tech Stack**: TypeScript, Obsidian API, rng-with-intention library, Handlebars, Chart.js, JSZip
 
 ## Key Design Principles
