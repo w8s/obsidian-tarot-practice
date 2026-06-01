@@ -62,7 +62,8 @@ export class DrawHistory {
 			metadata: {
 				shuffleCount: result.shuffleCount,
 				wasCut: result.wasCut,
-				cutPosition: result.cutPosition
+				cutPosition: result.cutPosition,
+				source: result.source ?? 'digital'
 			}
 		};
 
