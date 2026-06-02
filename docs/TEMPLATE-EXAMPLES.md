@@ -198,6 +198,7 @@ Clean numbered format for any card count.
 ```
 
 **Output:**
+
 ```markdown
 1. The Fool
 2. The Hermit reversed
@@ -350,6 +351,7 @@ Template for professional or personal readings with querent tracking.
 ```
 
 **Output example:**
+
 ```markdown
 # Three Card - Past/Present/Future - 2026-01-24
 
@@ -749,6 +751,7 @@ The `{{#if querent}}` block only appears when you've entered querent information
 ### Test with Different Card Counts
 
 Templates should work with:
+
 - Single card (1)
 - Few cards (2-5)
 - Many cards (10+)
@@ -758,11 +761,13 @@ Templates should work with:
 ### Metadata Considerations
 
 **Include metadata when:**
+
 - Studying patterns over time
 - Tracking RNG/shuffle details
 - Archiving important readings
 
 **Exclude metadata when:**
+
 - Daily quick practice
 - Inline references
 - Space is limited
@@ -770,6 +775,7 @@ Templates should work with:
 ### Date Format Consistency
 
 Pick one date format and use it consistently:
+
 - **ISO:** `YYYY-MM-DD` (sorts well, universal)
 - **US:** `M/D/YYYY` (familiar to US users)
 - **European:** `DD/MM/YYYY` (familiar to EU users)

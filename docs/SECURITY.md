@@ -92,18 +92,16 @@ uses: actions/setup-node@v4
 **Response Process:**
 
 1. **Critical/High Severity:**
-   - Assess if issue affects runtime code
-   - Update immediately if it impacts users
-   - Test thoroughly before merging
-
+    - Assess if issue affects runtime code
+    - Update immediately if it impacts users
+    - Test thoroughly before merging
 2. **Moderate/Low Severity:**
-   - Assess actual risk to project
-   - Dismiss if not applicable (e.g., dev server issues)
-   - Update during normal maintenance if applicable
-
+    - Assess actual risk to project
+    - Dismiss if not applicable (e.g., dev server issues)
+    - Update during normal maintenance if applicable
 3. **Dev Dependencies:**
-   - Lower priority unless affects build security
-   - Can batch with other updates
+    - Lower priority unless affects build security
+    - Can batch with other updates
 
 ### Example Assessment
 
@@ -307,19 +305,19 @@ GitHub's CodeQL scans for:
 **When you get an alert:**
 
 1. **Review the finding**
-   - Is it a real vulnerability?
-   - Is it a false positive?
-   - What's the severity?
+    - Is it a real vulnerability?
+    - Is it a false positive?
+    - What's the severity?
 
 2. **Assess impact**
-   - Could this affect user data?
-   - What information is at risk?
-   - What are the usage patterns?
+    - Could this affect user data?
+    - What information is at risk?
+    - What are the usage patterns?
 
 3. **Fix or dismiss**
-   - Fix real issues
-   - Dismiss false positives with reason
-   - Document decision
+    - Fix real issues
+    - Dismiss false positives with reason
+    - Document decision
 
 **Example dismissal reasons:**
 - "False positive - this is test code"

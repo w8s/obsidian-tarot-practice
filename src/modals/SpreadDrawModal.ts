@@ -1,5 +1,5 @@
 import { App, Modal, Setting, DropdownComponent, Notice } from 'obsidian';
-import { Spread, SpreadPositionResult } from '../core/spreads';
+import { Spread } from '../core/spreads';
 import { FileSuggest } from '../ui/FileSuggest';
 import type TarotPracticePlugin from '../main';
 import type { DeckDefinition, CardDefinition } from '../types/deck';
@@ -7,9 +7,7 @@ import {
 	isStructuredDeck,
 	getSuitLabels,
 	getCardsForSuit,
-	getCardDisplayValue,
-	findCard,
-	MAJOR_ARCANA_SUIT_LABEL
+	getCardDisplayValue
 } from '../utils/cardPicker';
 
 /** Selection state for a single position in physical draw mode */
@@ -109,7 +107,7 @@ export class SpreadDrawModal extends Modal {
 					dropdown.addOption(spread.id, spread.name);
 				});
 				dropdown.setValue(this.selectedSpread.id);
-				dropdown.onChange(async (value) => {
+				dropdown.onChange((value) => {
 					const spread = this.spreads.find(s => s.id === value);
 					if (spread) {
 						this.selectedSpread = spread;
@@ -131,7 +129,7 @@ export class SpreadDrawModal extends Modal {
 					dropdown.addOption(deck.id, deck.name);
 				});
 				dropdown.setValue(this.selectedDeckId);
-				dropdown.onChange(async (value) => {
+				dropdown.onChange((value) => {
 					this.selectedDeckId = value;
 				});
 			});
@@ -147,7 +145,7 @@ export class SpreadDrawModal extends Modal {
 			.addText(text => text
 				.setPlaceholder('Enter your intention...')
 				.setValue(this.intention)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.intention = value;
 				})
 				.inputEl.addEventListener('keydown', (e: KeyboardEvent) => {
@@ -161,10 +159,10 @@ export class SpreadDrawModal extends Modal {
 		// Physical draw toggle
 		new Setting(contentEl)
 			.setName('Physical draw')
-			.setDesc('Select cards manually from a real deck instead of using RNG')
+			.setDesc('Select cards manually from a real deck instead of using a random number generator')
 			.addToggle(toggle => toggle
 				.setValue(this.isPhysicalDraw)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.isPhysicalDraw = value;
 				})
 			);
@@ -175,7 +173,7 @@ export class SpreadDrawModal extends Modal {
 			.setDesc('Track who this reading is for')
 			.addToggle(toggle => toggle
 				.setValue(this.showQuerentInput)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.showQuerentInput = value;
 					this.updateQuerentFields();
 				})
@@ -191,7 +189,7 @@ export class SpreadDrawModal extends Modal {
 			.addText(text => text
 				.setPlaceholder('Name')
 				.setValue(this.querentName)
-				.onChange(async (value) => {
+				.onChange((value) => {
 					this.querentName = value;
 				})
 			);
@@ -203,7 +201,7 @@ export class SpreadDrawModal extends Modal {
 				text
 					.setPlaceholder('Path to note')
 					.setValue(this.querentNotePath)
-					.onChange(async (value) => {
+					.onChange((value) => {
 						this.querentNotePath = value;
 					});
 				new FileSuggest(this.app, text.inputEl);
@@ -320,7 +318,7 @@ export class SpreadDrawModal extends Modal {
 		// Buttons
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-row' });
 
-		buttonContainer.createEl('button', { text: '← Back' })
+		buttonContainer.createEl('button', { text: 'Back' })
 			.addEventListener('click', () => this.renderSetupPhase());
 
 		const submitButton = buttonContainer.createEl('button', {
@@ -347,8 +345,8 @@ export class SpreadDrawModal extends Modal {
 		const suitSetting = new Setting(container)
 			.setName('Suit')
 			.addDropdown(dd => {
-				dd.addOption('', '— Select suit —');
-				suitLabels.forEach(label => dd.addOption(label, label));
+				dd.addOption('', '');
+				suitLabels.forEach(label => { dd.addOption(label, label); });
 				dd.setValue('');
 
 				dd.onChange(suitLabel => {
@@ -371,7 +369,7 @@ export class SpreadDrawModal extends Modal {
 			.setName('Card')
 			.addDropdown(dd => {
 				valueDropdown = dd;
-				dd.addOption('', '— Select card —');
+				dd.addOption('', '');
 				dd.setDisabled(true);
 				dd.onChange(valueLabel => {
 					const sel = selections[posIndex];
@@ -392,13 +390,13 @@ export class SpreadDrawModal extends Modal {
 		dd.selectEl.empty();
 
 		if (!suitLabel) {
-			dd.addOption('', '— Select card —');
+			dd.addOption('', '');
 			dd.setDisabled(true);
 			return;
 		}
 
 		dd.setDisabled(false);
-		dd.addOption('', '— Select card —');
+		dd.addOption('', '');
 
 		const suitCards = getCardsForSuit(cards, suitLabel);
 		// Deduplicate display values (handles custom decks with repeated rank names)
@@ -427,8 +425,8 @@ export class SpreadDrawModal extends Modal {
 		new Setting(container)
 			.setName('Card')
 			.addDropdown(dd => {
-				dd.addOption('', '— Select card —');
-				cards.forEach(card => dd.addOption(card.name, card.name));
+				dd.addOption('', '');
+				cards.forEach(card => { dd.addOption(card.name, card.name); });
 				dd.setValue('');
 				dd.onChange(valueName => {
 					const sel = selections[posIndex];
