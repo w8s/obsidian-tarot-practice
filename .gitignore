@@ -28,3 +28,4 @@ data.json
 test-deck/
 coverage/
 .vitest/
+docs/20260601-findings.md
