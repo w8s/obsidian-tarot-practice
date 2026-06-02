@@ -23,8 +23,8 @@
 		"@types/handlebars": "^4.0.40",
 		"@types/jszip": "^3.4.0",
 		"@types/node": "^20.0.0",
-		"@vitest/coverage-v8": "^2.1.8",
-		"@vitest/ui": "^2.1.8",
+		"@vitest/coverage-v8": "^4.1.8",
+		"@vitest/ui": "^4.1.8",
 		"esbuild": "^0.25.12",
 		"eslint-plugin-obsidianmd": "0.1.9",
 		"globals": "14.0.0",
@@ -32,7 +32,7 @@
 		"tslib": "2.4.0",
 		"typescript": "^5.6.2",
 		"typescript-eslint": "8.35.1",
-		"vitest": "^2.1.8"
+		"vitest": "^4.1.8"
 	},
 	"dependencies": {
 		"chart.js": "^4.4.7",
