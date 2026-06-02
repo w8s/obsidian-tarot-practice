@@ -1,6 +1,6 @@
 {
 	"name": "obsidian-tarot-practice",
-	"version": "1.9.0",
+	"version": "1.9.1",
 	"description": "Draw tarot and divination cards with intention-seeded randomness. Supports custom spreads, multi-deck divination systems, draw history with statistics, Handlebars templates, and full mobile support.",
 	"main": "main.js",
 	"type": "module",

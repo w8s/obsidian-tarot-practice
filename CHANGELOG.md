@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.1] - 2026-06-02
+
+### Fixed
+- Resolved all ESLint errors in `SpreadDrawModal.ts`: removed unused imports (`SpreadPositionResult`, `findCard`, `MAJOR_ARCANA_SUIT_LABEL`), dropped unnecessary `async` from `onChange` callbacks, wrapped implicit-return `forEach` callbacks in block bodies to satisfy `no-misused-promises`
+- Corrected UI text to sentence case in `SpreadDrawModal.ts`
+- Removed em-dash placeholder text from dropdown options
+
+### Changed
+- Documentation formatting cleanup: `SECURITY.md`, `SETTINGS.md`, `TEMPLATE-EXAMPLES.md`
+
 ## [1.9.0] - 2026-06-01
 
 ### Added
