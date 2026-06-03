@@ -13,6 +13,14 @@ export interface ValidationResult {
  * Validates deck definitions to ensure they meet requirements
  */
 export class DeckValidator {
+	/** Maximum allowed card count */
+	static readonly MAX_CARD_COUNT = 1000;
+	/** Maximum length for deck id */
+	static readonly MAX_ID_LENGTH = 64;
+	/** Maximum length for deck/card name fields */
+	static readonly MAX_NAME_LENGTH = 256;
+	/** Valid deck id pattern: alphanumeric, hyphens, underscores only */
+	static readonly VALID_ID_PATTERN = /^[a-zA-Z0-9_-]+$/;
 	/**
 	 * Validate a complete deck definition
 	 */
@@ -60,6 +68,25 @@ export class DeckValidator {
 			}
 		}
 
+		// Validate id format and length
+		if (deck.id && typeof deck.id === 'string') {
+			if (deck.id.length > DeckValidator.MAX_ID_LENGTH) {
+				result.errors.push(`Deck id exceeds maximum length of ${DeckValidator.MAX_ID_LENGTH} characters`);
+				result.isValid = false;
+			} else if (!DeckValidator.VALID_ID_PATTERN.test(deck.id)) {
+				result.errors.push('Deck id must contain only alphanumeric characters, hyphens, and underscores');
+				result.isValid = false;
+			}
+		}
+
+		// Validate name length
+		if (deck.name && typeof deck.name === 'string') {
+			if (deck.name.length > DeckValidator.MAX_NAME_LENGTH) {
+				result.errors.push(`Deck name exceeds maximum length of ${DeckValidator.MAX_NAME_LENGTH} characters`);
+				result.isValid = false;
+			}
+		}
+
 		// Check cards array
 		if (!Array.isArray(deck.cards)) {
 			result.errors.push('Missing or invalid required field: cards (must be array)');
@@ -92,6 +119,12 @@ export class DeckValidator {
 			result.errors.push(
 				`cardCount (${deck.cardCount}) doesn't match cards.length (${deck.cards.length})`
 			);
+			result.isValid = false;
+		}
+
+		// Hard cap on card count
+		if (deck.cardCount > DeckValidator.MAX_CARD_COUNT) {
+			result.errors.push(`cardCount exceeds maximum of ${DeckValidator.MAX_CARD_COUNT}`);
 			result.isValid = false;
 		}
 
@@ -158,6 +191,14 @@ export class DeckValidator {
 		const names = new Map<string, number[]>(); // name -> indices
 		
 		for (const card of deck.cards) {
+			// Check card name length
+			if (card.name.length > DeckValidator.MAX_NAME_LENGTH) {
+				result.errors.push(
+					`Card at index ${card.index} name exceeds maximum length of ${DeckValidator.MAX_NAME_LENGTH} characters`
+				);
+				result.isValid = false;
+			}
+
 			if (!names.has(card.name)) {
 				names.set(card.name, []);
 			}

@@ -4,6 +4,50 @@ import { DeckValidator } from './DeckValidator';
 import type JSZip from 'jszip';
 import type TarotPracticePlugin from '../main';
 
+/** Allowed image extensions for ZIP extraction */
+const ALLOWED_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp']);
+
+/**
+ * Sanitize and filter ZIP entries from the cards/ folder.
+ * - Skips directories
+ * - Enforces cards/ prefix containment (blocks path traversal)
+ * - Enforces image extension allowlist
+ * Returns safe { name, file } pairs ready for extraction.
+ */
+export function sanitizeAndFilterZipEntries(
+	zip: InstanceType<typeof JSZip>
+): Array<{ name: string; file: JSZip.JSZipObject }> {
+	const results: Array<{ name: string; file: JSZip.JSZipObject }> = [];
+
+	zip.folder('cards')?.forEach((relativePath, file) => {
+		if (file.dir) return;
+
+		// Normalize path separators and collapse any . or .. segments
+		const normalized = relativePath.replace(/\\/g, '/').split('/').reduce<string[]>((acc, seg) => {
+			if (seg === '' || seg === '.') return acc;
+			if (seg === '..') { acc.pop(); return acc; }
+			acc.push(seg);
+			return acc;
+		}, []).join('/');
+
+		// Must not be empty after normalization
+		if (!normalized) return;
+
+		// Must not escape cards/ (no leading ../ after normalization)
+		if (normalized.startsWith('../')) return;
+
+		// Extension allowlist
+		const ext = normalized.split('.').pop()?.toLowerCase() ?? '';
+		if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
+			return;
+		}
+
+		results.push({ name: normalized, file });
+	});
+
+	return results;
+}
+
 /**
  * Handles loading and installing deck definitions from files
  */
@@ -205,13 +249,8 @@ export class DeckLoader {
 			const vaultImagePath = `${templateBaseFolder}/Decks/${deckData.id}/cards`;
 			await this.plugin.app.vault.adapter.mkdir(vaultImagePath);
 			
-			// Get all files in cards/ folder
-			const imageFiles: Array<{ name: string; file: JSZip.JSZipObject }> = [];
-			zip.folder('cards')?.forEach((relativePath, file) => {
-				if (!file.dir) {
-					imageFiles.push({ name: relativePath, file });
-				}
-			});
+			// Get all files in cards/ folder — sanitized and filtered
+			const imageFiles = sanitizeAndFilterZipEntries(zip);
 			
 			// Extract each image to vault
 			for (const { name, file } of imageFiles) {
@@ -265,6 +304,11 @@ export class DeckLoader {
 			throw new Error(`Deck "${deck.name}" does not have a source URL`);
 		}
 
+		// Constrain to HTTPS to prevent requests to arbitrary protocols
+		if (!deck.sourceUrl.startsWith('https://')) {
+			throw new Error(`Deck source URL must use HTTPS: ${deck.sourceUrl}`);
+		}
+
 		new Notice(`Downloading deck images for "${deck.name}"...`);
 
 		try {
@@ -292,13 +336,8 @@ export class DeckLoader {
 			// Create directory
 			await adapter.mkdir(vaultImagePath);
 			
-			// Get all files in cards/ folder
-			const imageFiles: Array<{ name: string; file: JSZip.JSZipObject }> = [];
-			zip.folder('cards')?.forEach((relativePath, file) => {
-				if (!file.dir) {
-					imageFiles.push({ name: relativePath, file });
-				}
-			});
+			// Get all files in cards/ folder — sanitized and filtered
+			const imageFiles = sanitizeAndFilterZipEntries(zip);
 			
 			if (imageFiles.length === 0) {
 				throw new Error('No images found in ZIP archive');

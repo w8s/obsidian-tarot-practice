@@ -86,4 +86,75 @@ describe('DeckValidator', () => {
 			expect(result.isValid).toBe(true);
 		});
 	});
+
+	describe('deck id validation', () => {
+		test('rejects id exceeding max length', () => {
+			const deck = { ...validDeck, id: 'a'.repeat(DeckValidator.MAX_ID_LENGTH + 1) };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+			expect(result.errors.some(e => e.includes('id') && e.includes('length'))).toBe(true);
+		});
+
+		test('accepts id at exactly max length', () => {
+			const deck = { ...validDeck, id: 'a'.repeat(DeckValidator.MAX_ID_LENGTH) };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(true);
+		});
+
+		test('rejects id with spaces', () => {
+			const deck = { ...validDeck, id: 'my deck' };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+			expect(result.errors.some(e => e.includes('alphanumeric'))).toBe(true);
+		});
+
+		test('rejects id with path separators', () => {
+			const deck = { ...validDeck, id: '../evil' };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+		});
+
+		test('rejects id with special characters', () => {
+			const deck = { ...validDeck, id: 'deck<script>' };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+		});
+
+		test('accepts id with hyphens and underscores', () => {
+			const deck = { ...validDeck, id: 'my-deck_v2' };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(true);
+		});
+	});
+
+	describe('field length caps', () => {
+		test('rejects deck name exceeding max length', () => {
+			const deck = { ...validDeck, name: 'a'.repeat(DeckValidator.MAX_NAME_LENGTH + 1) };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+			expect(result.errors.some(e => e.includes('name') && e.includes('length'))).toBe(true);
+		});
+
+		test('rejects card name exceeding max length', () => {
+			const deck = {
+				...validDeck,
+				cards: validDeck.cards.map((c, i) =>
+					i === 0 ? { ...c, name: 'a'.repeat(DeckValidator.MAX_NAME_LENGTH + 1) } : c
+				)
+			};
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+			expect(result.errors.some(e => e.includes('name') && e.includes('length'))).toBe(true);
+		});
+	});
+
+	describe('card count cap', () => {
+		test('rejects cardCount exceeding max', () => {
+			// Build a deck that claims more cards than allowed
+			const deck = { ...validDeck, cardCount: DeckValidator.MAX_CARD_COUNT + 1 };
+			const result = DeckValidator.validate(deck);
+			expect(result.isValid).toBe(false);
+			expect(result.errors.some(e => e.includes('cardCount') && e.includes('maximum'))).toBe(true);
+		});
+	});
 });
