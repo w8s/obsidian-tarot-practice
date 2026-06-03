@@ -1,26 +1,44 @@
 import { Notice, requestUrl } from 'obsidian';
 import type { DeckDefinition } from '../types/deck';
 import { DeckValidator } from './DeckValidator';
-import type JSZip from 'jszip';
+import { unzip } from 'fflate';
 import type TarotPracticePlugin from '../main';
 
 /** Allowed image extensions for ZIP extraction */
 const ALLOWED_IMAGE_EXTENSIONS = new Set(['jpg', 'jpeg', 'png', 'gif', 'webp']);
 
 /**
+ * Promisify fflate's callback-based unzip for async use.
+ */
+function loadZip(data: Uint8Array): Promise<Record<string, Uint8Array>> {
+	return new Promise((resolve, reject) => {
+		unzip(data, (err, files) => {
+			if (err) reject(err);
+			else resolve(files);
+		});
+	});
+}
+
+/**
  * Sanitize and filter ZIP entries from the cards/ folder.
- * - Skips directories
  * - Enforces cards/ prefix containment (blocks path traversal)
  * - Enforces image extension allowlist
- * Returns safe { name, file } pairs ready for extraction.
+ * Returns safe { name, data } pairs ready for extraction.
  */
 export function sanitizeAndFilterZipEntries(
-	zip: InstanceType<typeof JSZip>
-): Array<{ name: string; file: JSZip.JSZipObject }> {
-	const results: Array<{ name: string; file: JSZip.JSZipObject }> = [];
+	files: Record<string, Uint8Array>
+): Array<{ name: string; data: Uint8Array }> {
+	const results: Array<{ name: string; data: Uint8Array }> = [];
 
-	zip.folder('cards')?.forEach((relativePath, file) => {
-		if (file.dir) return;
+	for (const [path, data] of Object.entries(files)) {
+		// Only process entries inside cards/
+		if (!path.startsWith('cards/')) continue;
+
+		// Strip the cards/ prefix to get the relative name
+		const relativePath = path.slice('cards/'.length);
+
+		// Skip directory markers (empty name or trailing slash)
+		if (!relativePath || relativePath.endsWith('/')) continue;
 
 		// Normalize path separators and collapse any . or .. segments
 		const normalized = relativePath.replace(/\\/g, '/').split('/').reduce<string[]>((acc, seg) => {
@@ -31,19 +49,17 @@ export function sanitizeAndFilterZipEntries(
 		}, []).join('/');
 
 		// Must not be empty after normalization
-		if (!normalized) return;
+		if (!normalized) continue;
 
 		// Must not escape cards/ (no leading ../ after normalization)
-		if (normalized.startsWith('../')) return;
+		if (normalized.startsWith('../')) continue;
 
 		// Extension allowlist
 		const ext = normalized.split('.').pop()?.toLowerCase() ?? '';
-		if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) {
-			return;
-		}
+		if (!ALLOWED_IMAGE_EXTENSIONS.has(ext)) continue;
 
-		results.push({ name: normalized, file });
-	});
+		results.push({ name: normalized, data });
+	}
 
 	return results;
 }
@@ -218,45 +234,37 @@ export class DeckLoader {
 	 * deck.json is stored in: .obsidian/plugins/tarot-practice/decks/{deck-id}/
 	 */
 	async installFromZIP(file: File): Promise<DeckDefinition> {
-		// Dynamically import JSZip
-		const JSZip = (await import('jszip')).default;
-		
-		// Load ZIP file
-		const zip = await JSZip.loadAsync(file);
-		
+		// Load and parse ZIP asynchronously (non-blocking for larger decks)
+		const buffer = await file.arrayBuffer();
+		const zip = await loadZip(new Uint8Array(buffer));
+
 		// Find deck.json
-		const deckJsonFile = zip.file('deck.json');
-		if (!deckJsonFile) {
+		const deckJsonBytes = zip['deck.json'];
+		if (!deckJsonBytes) {
 			throw new Error('ZIP must contain deck.json in root');
 		}
-		
-		// Read and parse deck.json to get deck ID
-		const jsonContent = await deckJsonFile.async('text');
+
+		// Decode deck.json to get deck ID
+		const jsonContent = new TextDecoder().decode(deckJsonBytes);
 		const deckData = JSON.parse(jsonContent) as { id: string };
-		
+
 		// Install deck with image extraction callback
 		return await this.installDeck(jsonContent, async (_deckPath) => {
-			// Extract images from cards/ folder if present
-			const cardsFolder = zip.folder('cards');
-			if (!cardsFolder) {
-				return; // No images to extract
-			}
-			
+			// Get sanitized image entries from cards/ folder
+			const imageFiles = sanitizeAndFilterZipEntries(zip);
+			if (imageFiles.length === 0) return; // No images to extract
+
 			// Get template base folder from settings
 			const templateBaseFolder = this.plugin.settings.templateBaseFolder || 'Templates/Tarot';
-			
+
 			// Extract images to vault: {templateBaseFolder}/Decks/{deck-id}/cards/
 			const vaultImagePath = `${templateBaseFolder}/Decks/${deckData.id}/cards`;
 			await this.plugin.app.vault.adapter.mkdir(vaultImagePath);
-			
-			// Get all files in cards/ folder — sanitized and filtered
-			const imageFiles = sanitizeAndFilterZipEntries(zip);
-			
-			// Extract each image to vault
-			for (const { name, file } of imageFiles) {
-				const imageData = await file.async('uint8array');
+
+			// Write each image to vault
+			for (const { name, data } of imageFiles) {
 				const imagePath = `${vaultImagePath}/${name}`;
-				await this.plugin.app.vault.adapter.writeBinary(imagePath, imageData);
+				await this.plugin.app.vault.adapter.writeBinary(imagePath, data);
 			}
 		});
 	}
@@ -314,40 +322,34 @@ export class DeckLoader {
 		try {
 			// Download the ZIP file using Obsidian's requestUrl
 			const response = await requestUrl({ url: deck.sourceUrl });
-			const arrayBuffer = response.arrayBuffer;
-			const file = new File([arrayBuffer], `${deck.id}.zip`, { type: 'application/zip' });
-
-			// Dynamically import JSZip
-			const JSZip = (await import('jszip')).default;
-			const zip = await JSZip.loadAsync(file);
+			const zip = await loadZip(new Uint8Array(response.arrayBuffer));
 
 			// Get template base folder from settings
 			const templateBaseFolder = this.plugin.settings.templateBaseFolder || 'Templates/Tarot';
-			
+
 			// Extract images to vault: {templateBaseFolder}/Decks/{deck-id}/cards/
 			const vaultImagePath = `${templateBaseFolder}/Decks/${deck.id}/cards`;
-			
+
 			// Remove existing images if present
 			const adapter = this.plugin.app.vault.adapter;
 			if (await adapter.exists(vaultImagePath)) {
 				await adapter.rmdir(vaultImagePath, true);
 			}
-			
+
 			// Create directory
 			await adapter.mkdir(vaultImagePath);
-			
+
 			// Get all files in cards/ folder — sanitized and filtered
 			const imageFiles = sanitizeAndFilterZipEntries(zip);
-			
+
 			if (imageFiles.length === 0) {
 				throw new Error('No images found in ZIP archive');
 			}
-			
-			// Extract each image to vault
-			for (const { name, file } of imageFiles) {
-				const imageData = await file.async('uint8array');
+
+			// Write each image to vault
+			for (const { name, data } of imageFiles) {
 				const imagePath = `${vaultImagePath}/${name}`;
-				await adapter.writeBinary(imagePath, imageData);
+				await adapter.writeBinary(imagePath, data);
 			}
 
 			new Notice(`Restored ${imageFiles.length} images for "${deck.name}"`);
