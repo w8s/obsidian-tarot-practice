@@ -18,13 +18,7 @@ export class ConfirmModal extends Modal {
 		
 		contentEl.createEl('p', { text: this.message });
 
-		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
-		buttonContainer.setCssProps({
-			display: 'flex',
-			justifyContent: 'flex-end',
-			gap: '8px',
-			marginTop: '16px'
-		});
+		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-row' });
 
 		// Cancel button
 		buttonContainer.createEl('button', { text: 'Cancel' })
