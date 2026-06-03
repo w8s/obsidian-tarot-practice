@@ -24,7 +24,7 @@ export class SpreadExportFormatModal extends Modal {
 		const buttonContainer = contentEl.createDiv({ cls: 'modal-button-container' });
 		
 		const zipButton = buttonContainer.createEl('button', { 
-			// eslint-disable-next-line obsidianmd/ui/sentence-case
+			// eslint-disable-next-line obsidianmd/ui/sentence-case -- button label includes acronym; sentence-case would misrepresent it
 			text: 'ZIP with template', 
 			cls: 'mod-cta' 
 		});

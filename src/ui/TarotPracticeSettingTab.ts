@@ -106,7 +106,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 				.setName('Daily note path pattern')
 				.setDesc('pattern for daily notes (e.g., YYYY-MM-DD.md or daily notes/YYYY-MM-DD.md)')
 				.addText(text => text
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
+					// eslint-disable-next-line obsidianmd/ui/sentence-case -- placeholder is a format pattern, not a sentence
 					.setPlaceholder('YYYY-MM-DD.md')
 					.setValue(this.plugin.settings.dailyNotePathPattern)
 					.onChange(async (value) => {
@@ -183,7 +183,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 			new Setting(containerEl)
 				.setName('Upright indicator')
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
+				// eslint-disable-next-line obsidianmd/ui/sentence-case -- intentional lowercase per Obsidian UI style for short descriptive phrases
 				.setDesc('text to append for upright cards (leave empty for none)')
 				.addText(text => text
 					.setPlaceholder('')
@@ -195,10 +195,10 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 
 			new Setting(containerEl)
 				.setName('Reversed indicator')
-				// eslint-disable-next-line obsidianmd/ui/sentence-case
+				// eslint-disable-next-line obsidianmd/ui/sentence-case -- intentional lowercase per Obsidian UI style for short descriptive phrases
 				.setDesc('text to append for reversed cards')
 				.addText(text => text
-					// eslint-disable-next-line obsidianmd/ui/sentence-case
+					// eslint-disable-next-line obsidianmd/ui/sentence-case -- placeholder mirrors the setting description style
 					.setPlaceholder('reversed')
 					.setValue(this.plugin.settings.reversedIndicator)
 					.onChange(async (value) => {
@@ -756,7 +756,7 @@ export class TarotPracticeSettingTab extends PluginSettingTab {
 		const json = JSON.stringify(exampleSpread, null, 2);
 		const blob = new Blob([json], { type: 'application/json' });
 		this.downloadBlob(blob, 'example-three-card.json');
-		// eslint-disable-next-line obsidianmd/ui/sentence-case
+		// eslint-disable-next-line obsidianmd/ui/sentence-case -- Notice text uses mid-sentence reference to a UI label; capitalising would be inconsistent
 		new Notice('Example spread exported! Edit and import via "Import spread".');
 	}
 
