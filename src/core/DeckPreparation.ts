@@ -43,7 +43,7 @@ export async function prepareDeck(
 		wasCut = true;
 		
 		// Use intention to get cut percentage (1-100)
-		// eslint-disable-next-line @typescript-eslint/await-thenable
+		// eslint-disable-next-line @typescript-eslint/await-thenable -- rngi.draw() is async but its return type is not recognized as a Promise by the linter due to rng-with-intention type definitions
 		const cutResult = await rngi.draw(`${intention}-${timestamp}-cut`, 100);
 		const cutBase = cutResult.index + 1; // 1-100
 		cutBasePercent = cutBase;
@@ -80,7 +80,7 @@ async function fisherYatesShuffle(array: number[], seed: string, rngi: RngWithIn
 	const shuffled = [...array];
 	for (let i = shuffled.length - 1; i > 0; i--) {
 		// Use RNG to pick a position from 0 to i
-		// eslint-disable-next-line @typescript-eslint/await-thenable
+		// eslint-disable-next-line @typescript-eslint/await-thenable -- rngi.draw() is async but its return type is not recognized as a Promise by the linter due to rng-with-intention type definitions
 		const result = await rngi.draw(`${seed}-${i}`, i + 1);
 		const j = result.index;
 		// Swap elements (with type safety)
