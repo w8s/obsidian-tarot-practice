@@ -1,6 +1,7 @@
 import { Notice } from 'obsidian';
 import type { Spread } from './spreads';
 import { SpreadValidator } from './SpreadValidator';
+import { unzipSync, zipSync, strToU8, strFromU8 } from 'fflate';
 import type TarotPracticePlugin from '../main';
 
 /**
@@ -169,45 +170,41 @@ export class SpreadLoader {
 	 * spread.json is stored in: .obsidian/plugins/tarot-practice/spreads/{spread-id}/
 	 */
 	async installFromZIP(file: File): Promise<Spread> {
-		// Dynamically import JSZip
-		const JSZip = (await import('jszip')).default;
-		
-		// Load ZIP file
-		const zip = await JSZip.loadAsync(file);
-		
+		// Spread ZIPs are always small (JSON + markdown) — sync is fine
+		const buffer = await file.arrayBuffer();
+		const zip = unzipSync(new Uint8Array(buffer));
+
 		// Find spread.json
-		const spreadJsonFile = zip.file('spread.json');
-		if (!spreadJsonFile) {
+		const spreadJsonBytes = zip['spread.json'];
+		if (!spreadJsonBytes) {
 			throw new Error('ZIP must contain spread.json in root');
 		}
-		
-		// Read and parse spread.json to get spread ID
-		const jsonContent = await spreadJsonFile.async('text');
+
+		// Decode spread.json
+		const jsonContent = strFromU8(spreadJsonBytes);
 		const spreadData = JSON.parse(jsonContent) as { id: string };
-		
+
 		// Install spread with template extraction callback
 		return await this.installSpread(jsonContent, async (spreadPath) => {
 			// Extract template.md if present
-			const templateFile = zip.file('template.md');
-			if (!templateFile) {
-				return; // No template to extract
-			}
-			
+			const templateBytes = zip['template.md'];
+			if (!templateBytes) return; // No template to extract
+
 			// Get template base folder from settings
 			const templateBaseFolder = this.plugin.settings.templateBaseFolder || 'Templates/Tarot';
-			
+
 			// Extract template to vault: {templateBaseFolder}/Spreads/{spread-id}/template.md
 			const vaultTemplatePath = `${templateBaseFolder}/Spreads/${spreadData.id}`;
 			await this.plugin.app.vault.adapter.mkdir(vaultTemplatePath);
-			
-			// Extract template file
-			const templateContent = await templateFile.async('text');
+
+			// Write template file
+			const templateContent = strFromU8(templateBytes);
 			const templatePath = `${vaultTemplatePath}/template.md`;
 			await this.plugin.app.vault.adapter.write(templatePath, templateContent);
-			
+
 			// Update spread.json to point to extracted template
 			const spread = JSON.parse(jsonContent) as Spread;
-			spread.templatePath = `${vaultTemplatePath}/template.md`;
+			spread.templatePath = templatePath;
 			const updatedJson = JSON.stringify(spread, null, 2);
 			const jsonPath = `${spreadPath}/spread.json`;
 			await this.plugin.app.vault.adapter.write(jsonPath, updatedJson);
@@ -269,27 +266,25 @@ export class SpreadLoader {
 		}
 		
 		// Export as ZIP with template
-		const JSZip = (await import('jszip')).default;
-		const zip = new JSZip();
-		
-		// Add spread.json
 		const json = JSON.stringify(spreadData, null, 2);
-		zip.file('spread.json', json);
-		
+		const zipFiles: Record<string, Uint8Array> = {
+			'spread.json': strToU8(json)
+		};
+
 		// Add template.md if it exists
 		try {
 			const adapter = this.plugin.app.vault.adapter;
 			if (await adapter.exists(spread.templatePath)) {
 				const templateContent = await adapter.read(spread.templatePath);
-				zip.file('template.md', templateContent);
+				zipFiles['template.md'] = strToU8(templateContent);
 			}
 		} catch (error) {
 			console.warn('Failed to read template for export:', error);
 			// Continue without template
 		}
-		
-		// Generate ZIP blob
-		const zipBlob = await zip.generateAsync({ type: 'blob' });
+
+		// Generate ZIP blob (sync — content is always small)
+		const zipBlob = new Blob([zipSync(zipFiles)], { type: 'application/zip' });
 		return {
 			blob: zipBlob,
 			filename: `${spread.id}.zip`
