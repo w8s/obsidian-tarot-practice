@@ -42,8 +42,6 @@ export class SpreadValidator {
 		this.validateId(s as Spread, result);
 		this.validatePositions(s as Spread, result);
 		this.validateShuffleSettings(s as Spread, result);
-		this.validateOptionalFields(s as Spread, result);
-
 		return result;
 	}
 
@@ -188,26 +186,4 @@ export class SpreadValidator {
 		}
 	}
 
-	private static validateOptionalFields(
-		spread: Spread,
-		result: ValidationResult
-	): void {
-		// Check metadata if present
-		if ('metadata' in spread) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-			const metadata = (spread as any).metadata;
-			
-			if (metadata && typeof metadata === 'object') {
-				// Recommend metadata fields
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				if (!metadata.author) {
-					result.warnings.push('Consider adding metadata.author for attribution');
-				}
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				if (!metadata.tradition) {
-					result.warnings.push('Consider adding metadata.tradition (e.g., "tarot", "oracle")');
-				}
-			}
-		}
-	}
 }
