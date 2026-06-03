@@ -192,19 +192,17 @@ export class SpreadValidator {
 		spread: Spread,
 		result: ValidationResult
 	): void {
-		// Check metadata if present
-		if ('metadata' in spread) {
-			// eslint-disable-next-line @typescript-eslint/no-explicit-any, @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
-			const metadata = (spread as any).metadata;
-			
+		// Check metadata if present (not declared on Spread type but may exist on user-supplied spreads)
+		const spreadRecord = spread as unknown as Record<string, unknown>;
+		if ('metadata' in spreadRecord) {
+			const metadata = spreadRecord.metadata;
+
 			if (metadata && typeof metadata === 'object') {
-				// Recommend metadata fields
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				if (!metadata.author) {
+				const meta = metadata as Record<string, unknown>;
+				if (!meta.author) {
 					result.warnings.push('Consider adding metadata.author for attribution');
 				}
-				// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-				if (!metadata.tradition) {
+				if (!meta.tradition) {
 					result.warnings.push('Consider adding metadata.tradition (e.g., "tarot", "oracle")');
 				}
 			}
