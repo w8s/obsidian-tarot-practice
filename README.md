@@ -54,6 +54,14 @@ That's it! Customize settings later in Settings → Tarot Practice.
 
 ## Installation
 
+**Requires Obsidian 1.4.10 or later.**
+
+### From Community Plugins (Recommended)
+
+1. Open Settings → Community Plugins → Browse
+2. Search for "Tarot Practice"
+3. Install and enable
+
 ### Manual Installation
 
 1. Download `main.js`, `manifest.json`, and `styles.css` from the [latest release](https://github.com/w8s/obsidian-tarot-practice/releases)
@@ -237,6 +245,8 @@ Built with:
 - **[rng-with-intention](https://github.com/w8s/rng-with-intention)** - Intention-seeded randomness library
 - **[Obsidian API](https://github.com/obsidianmd/obsidian-api)** - Plugin development framework
 - **[Handlebars](https://handlebarsjs.com/)** - Templating engine
+- **[fflate](https://github.com/101arrowz/fflate)** - Fast, lightweight ZIP handling
+- **[Chart.js](https://www.chartjs.org/)** - Draw history statistics charts
 
 Special thanks to the Obsidian community for feedback and inspiration.
 
