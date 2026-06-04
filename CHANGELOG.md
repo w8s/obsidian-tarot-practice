@@ -7,6 +7,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.9.2] - 2026-06-03
+
+### Fixed
+- Replaced JSZip with fflate — eliminates `createElement("script")` false-positive security warning from the automated plugin scanner (closes #3); fflate is ESM-native with no polyfill dependencies
+- Removed dead code `SpreadValidator.validateOptionalFields()` — checked for a `metadata` field that is not declared on `Spread` and never set anywhere in the codebase (closes #8)
+- Replaced `setCssProps` inline styling in `ConfirmModal` with existing `.modal-button-row` CSS class (closes #4)
+- Added descriptions to all bare `eslint-disable` comments (closes #7)
+
+### Security
+- Deck importer input validation hardening (closes #2):
+  - ZIP path traversal blocked via path normalization in `sanitizeAndFilterZipEntries`
+  - Deck ID validated against alphanumeric/hyphen/underscore pattern and 64-char length cap
+  - `sourceUrl` constrained to HTTPS before `requestUrl()` call
+  - Extension allowlist enforced on all ZIP extraction paths (jpg, jpeg, png, gif, webp)
+  - Field length and card count caps added to `DeckValidator`
+
+### Changed
+- Updated `rng-with-intention` to v0.3.3, which ships TypeScript declarations — removes `await-thenable` ESLint suppressions from `DeckPreparation`
+- Trimmed README by half — Settings, Templates, and Custom Decks sections replaced with brief summaries pointing to docs
+- Added Obsidian minimum version requirement (1.4.10) to README Installation section
+
+### Dependencies
+- Replaced `jszip` with `fflate` (async `unzip` for deck ZIPs, sync `unzipSync`/`zipSync` for spread ZIPs)
+- Updated `minimatch` 3.1.2 → 3.1.5 (indirect, security)
+
 ## [1.9.1] - 2026-06-02
 
 ### Fixed
