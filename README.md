@@ -51,6 +51,10 @@ That's it! Customize settings later in Settings → Tarot Practice.
 
 **Additional decks:** Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks) repository
 
+## Privacy
+
+This plugin reads file paths in your vault to populate template and image folder selectors. No data leaves your device.
+
 ## Installation
 
 **Requires Obsidian 1.4.10 or later.**
