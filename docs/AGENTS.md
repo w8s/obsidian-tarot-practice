@@ -5,7 +5,7 @@ This document provides context for AI agents working on the Tarot Practice plugi
 ## Project Context
 
 **Purpose**: Obsidian plugin for tarot (and other divination) practice with intention-seeded randomness  
-**Current Version**: 1.9.0  
+**Current Version**: 1.9.2  
 **Tech Stack**: TypeScript, Obsidian API, rng-with-intention library, Handlebars, Chart.js, JSZip
 
 ## Key Design Principles
@@ -241,10 +241,11 @@ npm run test:coverage  # With coverage report
 1. Test on desktop (and mobile if applicable)
 2. Update `CHANGELOG.md`
 3. Bump versions in `manifest.json`, `package.json`, `versions.json`
-4. Commit: `git commit -m "Bump version to X.Y.Z"`
-5. Tag (no `v` prefix): `git tag X.Y.Z`
-6. Push: `git push origin main && git push origin X.Y.Z`
-7. CI automatically builds and creates GitHub release with artifacts
+4. If `manifest.json` description changed, sync GitHub repo description: `gh api repos/w8s/obsidian-tarot-practice -X PATCH -f description="..."`
+5. Commit: `git commit -m "Bump version to X.Y.Z"`
+6. Tag (no `v` prefix): `git tag X.Y.Z`
+7. Push: `git push origin main && git push origin X.Y.Z`
+8. CI automatically builds and creates GitHub release with artifacts
 
 See [Development Workflow](DEVELOPMENT-WORKFLOW.md) for full branching and release procedures.
 
