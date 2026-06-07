@@ -5,32 +5,33 @@ on:
     tags:
       - '*'
 
-permissions:
-  contents: write
-  id-token: write  # Required for artifact attestations
-  attestations: write  # Required for artifact attestations
+permissions: {}
 
 jobs:
   build:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-    
+    permissions:
+      contents: write
+      id-token: write      # Required for artifact attestations
+      attestations: write  # Required for artifact attestations
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Install dependencies
         run: npm ci
-      
+
       - name: Run tests
         run: npm test
-      
+
       - name: Build plugin
         run: npm run build
 
@@ -45,38 +46,35 @@ jobs:
       - name: Get version from manifest
         id: version
         run: echo "version=$(jq -r '.version' manifest.json)" >> $GITHUB_OUTPUT
-      
+
       - name: Extract changelog for this version
         id: changelog
         run: |
           VERSION="${{ steps.version.outputs.version }}"
           echo "Extracting changelog for version $VERSION"
-          
-          # Extract the section for this version from CHANGELOG.md
-          # Finds lines between ## [$VERSION] and the next ## [ or end of file
+
           awk "/## \[$VERSION\]/,/^## \[/" CHANGELOG.md | sed '1d;$d' > release_notes.md
-          
-          # Add installation instructions at the end
+
           cat >> release_notes.md << 'EOF'
-          
+
           ---
-          
+
           ## 📦 Installation
-          
+
           Download `main.js`, `manifest.json`, and `styles.css` below.
-          
+
           **Manual Installation:**
           1. Create folder `YourVault/.obsidian/plugins/tarot-practice/`
           2. Copy the three files into that folder
           3. Reload Obsidian (or restart)
           4. Enable "Tarot Practice" in Settings → Community Plugins
-          
+
           **Additional Decks:** Download from [obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks)
           EOF
-          
+
           echo "Release notes:"
           cat release_notes.md
-      
+
       - name: Create release
         uses: softprops/action-gh-release@v1
         with:

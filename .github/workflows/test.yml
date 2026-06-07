@@ -6,14 +6,14 @@ on:
   pull_request:
     branches: [ master, main ]
 
-# Explicit permissions following principle of least privilege
-permissions:
-  contents: read      # Read repository code
-  actions: write      # Upload artifacts
+permissions: {}
 
 jobs:
   test:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: write  # Upload coverage artifacts
     
     steps:
       - name: Checkout repository
