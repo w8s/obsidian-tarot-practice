@@ -243,7 +243,7 @@ npm run test:coverage  # With coverage report
 3. Bump versions in `manifest.json`, `package.json`, `versions.json`
 4. Commit: `git commit -m "Bump version to X.Y.Z"`
 5. Tag (no `v` prefix): `git tag X.Y.Z`
-6. Push: `git push origin master && git push origin X.Y.Z`
+6. Push: `git push origin main && git push origin X.Y.Z`
 7. CI automatically builds and creates GitHub release with artifacts
 
 See [Development Workflow](DEVELOPMENT-WORKFLOW.md) for full branching and release procedures.

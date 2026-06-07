@@ -18,7 +18,7 @@ git push origin 1.8.6
 
 ### 📝 When You Push to Master
 ```bash
-git push origin master
+git push origin main
 ```
 
 **GitHub Actions automatically:**
@@ -36,7 +36,7 @@ git push origin master
 2. ✅ Shows test results in PR
 3. ✅ Blocks merge if tests fail (optional)
 
-**Protects master branch from breaking changes!**
+**Protects main branch from breaking changes!**
 
 ## Viewing Test Results
 
@@ -71,7 +71,7 @@ Every run tests:
 - **Tests must pass or release is cancelled**
 
 ### `.github/workflows/test.yml`
-- Triggers: On push to master or PRs
+- Triggers: On push to main or PRs
 - Runs: Tests + Coverage
 - Saves: Coverage report as artifact
 

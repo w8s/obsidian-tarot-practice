@@ -6,8 +6,8 @@
 ```bash
 git checkout -b fix/bug-name
 # ... fix and test ...
-git checkout master && git merge fix/bug-name --no-ff
-git push origin master
+git checkout main && git merge fix/bug-name --no-ff
+git push origin main
 ```
 
 **With contributors:**
@@ -59,10 +59,10 @@ git commit -m "Fix: Deck validator crashes on empty cards array
 - Add test for empty array case
 - Fixes deck loading errors on malformed JSON"
 
-# 6. Merge to master
-git checkout master
+# 6. Merge to main
+git checkout main
 git merge fix/descriptive-name --no-ff
-git push origin master
+git push origin main
 
 # 7. Clean up
 git branch -d fix/descriptive-name
@@ -98,14 +98,14 @@ git checkout -b fix/issue-42-deck-validation
 # 3. Fix following "Fast Fix Flow" steps 2-5
 
 # 4. Merge with issue reference
-git checkout master
+git checkout main
 git merge fix/issue-42-deck-validation --no-ff
 git commit --amend -m "Fix #42: Deck validation crashes on empty cards array
 
 - Add null check for cards array
 - Add test for empty array case"
 
-git push origin master
+git push origin main
 
 # Issue #42 automatically closes when pushed
 ```
@@ -139,9 +139,9 @@ git push origin fix/issue-42-deck-validation
 # Select "Create a merge commit" (equivalent to --no-ff)
 # Delete branch via GitHub
 
-# 8. Pull master locally
-git checkout master
-git pull origin master
+# 8. Pull main locally
+git checkout main
+git pull origin main
 ```
 
 ---
@@ -203,7 +203,7 @@ Test: Add coverage for card drawing edge cases
 fix bug          # Which bug?
 update           # Update what?
 oops             # What was the mistake?
-WIP              # Don't commit WIP to master
+WIP              # Don't commit WIP to main
 ```
 
 ---
@@ -247,8 +247,8 @@ Follow [Semantic Versioning](https://semver.org/):
 ### Release Steps
 
 ```bash
-# 1. Ensure master is clean
-git checkout master
+# 1. Ensure main is clean
+git checkout main
 git status  # Should be clean
 
 # 2. Update CHANGELOG.md
@@ -264,7 +264,7 @@ git commit -m "Bump version to 1.8.7"
 
 # 5. Create and push tag
 git tag 1.8.7
-git push origin master
+git push origin main
 git push origin 1.8.7
 
 # 6. CI automatically:
@@ -344,9 +344,9 @@ git checkout -b fix/template-missing-vars
 # Fix the code
 npm test  # Passes
 git commit -m "Fix: Template crashes on missing variables"
-git checkout master
+git checkout main
 git merge fix/template-missing-vars --no-ff
-git push origin master
+git push origin main
 git branch -d fix/template-missing-vars
 ```
 
@@ -369,9 +369,9 @@ git commit -m "Fix #55: Mobile shuffle crashes on iOS 15
 Crypto API not available in older iOS WebViews.
 Added polyfill fallback for iOS <16."
 
-git checkout master
+git checkout main
 git merge fix/issue-55-ios15-shuffle --no-ff
-git push origin master
+git push origin main
 # Issue #55 auto-closes
 ```
 
@@ -390,7 +390,7 @@ git commit -m "Remove deprecated settings (BREAKING)
 - All users must migrate to new template format
 - Added automatic migration on first load"
 
-git checkout master
+git checkout main
 git merge feature/remove-deprecated-settings --no-ff
 
 # Update to v2.0.0 (major version bump)
@@ -399,7 +399,7 @@ git merge feature/remove-deprecated-settings --no-ff
 git add manifest.json CHANGELOG.md
 git commit -m "Bump version to 2.0.0"
 git tag 2.0.0
-git push origin master
+git push origin main
 git push origin 2.0.0
 ```
 
@@ -413,17 +413,17 @@ git push origin 2.0.0
 - Write descriptive commit messages
 - Add tests for bugs when possible
 - Test in Obsidian before merging
-- Keep master stable and deployable
+- Keep main stable and deployable
 - Tag releases with detailed notes
 
 ### ❌ Don't:
-- Commit directly to master
-- Push broken code to master
+- Commit directly to main
+- Push broken code to main
 - Merge without testing
 - Use vague commit messages
 - Delete branches until merged
 - Skip version bumps on releases
-- Force-push to master
+- Force-push to main
 
 ---
 
