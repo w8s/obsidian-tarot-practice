@@ -101,7 +101,7 @@ Configure deck management, shuffle behavior, templates, reversals, and spread op
 
 The plugin supports any divination system — oracle cards, runes, Lenormand, I Ching, playing cards, or anything you define. Free public domain decks (Elder Futhark Runes, Petit Lenormand, Playing Cards, I Ching) are available at **[obsidian-tarot-decks](https://github.com/w8s/obsidian-tarot-decks)**. Install any deck via Settings → Deck Management → "Add deck".
 
-For creating your own deck, see [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md).
+For creating your own deck, see [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/main/CREATING-DECKS.md).
 
 ## Templates
 

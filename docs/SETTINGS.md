@@ -117,7 +117,7 @@ When a deck is installed from ZIP:
 - Plugin resolves to full vault path at render time
 - Works with Obsidian's `![[image]]` syntax in templates
 
-See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/master/CREATING-DECKS.md) for complete documentation including:
+See [Creating Decks](https://github.com/w8s/obsidian-tarot-decks/blob/main/CREATING-DECKS.md) for complete documentation including:
 
 - JSON schema and validation rules
 - ZIP packaging guidelines
