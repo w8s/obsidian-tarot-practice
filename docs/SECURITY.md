@@ -296,7 +296,7 @@ GitHub's CodeQL scans for:
 **Setup:** Add to `.github/workflows/codeql.yml`
 
 **Frequency:** Runs on:
-- Every push to master
+- Every push to main
 - Every pull request
 - Weekly schedule
 
